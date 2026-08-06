@@ -1,7 +1,5 @@
 # Tripwire
 
-[![Product Quality](https://github.com/chinnuteja/datahub-tripwire/actions/workflows/quality.yml/badge.svg)](https://github.com/chinnuteja/datahub-tripwire/actions/workflows/quality.yml)
-
 > **DataHub maps the organism. Tripwire gives it an immune system.**
 
 Tripwire is an adaptive change-safety agent for data, ML, and AI systems. It uses
