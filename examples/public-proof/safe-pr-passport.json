@@ -97,7 +97,7 @@
   },
   "evaluations": [
     {
-      "completed_at": "2026-08-06T18:31:22.367298Z",
+      "completed_at": "2026-08-06T19:32:41.156929Z",
       "consumer": {
         "display_name": "Fraud Logistic Rule",
         "environment": "PROD",
@@ -110,14 +110,17 @@
       "evaluator_version": "fraud-behavior-evaluator/1.0.0",
       "kind": "model",
       "observations": {
-        "changed_transaction_ids": []
+        "changed_transaction_ids": [],
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "replayed_rows": 12
       },
-      "started_at": "2026-08-06T18:31:22.367193Z",
+      "started_at": "2026-08-06T19:32:41.156697Z",
       "status": "passed",
       "summary": "Model behavior is identical for every replayed transaction."
     },
     {
-      "completed_at": "2026-08-06T18:31:22.367336Z",
+      "completed_at": "2026-08-06T19:32:41.157015Z",
       "consumer": {
         "display_name": "Fraud Review Agent",
         "environment": "PROD",
@@ -130,9 +133,13 @@
       "evaluator_version": "fraud-behavior-evaluator/1.0.0",
       "kind": "agent",
       "observations": {
-        "changed_transaction_ids": []
+        "agent_version": "fraud-review-agent/1.0.0",
+        "changed_transaction_ids": [],
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "replayed_rows": 12
       },
-      "started_at": "2026-08-06T18:31:22.367193Z",
+      "started_at": "2026-08-06T19:32:41.156697Z",
       "status": "passed",
       "summary": "Agent decisions are identical for every replayed transaction."
     }
@@ -208,19 +215,19 @@
     "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
   },
   "run": {
-    "commit_sha": "9b635e36b9f66705dc3dcfda36a04bf42db043b3",
-    "created_at": "2026-08-06T18:31:22.366960Z",
+    "commit_sha": "1bb623ae5bc1df16f60b566b15d4eb1f02e1ac78",
+    "created_at": "2026-08-06T19:32:41.156465Z",
     "input_hashes": {
-      "baseline_output_hash": "689ceb206c5bb3afd7213447b0103a67dbf29ff4d1ae85914b6fa9cb8c77abd3",
+      "baseline_output_hash": "2576780c668cd6f487ae91d9167643af0d529f269312fa4292db060276b7eab6",
       "candidate": "675e1669fc2729afe86822d380ead4ca19f8958bec2b74a0877957119d0b244d",
       "candidate_error": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
-      "candidate_output_hash": "121a518b182f2533b31bdab9403008aa2c443ed7e19a3364e107eb2e51579cc3",
+      "candidate_output_hash": "f5a1c15a480aa1bbea5867e63ec23a5e9236bb7b899c451c21f729a5023c8e4d",
       "change_facts": "5f4fe0325a0c5356a86a10a36bf0fd70d8c094bd6ab717b4b05833d23e7ac437",
       "context": "8edcc67558264197e5381ec67f02b3af7bfe623bed9fcb8e80e931c6c7ef142e",
       "resolved_entity": "cb4c3772b46e35617e05bd440ac734515fe744b91d0bed0b0226115d592ddebd"
     },
     "policy_version": "tripwire-policy/1.0.0",
-    "run_id": "tw_f8812874d557377ecb850d16",
+    "run_id": "tw_901fa9d4429885dd4695408d",
     "tool_versions": {
       "datahub-sdk": "1.7.0",
       "duckdb": "1.5.5",

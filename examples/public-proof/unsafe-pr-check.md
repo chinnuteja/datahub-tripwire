@@ -1,7 +1,7 @@
 # Blocked: executed evidence found a critical behavior change
 
 **Verdict:** `UNSAFE`
-**Run:** `tw_bbed61fa4e9236d3a1956448`
+**Run:** `tw_212fe93056c76165d3f46a85`
 **Context coverage:** `complete`
 **Critical evaluations:** 0 passed · 2 failed · 0 unresolved
 
@@ -16,6 +16,12 @@
 - Unresolved context gaps: **0**
 - Lineage frontier complete: **yes**
 
+## Executed consumer identity
+
+- Model version: `fraud-risk-calibrator/2.0.0`
+- Model artifact SHA-256: `7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6`
+- Rows replayed: **12**
+
 ## Required review routing
 
 - **Fraud Platform Team** (`urn:li:corpuser:fraud-platform`) — 1 affected asset(s)
@@ -25,7 +31,7 @@
 Transaction `TX-009` reproduces the failure.
 
 - Violated invariant: Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.
-- Replay hash: `7769841c9ea349552c36d7e48e8e38f51a22cc1807c8dab0b931b84547bce78a`
+- Replay hash: `3ba94da21c5dcf2a524ec048f64d5e0347474f9576c4f05e7aa587693b61422d`
 - Minimization: 2 accepted of 5 attempted simplifications.
 - Full before/after observations are preserved in the Change Passport.
 
@@ -39,9 +45,9 @@ Transaction `TX-009` reproduces the failure.
 **Status:** `verified`
 Restore the baseline null-handling semantics; Tripwire replayed the repair and recovered identical model predictions and agent decisions.
 
-- Remediation: `fix_1f2883b353f78e0b`
+- Remediation: `fix_a96e28cd15f2fb34`
 - Restored evaluations: model-1, agent-2
-- Fixed output hash: `79f83b0cf28a2dad9719457157bcf6a4515c2fd24205fbc25c6143e08c887af2`
+- Fixed output hash: `8558cf238067c25ace8504edbb456633bfc9d78703eb49f76ec92c7098c82132`
 
 ```diff
 --- candidate.sql

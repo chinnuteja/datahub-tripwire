@@ -1,7 +1,7 @@
 # Passed within the evaluated scope
 
 **Verdict:** `SAFE_WITHIN_SCOPE`
-**Run:** `tw_f8812874d557377ecb850d16`
+**Run:** `tw_901fa9d4429885dd4695408d`
 **Context coverage:** `complete`
 **Critical evaluations:** 2 passed · 0 failed · 0 unresolved
 
@@ -15,6 +15,12 @@
 - Critical consumers evaluated: **2/2**
 - Unresolved context gaps: **0**
 - Lineage frontier complete: **yes**
+
+## Executed consumer identity
+
+- Model version: `fraud-risk-calibrator/2.0.0`
+- Model artifact SHA-256: `7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6`
+- Rows replayed: **12**
 
 ## Required review routing
 

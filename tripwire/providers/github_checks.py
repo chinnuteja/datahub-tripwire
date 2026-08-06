@@ -153,6 +153,27 @@ def render_check_markdown(passport: ChangePassport) -> str:
             ]
         )
 
+    executed_model = next(
+        (
+            evaluation
+            for evaluation in passport.evaluations
+            if "model_artifact_hash" in evaluation.observations
+        ),
+        None,
+    )
+    if executed_model is not None:
+        observations = executed_model.observations
+        lines.extend(
+            [
+                "",
+                "## Executed consumer identity",
+                "",
+                f"- Model version: `{observations['model_version']}`",
+                f"- Model artifact SHA-256: `{observations['model_artifact_hash']}`",
+                f"- Rows replayed: **{observations['replayed_rows']}**",
+            ]
+        )
+
     if passport.owner_routes:
         grouped: dict[tuple[str, str], set[str]] = {}
         for route in passport.owner_routes:

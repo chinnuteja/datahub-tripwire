@@ -24,6 +24,7 @@ from tripwire.providers.github_checks import (
 )
 
 EXAMPLES = Path("examples/learned-loop")
+PUBLIC_PROOF = Path("examples/public-proof")
 
 
 def _passport(filename: str = "01-unsafe-semantic-passport.json") -> ChangePassport:
@@ -84,6 +85,18 @@ def test_report_exposes_scope_owner_routing_and_verified_fix() -> None:
     assert "Fraud Platform Team" in report
     assert "Executed remediation" in report
     assert "COALESCE(device_age_days, 0)" in report
+
+
+def test_report_exposes_the_executed_model_artifact() -> None:
+    passport = ChangePassport.model_validate_json(
+        (PUBLIC_PROOF / "unsafe-pr-passport.json").read_text(encoding="utf-8")
+    )
+
+    report = render_check_markdown(passport)
+
+    assert "fraud-risk-calibrator/2.0.0" in report
+    assert "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6" in report
+    assert "Rows replayed: **12**" in report
 
 
 @pytest.mark.parametrize(
