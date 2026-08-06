@@ -32,7 +32,7 @@ The [proof-bundle index](examples/README.md) explains every judge-visible artifa
 dbt/SQL change
   → DataHub MCP context and lineage
   → DuckDB baseline/candidate execution
-  → fraud feature and deterministic ML model replay
+  → fraud feature and hash-pinned logistic model artifact replay
   → Fraud Review Agent behavior replay
   → evidence-backed GitHub verdict
   → DataHub Change Passport and reusable protection
@@ -49,6 +49,12 @@ The headline demo includes both an unsafe and a safe change, plus a second relat
 change that is caught by a protection learned from the first. The live path uses a
 real, seeded DataHub graph and genuine MCP reads; offline snapshots are test fixtures,
 not substitutes for the judge-facing integration.
+
+The model consumer is an executable, typed logistic-regression artifact—not a mocked
+API or an inline risk condition. Its version, coefficient contract, decision threshold,
+and SHA-256 identity are recorded with every replay. DataHub stores the same artifact
+identity on the model and deployment, connecting graph context to the code that actually
+produced the evidence.
 
 ## Run the verified vertical slice
 

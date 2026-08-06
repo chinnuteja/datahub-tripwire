@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "model_version": "fraud-risk-calibrator/2.0.0",
+  "model_family": "logistic_regression",
+  "target": "fraud_probability",
+  "feature_order": [
+    "fraud_signal"
+  ],
+  "intercept": -1.747627376356112,
+  "coefficients": {
+    "fraud_signal": 3.9536984856568993
+  },
+  "decision_threshold": 0.62,
+  "probability_precision": 6,
+  "provenance": {
+    "purpose": "Deterministic probability calibration for the public Tripwire fraud vertical slice.",
+    "scoring_contract": "sigmoid(intercept + sum(coefficient[feature] * feature))",
+    "reproducibility": "All parameters and feature order are declared in this immutable JSON artifact; Tripwire records its SHA-256 digest with every prediction."
+  }
+}

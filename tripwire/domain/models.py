@@ -224,6 +224,7 @@ class FraudModelResult(FrozenModel):
     probability: float = Field(ge=0, le=1)
     predicted_fraud: bool
     model_version: str
+    model_artifact_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     threshold: float = Field(ge=0, le=1)
     feature_values: dict[str, float | int | bool | None]
 

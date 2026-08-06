@@ -2,8 +2,15 @@ from pathlib import Path
 
 import pytest
 
-from tripwire.demo.fraud import DemoBuild, build_demo_world
+from tripwire.demo.fraud import (
+    DEFAULT_MODEL_ARTIFACT,
+    DemoBuild,
+    DeterministicFraudModel,
+    build_demo_world,
+    load_model_artifact,
+)
 from tripwire.domain import AgentAction, AgentDecision
+from tripwire.provenance import sha256_file
 
 DEMO_DIR = Path("demo/fraud")
 
@@ -20,6 +27,28 @@ def test_baseline_is_byte_stable() -> None:
     assert first.features == second.features
     assert first.predictions == second.predictions
     assert first.decisions == second.decisions
+    assert first.model_artifact_hash == sha256_file(DEFAULT_MODEL_ARTIFACT)
+
+
+def test_model_executes_the_versioned_logistic_artifact() -> None:
+    artifact = load_model_artifact()
+    model = DeterministicFraudModel()
+    prediction = model.predict(
+        {
+            "transaction_id": "artifact-proof",
+            "fraud_signal": 0.62,
+            "amount_usd": 520.0,
+            "is_international": True,
+            "merchant_risk": "medium",
+            "device_age_days": None,
+            "chargeback_count_30d": 0,
+        }
+    )
+
+    assert artifact.model_family == "logistic_regression"
+    assert prediction.probability == pytest.approx(0.669)
+    assert prediction.model_version == artifact.model_version
+    assert prediction.model_artifact_hash == sha256_file(DEFAULT_MODEL_ARTIFACT)
 
 
 def test_semantic_regression_changes_real_model_and_agent_behavior() -> None:

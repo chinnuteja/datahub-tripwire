@@ -317,7 +317,12 @@ class AssessmentService:
                     if changed
                     else "Model behavior is identical for every replayed transaction."
                 )
-                observations = {"changed_transaction_ids": changed}
+                observations = {
+                    "changed_transaction_ids": changed,
+                    "replayed_rows": baseline.row_count,
+                    "model_version": baseline.model_version,
+                    "model_artifact_hash": baseline.model_artifact_hash,
+                }
             else:
                 changed = [
                     transaction_id
@@ -333,7 +338,13 @@ class AssessmentService:
                     if changed
                     else "Agent decisions are identical for every replayed transaction."
                 )
-                observations = {"changed_transaction_ids": changed}
+                observations = {
+                    "changed_transaction_ids": changed,
+                    "replayed_rows": baseline.row_count,
+                    "model_version": baseline.model_version,
+                    "model_artifact_hash": baseline.model_artifact_hash,
+                    "agent_version": baseline.agent_version,
+                }
             results.append(
                 EvaluationResult(
                     evaluation_id=f"{kind.value}-{index}",
