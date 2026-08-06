@@ -22,10 +22,14 @@ from tripwire.domain.models import (
     EvaluationStatus,
     FraudModelResult,
     LineagePath,
+    OwnerRoute,
     Protection,
     ProtectionStatus,
+    RemediationStatus,
     RunIdentity,
+    ScopeAccounting,
     Verdict,
+    VerifiedRemediation,
 )
 
 __all__ = [
@@ -50,8 +54,12 @@ __all__ = [
     "EvaluationStatus",
     "FraudModelResult",
     "LineagePath",
+    "OwnerRoute",
     "Protection",
     "ProtectionStatus",
+    "RemediationStatus",
     "RunIdentity",
+    "ScopeAccounting",
     "Verdict",
+    "VerifiedRemediation",
 ]

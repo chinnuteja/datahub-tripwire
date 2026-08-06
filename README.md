@@ -49,13 +49,42 @@ not substitutes for the judge-facing integration.
 
 ## Run the verified vertical slice
 
-Use Python 3.11-3.13, then install the locked development environment:
+### Judge quickstart with live DataHub
+
+Prerequisites: Python 3.11-3.13, `uv`, Docker with Compose, and enough free disk for
+DataHub's local containers. The bootstrap is idempotent and seeds only synthetic data.
+
+On Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/bootstrap-phase1.ps1
+```
+
+On Linux, macOS, or WSL:
+
+```bash
+bash scripts/bootstrap-phase1.sh
+```
+
+Both scripts install the locked environment, start DataHub v1.7.0, compile the exact dbt
+manifest, seed the fraud lineage graph, verify the official MCP tools, and trace the
+critical downstream consumers. No DataHub token is required for the default local stack.
+
+To run the steps manually, first install the locked development environment:
 
 ```powershell
 uv sync --extra dev
 ```
 
-The judge-facing path uses the live DataHub graph and official MCP server:
+Start and prepare the live stack:
+
+```powershell
+uv run datahub docker quickstart --version v1.7.0 --accept-version-default
+New-Item -ItemType Directory -Force artifacts/runtime | Out-Null
+uv run dbt build --project-dir demo/fraud --profiles-dir demo/fraud
+```
+
+Then use the live DataHub graph and official MCP server:
 
 ```powershell
 uv run tripwire datahub seed

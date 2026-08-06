@@ -6,7 +6,13 @@ from pathlib import Path
 import httpx
 import pytest
 
-from tripwire.domain import ChangePassport, Verdict
+from tripwire.domain import (
+    ChangePassport,
+    OwnerRoute,
+    ScopeAccounting,
+    Verdict,
+    VerifiedRemediation,
+)
 from tripwire.providers.github_checks import (
     GitHubChecksClient,
     GitHubRepository,
@@ -36,6 +42,48 @@ def test_unsafe_passport_renders_enforceable_concrete_report() -> None:
     assert "Transaction `TX-009` reproduces the failure" in report
     assert "Fraud Review Agent" in report
     assert "does not treat missing evidence as safe" in report
+
+
+def test_report_exposes_scope_owner_routing_and_verified_fix() -> None:
+    passport = _passport().model_copy(
+        update={
+            "scope_accounting": ScopeAccounting(
+                required_operations=3,
+                completed_operations=3,
+                critical_consumers_discovered=2,
+                critical_consumers_evaluated=2,
+                unresolved_gaps=0,
+                lineage_frontier_complete=True,
+            ),
+            "owner_routes": (
+                OwnerRoute(
+                    owner_urn="urn:li:corpuser:fraud-platform",
+                    display_name="Fraud Platform Team",
+                    source_entity_urn=_passport().coverage.critical_consumers[0].urn,
+                ),
+            ),
+            "remediation": VerifiedRemediation(
+                remediation_id="fix_0123456789abcdef",
+                summary="Restore null semantics and replay every critical consumer.",
+                change_fact_ids=("chg_0123456789abcdef",),
+                patch=(
+                    "@@ -1 +1 @@\n"
+                    "-COALESCE(device_age_days, 365)\n"
+                    "+COALESCE(device_age_days, 0)\n"
+                ),
+                fixed_output_hash="a" * 64,
+                restored_evaluations=("model-1", "agent-2"),
+            ),
+        }
+    )
+
+    report = render_check_markdown(passport)
+
+    assert "Metadata operations: **3/3**" in report
+    assert "Critical consumers evaluated: **2/2**" in report
+    assert "Fraud Platform Team" in report
+    assert "Executed remediation" in report
+    assert "COALESCE(device_age_days, 0)" in report
 
 
 @pytest.mark.parametrize(

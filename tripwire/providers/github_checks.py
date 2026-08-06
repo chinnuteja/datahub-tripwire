@@ -129,6 +129,42 @@ def render_check_markdown(passport: ChangePassport) -> str:
         *[f"- `{code}`" for code in passport.reason_codes],
     ]
 
+    if passport.scope_accounting is not None:
+        scope = passport.scope_accounting
+        lines.extend(
+            [
+                "",
+                "## Evidence coverage",
+                "",
+                (
+                    "- Metadata operations: "
+                    f"**{scope.completed_operations}/{scope.required_operations}**"
+                ),
+                (
+                    "- Critical consumers evaluated: "
+                    f"**{scope.critical_consumers_evaluated}/"
+                    f"{scope.critical_consumers_discovered}**"
+                ),
+                f"- Unresolved context gaps: **{scope.unresolved_gaps}**",
+                (
+                    "- Lineage frontier complete: **"
+                    f"{'yes' if scope.lineage_frontier_complete else 'no'}**"
+                ),
+            ]
+        )
+
+    if passport.owner_routes:
+        grouped: dict[tuple[str, str], set[str]] = {}
+        for route in passport.owner_routes:
+            grouped.setdefault((route.owner_urn, route.display_name), set()).add(
+                route.source_entity_urn
+            )
+        lines.extend(["", "## Required review routing", ""])
+        lines.extend(
+            f"- **{display_name}** (`{owner_urn}`) — {len(entities)} affected asset(s)"
+            for (owner_urn, display_name), entities in sorted(grouped.items())
+        )
+
     if passport.counterexample is not None:
         witness = passport.counterexample
         transaction_id = witness.transaction.get("transaction_id", witness.witness_id)
@@ -164,6 +200,26 @@ def render_check_markdown(passport: ChangePassport) -> str:
         lines.extend(
             f"- **{item.consumer.display_name}** — {item.summary}"
             for item in failed_evaluations
+        )
+
+    if passport.remediation is not None:
+        remediation = passport.remediation
+        lines.extend(
+            [
+                "",
+                "## Executed remediation",
+                "",
+                f"**Status:** `{remediation.status.value}`  ",
+                remediation.summary,
+                "",
+                f"- Remediation: `{remediation.remediation_id}`",
+                f"- Restored evaluations: {', '.join(remediation.restored_evaluations)}",
+                f"- Fixed output hash: `{remediation.fixed_output_hash}`",
+                "",
+                "```diff",
+                remediation.patch.rstrip(),
+                "```",
+            ]
         )
 
     if passport.limitations:
