@@ -1,0 +1,43 @@
+name: Product Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, types, tests, and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install locked environment
+        run: uv sync --frozen --extra dev
+      - name: Lint
+        run: uv run ruff check .
+      - name: Type check
+        run: uv run mypy tripwire
+      - name: Test with branch coverage
+        run: uv run pytest --cov=tripwire --cov-report=term-missing --cov-report=xml
+      - name: Build distributable package
+        run: uv build
+      - name: Preserve coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tripwire-coverage
+          path: coverage.xml
+          if-no-files-found: ignore
+
