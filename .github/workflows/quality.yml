@@ -40,4 +40,3 @@ jobs:
           name: tripwire-coverage
           path: coverage.xml
           if-no-files-found: ignore
-
