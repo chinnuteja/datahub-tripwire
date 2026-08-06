@@ -39,6 +39,8 @@ jobs:
           enable-cache: true
       - name: Install locked environment
         run: uv sync --frozen --extra dev
+      - name: Prepare isolated demo runtime
+        run: mkdir -p artifacts/runtime
       - name: Compile exact dbt manifest
         if: github.event_name == 'pull_request'
         run: uv run dbt compile --project-dir demo/fraud --profiles-dir demo/fraud
