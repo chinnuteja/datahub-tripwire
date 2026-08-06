@@ -30,6 +30,7 @@ select
     device_age_days,
     chargeback_count_30d,
     is_refunded,
-    round(greatest(0.0, least(1.0, raw_fraud_signal)), 6) as fraud_signal
+    round(greatest(0.0, least(1.0, raw_fraud_signal)), 6) as fraud_signal,
+    cast(null as varchar) as reviewer_note
 from scored
 order by transaction_id
