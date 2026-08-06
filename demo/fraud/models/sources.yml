@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: fct_fraud_features
+    description: Versioned fraud features consumed by the fraud model and review agent.
+    config:
+      meta:
+        owner: fraud-platform
+        criticality: production
+    columns:
+      - name: transaction_id
+        description: Stable public synthetic transaction identifier.
+        data_tests: [unique, not_null]
+      - name: fraud_signal
+        description: Deterministic feature score used by fraud-logistic-rule/1.0.0.
+        data_tests: [not_null]

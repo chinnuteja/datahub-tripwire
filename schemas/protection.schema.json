@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "EntityKind": {
+      "enum": [
+        "dataset",
+        "data_job",
+        "ml_feature",
+        "ml_model",
+        "ml_deployment",
+        "ai_agent",
+        "owner",
+        "domain",
+        "tag",
+        "api",
+        "service",
+        "unknown"
+      ],
+      "title": "EntityKind",
+      "type": "string"
+    },
+    "EntityRef": {
+      "additionalProperties": false,
+      "properties": {
+        "display_name": {
+          "title": "Display Name",
+          "type": "string"
+        },
+        "environment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Environment"
+        },
+        "kind": {
+          "$ref": "#/$defs/EntityKind"
+        },
+        "platform": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Platform"
+        },
+        "urn": {
+          "pattern": "^urn:li:[^:]+:.+",
+          "title": "Urn",
+          "type": "string"
+        }
+      },
+      "required": [
+        "urn",
+        "kind",
+        "display_name"
+      ],
+      "title": "EntityRef",
+      "type": "object"
+    },
+    "ProtectionStatus": {
+      "enum": [
+        "proposed",
+        "active",
+        "rejected",
+        "superseded",
+        "disabled"
+      ],
+      "title": "ProtectionStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "affected_entities": {
+      "items": {
+        "$ref": "#/$defs/EntityRef"
+      },
+      "minItems": 1,
+      "title": "Affected Entities",
+      "type": "array"
+    },
+    "approved_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approved At"
+    },
+    "approved_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approved By"
+    },
+    "fixture": {
+      "additionalProperties": true,
+      "title": "Fixture",
+      "type": "object"
+    },
+    "invariant": {
+      "title": "Invariant",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "protection_id": {
+      "title": "Protection Id",
+      "type": "string"
+    },
+    "source_change_id": {
+      "title": "Source Change Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/ProtectionStatus"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "protection_id",
+    "name",
+    "status",
+    "source_change_id",
+    "affected_entities",
+    "invariant",
+    "fixture",
+    "version"
+  ],
+  "title": "Protection",
+  "type": "object"
+}

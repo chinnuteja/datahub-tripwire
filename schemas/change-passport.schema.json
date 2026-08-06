@@ -1,0 +1,782 @@
+{
+  "$defs": {
+    "ChangeFact": {
+      "additionalProperties": false,
+      "properties": {
+        "after_expression": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After Expression"
+        },
+        "before_expression": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Before Expression"
+        },
+        "dialect": {
+          "title": "Dialect",
+          "type": "string"
+        },
+        "fact_id": {
+          "pattern": "^chg_[a-f0-9]{16}$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ChangeFactKind"
+        },
+        "operation": {
+          "$ref": "#/$defs/ChangeOperation"
+        },
+        "parser_version": {
+          "title": "Parser Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "operation",
+        "parser_version",
+        "dialect"
+      ],
+      "title": "ChangeFact",
+      "type": "object"
+    },
+    "ChangeFactKind": {
+      "enum": [
+        "projection",
+        "predicate",
+        "join",
+        "aggregation",
+        "window",
+        "cast",
+        "null_handling",
+        "column",
+        "source",
+        "other"
+      ],
+      "title": "ChangeFactKind",
+      "type": "string"
+    },
+    "ChangeOperation": {
+      "enum": [
+        "added",
+        "removed",
+        "modified"
+      ],
+      "title": "ChangeOperation",
+      "type": "string"
+    },
+    "ChangeRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "base_revision": {
+          "title": "Base Revision",
+          "type": "string"
+        },
+        "candidate_revision": {
+          "title": "Candidate Revision",
+          "type": "string"
+        },
+        "changed_paths": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Changed Paths",
+          "type": "array"
+        },
+        "repository": {
+          "title": "Repository",
+          "type": "string"
+        },
+        "requested_by": {
+          "title": "Requested By",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository",
+        "base_revision",
+        "candidate_revision",
+        "changed_paths",
+        "requested_by"
+      ],
+      "title": "ChangeRequest",
+      "type": "object"
+    },
+    "ContextAuthority": {
+      "enum": [
+        "datahub_mcp",
+        "dbt_manifest",
+        "deterministic_parser",
+        "executed_evaluator",
+        "versioned_policy"
+      ],
+      "title": "ContextAuthority",
+      "type": "string"
+    },
+    "ContextCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "completed_operations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Completed Operations",
+          "type": "array"
+        },
+        "critical_consumers": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "title": "Critical Consumers",
+          "type": "array"
+        },
+        "gaps": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CoverageGap"
+          },
+          "title": "Gaps",
+          "type": "array"
+        },
+        "required_operations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Operations",
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/CoverageStatus"
+        }
+      },
+      "required": [
+        "status",
+        "required_operations",
+        "completed_operations"
+      ],
+      "title": "ContextCoverage",
+      "type": "object"
+    },
+    "ContextFact": {
+      "additionalProperties": false,
+      "properties": {
+        "authority": {
+          "$ref": "#/$defs/ContextAuthority"
+        },
+        "fact_type": {
+          "title": "Fact Type",
+          "type": "string"
+        },
+        "operation": {
+          "title": "Operation",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "source_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Source Hash",
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/$defs/EntityRef"
+        },
+        "value": {
+          "additionalProperties": true,
+          "title": "Value",
+          "type": "object"
+        }
+      },
+      "required": [
+        "fact_type",
+        "subject",
+        "value",
+        "authority",
+        "operation",
+        "retrieved_at",
+        "source_hash"
+      ],
+      "title": "ContextFact",
+      "type": "object"
+    },
+    "Counterexample": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_simplifications": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Accepted Simplifications",
+          "type": "integer"
+        },
+        "baseline": {
+          "additionalProperties": true,
+          "title": "Baseline",
+          "type": "object"
+        },
+        "candidate": {
+          "additionalProperties": true,
+          "title": "Candidate",
+          "type": "object"
+        },
+        "minimization_attempts": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Minimization Attempts",
+          "type": "integer"
+        },
+        "replay_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Replay Hash",
+          "type": "string"
+        },
+        "transaction": {
+          "additionalProperties": true,
+          "title": "Transaction",
+          "type": "object"
+        },
+        "violated_invariant": {
+          "title": "Violated Invariant",
+          "type": "string"
+        },
+        "witness_id": {
+          "title": "Witness Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "witness_id",
+        "transaction",
+        "baseline",
+        "candidate",
+        "violated_invariant",
+        "replay_hash"
+      ],
+      "title": "Counterexample",
+      "type": "object"
+    },
+    "CoverageGap": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "pattern": "^[A-Z][A-Z0-9_]+$",
+          "title": "Code",
+          "type": "string"
+        },
+        "critical": {
+          "default": true,
+          "title": "Critical",
+          "type": "boolean"
+        },
+        "entity_urn": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Urn"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "operation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operation"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "CoverageGap",
+      "type": "object"
+    },
+    "CoverageStatus": {
+      "enum": [
+        "complete",
+        "incomplete",
+        "ambiguous",
+        "unavailable"
+      ],
+      "title": "CoverageStatus",
+      "type": "string"
+    },
+    "EntityKind": {
+      "enum": [
+        "dataset",
+        "data_job",
+        "ml_feature",
+        "ml_model",
+        "ml_deployment",
+        "ai_agent",
+        "owner",
+        "domain",
+        "tag",
+        "api",
+        "service",
+        "unknown"
+      ],
+      "title": "EntityKind",
+      "type": "string"
+    },
+    "EntityRef": {
+      "additionalProperties": false,
+      "properties": {
+        "display_name": {
+          "title": "Display Name",
+          "type": "string"
+        },
+        "environment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Environment"
+        },
+        "kind": {
+          "$ref": "#/$defs/EntityKind"
+        },
+        "platform": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Platform"
+        },
+        "urn": {
+          "pattern": "^urn:li:[^:]+:.+",
+          "title": "Urn",
+          "type": "string"
+        }
+      },
+      "required": [
+        "urn",
+        "kind",
+        "display_name"
+      ],
+      "title": "EntityRef",
+      "type": "object"
+    },
+    "EvaluationKind": {
+      "enum": [
+        "dataset",
+        "feature",
+        "model",
+        "agent",
+        "governance",
+        "protection"
+      ],
+      "title": "EvaluationKind",
+      "type": "string"
+    },
+    "EvaluationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "completed_at": {
+          "format": "date-time",
+          "title": "Completed At",
+          "type": "string"
+        },
+        "consumer": {
+          "$ref": "#/$defs/EntityRef"
+        },
+        "critical": {
+          "title": "Critical",
+          "type": "boolean"
+        },
+        "evaluation_id": {
+          "title": "Evaluation Id",
+          "type": "string"
+        },
+        "evaluator_version": {
+          "title": "Evaluator Version",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/EvaluationKind"
+        },
+        "observations": {
+          "additionalProperties": true,
+          "title": "Observations",
+          "type": "object"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/EvaluationStatus"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evaluation_id",
+        "kind",
+        "consumer",
+        "status",
+        "critical",
+        "summary",
+        "observations",
+        "started_at",
+        "completed_at",
+        "evaluator_version"
+      ],
+      "title": "EvaluationResult",
+      "type": "object"
+    },
+    "EvaluationStatus": {
+      "enum": [
+        "passed",
+        "failed",
+        "error",
+        "not_run"
+      ],
+      "title": "EvaluationStatus",
+      "type": "string"
+    },
+    "LineagePath": {
+      "additionalProperties": false,
+      "properties": {
+        "authority": {
+          "$ref": "#/$defs/ContextAuthority",
+          "default": "datahub_mcp"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "minItems": 2,
+          "title": "Nodes",
+          "type": "array"
+        },
+        "operation": {
+          "default": "get_lineage",
+          "title": "Operation",
+          "type": "string"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "nodes"
+      ],
+      "title": "LineagePath",
+      "type": "object"
+    },
+    "Protection": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_entities": {
+          "items": {
+            "$ref": "#/$defs/EntityRef"
+          },
+          "minItems": 1,
+          "title": "Affected Entities",
+          "type": "array"
+        },
+        "approved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved At"
+        },
+        "approved_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved By"
+        },
+        "fixture": {
+          "additionalProperties": true,
+          "title": "Fixture",
+          "type": "object"
+        },
+        "invariant": {
+          "title": "Invariant",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "protection_id": {
+          "title": "Protection Id",
+          "type": "string"
+        },
+        "source_change_id": {
+          "title": "Source Change Id",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/ProtectionStatus"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "protection_id",
+        "name",
+        "status",
+        "source_change_id",
+        "affected_entities",
+        "invariant",
+        "fixture",
+        "version"
+      ],
+      "title": "Protection",
+      "type": "object"
+    },
+    "ProtectionStatus": {
+      "enum": [
+        "proposed",
+        "active",
+        "rejected",
+        "superseded",
+        "disabled"
+      ],
+      "title": "ProtectionStatus",
+      "type": "string"
+    },
+    "RunIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "commit_sha": {
+          "title": "Commit Sha",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "input_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Input Hashes",
+          "type": "object"
+        },
+        "policy_version": {
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^tw_[a-f0-9]{24}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "tool_versions": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Tool Versions",
+          "type": "object"
+        }
+      },
+      "required": [
+        "run_id",
+        "created_at",
+        "commit_sha",
+        "policy_version",
+        "input_hashes",
+        "tool_versions"
+      ],
+      "title": "RunIdentity",
+      "type": "object"
+    },
+    "Verdict": {
+      "enum": [
+        "UNSAFE",
+        "SAFE_WITHIN_SCOPE",
+        "UNVERIFIED"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "applied_protections": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Protection"
+      },
+      "title": "Applied Protections",
+      "type": "array"
+    },
+    "change": {
+      "$ref": "#/$defs/ChangeRequest"
+    },
+    "change_facts": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ChangeFact"
+      },
+      "title": "Change Facts",
+      "type": "array"
+    },
+    "context": {
+      "items": {
+        "$ref": "#/$defs/ContextFact"
+      },
+      "title": "Context",
+      "type": "array"
+    },
+    "counterexample": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Counterexample"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "coverage": {
+      "$ref": "#/$defs/ContextCoverage"
+    },
+    "evaluations": {
+      "items": {
+        "$ref": "#/$defs/EvaluationResult"
+      },
+      "title": "Evaluations",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "lineage": {
+      "items": {
+        "$ref": "#/$defs/LineagePath"
+      },
+      "title": "Lineage",
+      "type": "array"
+    },
+    "proposed_protection": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Protection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "resolved_entity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EntityRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "run": {
+      "$ref": "#/$defs/RunIdentity"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "verdict": {
+      "$ref": "#/$defs/Verdict"
+    }
+  },
+  "required": [
+    "run",
+    "change",
+    "context",
+    "lineage",
+    "coverage",
+    "evaluations",
+    "verdict",
+    "reason_codes",
+    "limitations"
+  ],
+  "title": "ChangePassport",
+  "type": "object"
+}

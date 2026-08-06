@@ -1,0 +1,77 @@
+{
+  "root": {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+    "kind": "dataset",
+    "display_name": "Fraud feature table",
+    "platform": "duckdb",
+    "environment": "PROD"
+  },
+  "facts": [],
+  "paths": [
+    {
+      "nodes": [
+        {
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+          "kind": "dataset",
+          "display_name": "Fraud feature table",
+          "platform": "duckdb",
+          "environment": "PROD"
+        },
+        {
+          "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)",
+          "kind": "ml_model",
+          "display_name": "Fraud Logistic Rule",
+          "platform": "tripwire",
+          "environment": "PROD"
+        }
+      ],
+      "authority": "datahub_mcp",
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "nodes": [
+        {
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+          "kind": "dataset",
+          "display_name": "Fraud feature table",
+          "platform": "duckdb",
+          "environment": "PROD"
+        },
+        {
+          "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)",
+          "kind": "data_job",
+          "display_name": "Fraud Review Agent",
+          "platform": "tripwire",
+          "environment": "PROD"
+        }
+      ],
+      "authority": "datahub_mcp",
+      "operation": "get_lineage",
+      "truncated": false
+    }
+  ],
+  "coverage": {
+    "status": "complete",
+    "required_operations": ["get_entities", "get_lineage", "list_schema_fields"],
+    "completed_operations": ["get_entities", "get_lineage", "list_schema_fields"],
+    "critical_consumers": [
+      {
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)",
+        "kind": "ml_model",
+        "display_name": "Fraud Logistic Rule",
+        "platform": "tripwire",
+        "environment": "PROD"
+      },
+      {
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)",
+        "kind": "data_job",
+        "display_name": "Fraud Review Agent",
+        "platform": "tripwire",
+        "environment": "PROD"
+      }
+    ],
+    "gaps": []
+  },
+  "provider": "recorded-example-from-seeded-datahub"
+}

@@ -1,0 +1,13 @@
+transaction_id,amount_usd,is_international,merchant_risk,customer_age_days,device_age_days,chargeback_count_30d,is_refunded
+TX-001,42.50,false,low,850,400,0,false
+TX-002,225.00,false,medium,420,120,0,false
+TX-003,780.00,true,high,18,2,1,false
+TX-004,1200.00,true,high,5,1,2,false
+TX-005,510.00,false,low,900,60,0,true
+TX-006,88.00,true,medium,12,4,0,false
+TX-007,330.00,false,high,150,20,1,false
+TX-008,60.00,false,low,2000,800,0,false
+TX-009,520.00,true,medium,90,,0,false
+TX-010,1005.00,false,medium,365,10,0,false
+TX-011,199.99,true,low,25,6,1,false
+TX-012,450.00,false,high,75,,1,false

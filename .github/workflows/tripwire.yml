@@ -1,0 +1,90 @@
+name: Tripwire Change Safety
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate:
+        description: Deterministic demo candidate to evaluate
+        required: true
+        default: unsafe_semantic
+        type: choice
+        options:
+          - unsafe_semantic
+          - unsafe_related
+          - unsafe_mechanical
+          - safe_additive
+  pull_request:
+    paths:
+      - "demo/fraud/models/**"
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  assess:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      TRIPWIRE_CONTEXT: examples/contexts/fraud-feature-recorded.json
+      TRIPWIRE_PASSPORT: artifacts/runtime/change-passport-github.json
+      TRIPWIRE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      TRIPWIRE_DETAILS_URL: https://tripwire-datahub.tejachinnu572.chatgpt.site
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install locked environment
+        run: uv sync --frozen --extra dev
+      - name: Compile exact dbt manifest
+        if: github.event_name == 'pull_request'
+        run: uv run dbt compile --project-dir demo/fraud --profiles-dir demo/fraud
+      - name: Select the one changed dbt SQL model
+        if: github.event_name == 'pull_request'
+        id: changed
+        shell: bash
+        run: |
+          changed_path="$(uv run tripwire github select-dbt-path \
+            --base-sha "${{ github.event.pull_request.base.sha }}" \
+            --head-sha "$TRIPWIRE_HEAD_SHA")"
+          echo "path=$changed_path" >> "$GITHUB_OUTPUT"
+      - name: Execute named demonstration scenario
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: >-
+          uv run tripwire assess
+          --candidate "${{ inputs.candidate }}"
+          --context-file "$TRIPWIRE_CONTEXT"
+          --output "$TRIPWIRE_PASSPORT"
+          --requested-by "github:${{ github.actor }}"
+      - name: Execute the actual pull-request SQL revisions
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: >-
+          uv run tripwire assess-git
+          --base-ref "${{ github.event.pull_request.base.sha }}"
+          --head-ref "$TRIPWIRE_HEAD_SHA"
+          --changed-path "${{ steps.changed.outputs.path }}"
+          --manifest-path demo/fraud/target/manifest.json
+          --project-dir demo/fraud
+          --context-file "$TRIPWIRE_CONTEXT"
+          --output "$TRIPWIRE_PASSPORT"
+          --requested-by "github:${{ github.actor }}"
+      - name: Publish idempotent GitHub Check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          uv run tripwire github publish
+          --passport "$TRIPWIRE_PASSPORT"
+          --repository "${{ github.repository }}"
+          --head-sha "$TRIPWIRE_HEAD_SHA"
+          --details-url "$TRIPWIRE_DETAILS_URL"
+      - name: Preserve Change Passport
+        uses: actions/upload-artifact@v4
+        with:
+          name: tripwire-change-passport
+          path: ${{ env.TRIPWIRE_PASSPORT }}
+          if-no-files-found: error

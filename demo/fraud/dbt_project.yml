@@ -1,0 +1,23 @@
+name: tripwire_fraud
+version: 1.0.0
+config-version: 2
+profile: tripwire_fraud
+model-paths: ["models"]
+seed-paths: ["seeds"]
+target-path: target
+clean-targets: [target, dbt_packages]
+models:
+  tripwire_fraud:
+    +materialized: table
+seeds:
+  tripwire_fraud:
+    raw_transactions:
+      +column_types:
+        transaction_id: varchar
+        amount_usd: double
+        is_international: boolean
+        merchant_risk: varchar
+        customer_age_days: integer
+        device_age_days: integer
+        chargeback_count_30d: integer
+        is_refunded: boolean

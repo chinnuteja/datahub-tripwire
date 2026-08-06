@@ -1,0 +1,8 @@
+tripwire_fraud:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: "artifacts/runtime/tripwire_fraud.duckdb"
+      schema: fraud
+      threads: 1
