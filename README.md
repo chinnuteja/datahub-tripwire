@@ -18,9 +18,10 @@ first learned failure with the later automatic catch, and download the underlyin
 Passport. The UI is built from the committed evidence artifacts rather than a separate
 hard-coded verdict.
 
-For a zero-setup review, open the committed
-[unsafe GitHub Check report](examples/github-check-unsafe.md) and the complete
-[learn → approve → remember → catch proof](examples/learned-loop/README.md).
+For a zero-setup review, compare the commit-bound
+[unsafe and safe public-PR proof](examples/public-proof/README.md), inspect the real
+[unsafe draft PR and failing Check](https://github.com/chinnuteja/datahub-tripwire/pull/1),
+and follow the complete [learn → approve → remember → catch proof](examples/learned-loop/README.md).
 The [proof-bundle index](examples/README.md) explains every judge-visible artifact.
 
 ## The winning vertical slice

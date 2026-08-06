@@ -1,0 +1,373 @@
+{
+  "applied_protections": [],
+  "change": {
+    "base_revision": "origin/main",
+    "candidate_revision": "origin/demo/unsafe-semantic-proof",
+    "changed_paths": [
+      "demo/fraud/models/fct_fraud_features.sql"
+    ],
+    "repository": "DataHub",
+    "requested_by": "github:chinnuteja"
+  },
+  "change_facts": [
+    {
+      "after_expression": "CASE WHEN amount_usd >= 1000 THEN 0.30 WHEN amount_usd >= 500 THEN 0.18 WHEN amount_usd >= 200 THEN 0.08 ELSE 0.00 END + CASE WHEN is_international THEN 0.18 ELSE 0.00 END + CASE merchant_risk WHEN 'high' THEN 0.22 WHEN 'medium' THEN 0.08 ELSE 0.00 END + CASE WHEN COALESCE(device_age_days, 365) < 7 THEN 0.18 WHEN COALESCE(device_age_days, 365) < 30 THEN 0.08 ELSE 0.00 END + LEAST(chargeback_count_30d, 2) * 0.12 + CASE WHEN customer_age_days < 30 THEN 0.08 ELSE 0.00 END - CASE WHEN is_refunded THEN 0.05 ELSE 0.00 END AS raw_fraud_signal",
+      "before_expression": "CASE WHEN amount_usd >= 1000 THEN 0.30 WHEN amount_usd >= 500 THEN 0.18 WHEN amount_usd >= 200 THEN 0.08 ELSE 0.00 END + CASE WHEN is_international THEN 0.18 ELSE 0.00 END + CASE merchant_risk WHEN 'high' THEN 0.22 WHEN 'medium' THEN 0.08 ELSE 0.00 END + CASE WHEN COALESCE(device_age_days, 0) < 7 THEN 0.18 WHEN COALESCE(device_age_days, 0) < 30 THEN 0.08 ELSE 0.00 END + LEAST(chargeback_count_30d, 2) * 0.12 + CASE WHEN customer_age_days < 30 THEN 0.08 ELSE 0.00 END - CASE WHEN is_refunded THEN 0.05 ELSE 0.00 END AS raw_fraud_signal",
+      "dialect": "duckdb",
+      "fact_id": "chg_8c5201d451f8e5aa",
+      "kind": "projection",
+      "operation": "modified",
+      "parser_version": "sqlglot/30.15.0"
+    },
+    {
+      "after_expression": "COALESCE(device_age_days, 365)",
+      "before_expression": "COALESCE(device_age_days, 0)",
+      "dialect": "duckdb",
+      "fact_id": "chg_dbe0c31a1e891003",
+      "kind": "null_handling",
+      "operation": "modified",
+      "parser_version": "sqlglot/30.15.0"
+    },
+    {
+      "after_expression": "COALESCE(device_age_days, 365)",
+      "before_expression": "COALESCE(device_age_days, 0)",
+      "dialect": "duckdb",
+      "fact_id": "chg_dbe0c31a1e891003",
+      "kind": "null_handling",
+      "operation": "modified",
+      "parser_version": "sqlglot/30.15.0"
+    }
+  ],
+  "context": [
+    {
+      "authority": "datahub_mcp",
+      "fact_type": "mcp.get_entities",
+      "operation": "get_entities",
+      "retrieved_at": "2026-08-05T18:38:39.721663Z",
+      "source_hash": "8527d2050c3eea5384e02ac0d6bcde50bb5c4027abf4dbd47fe1c82777c96366",
+      "subject": {
+        "display_name": "Fraud feature table",
+        "environment": "PROD",
+        "kind": "dataset",
+        "platform": "duckdb",
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+      },
+      "value": {
+        "result": {
+          "name": "Fraud Features",
+          "ownership": {
+            "owners": [
+              {
+                "owner": {
+                  "properties": {
+                    "displayName": "Fraud Platform Team",
+                    "email": "fraud-platform@example.invalid"
+                  },
+                  "urn": "urn:li:corpuser:fraud-platform"
+                }
+              }
+            ]
+          },
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        }
+      }
+    }
+  ],
+  "counterexample": {
+    "accepted_simplifications": 2,
+    "baseline": {
+      "action": "review",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 500.0,
+          "chargeback_count_30d": 0,
+          "device_age_days": null,
+          "fraud_signal": 0.62,
+          "is_international": true,
+          "merchant_risk": 1
+        },
+        "model_version": "fraud-logistic-rule/1.0.0",
+        "predicted_fraud": true,
+        "probability": 0.669,
+        "threshold": 0.62,
+        "transaction_id": "TX-009"
+      },
+      "reason_codes": [
+        "MODEL_THRESHOLD_EXCEEDED"
+      ],
+      "transaction_id": "TX-009"
+    },
+    "candidate": {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 500.0,
+          "chargeback_count_30d": 0,
+          "device_age_days": null,
+          "fraud_signal": 0.44,
+          "is_international": true,
+          "merchant_risk": 1
+        },
+        "model_version": "fraud-logistic-rule/1.0.0",
+        "predicted_fraud": false,
+        "probability": 0.498,
+        "threshold": 0.62,
+        "transaction_id": "TX-009"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-009"
+    },
+    "minimization_attempts": 5,
+    "replay_hash": "7769841c9ea349552c36d7e48e8e38f51a22cc1807c8dab0b931b84547bce78a",
+    "transaction": {
+      "amount_usd": 500.0,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 30,
+      "device_age_days": null,
+      "is_international": true,
+      "is_refunded": false,
+      "merchant_risk": "medium",
+      "transaction_id": "TX-009"
+    },
+    "violated_invariant": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.",
+    "witness_id": "witness-tx-009"
+  },
+  "coverage": {
+    "completed_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "critical_consumers": [
+      {
+        "display_name": "Fraud Logistic Rule",
+        "environment": "PROD",
+        "kind": "ml_model",
+        "platform": "tripwire",
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+      },
+      {
+        "display_name": "Fraud Review Agent",
+        "environment": "PROD",
+        "kind": "data_job",
+        "platform": "tripwire",
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+      }
+    ],
+    "gaps": [],
+    "required_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "status": "complete"
+  },
+  "evaluations": [
+    {
+      "completed_at": "2026-08-06T18:31:05.219674Z",
+      "consumer": {
+        "display_name": "Fraud Logistic Rule",
+        "environment": "PROD",
+        "kind": "ml_model",
+        "platform": "tripwire",
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+      },
+      "critical": true,
+      "evaluation_id": "model-1",
+      "evaluator_version": "fraud-behavior-evaluator/1.0.0",
+      "kind": "model",
+      "observations": {
+        "changed_transaction_ids": [
+          "TX-009",
+          "TX-012"
+        ]
+      },
+      "started_at": "2026-08-06T18:31:05.219412Z",
+      "status": "failed",
+      "summary": "Model behavior changed for 2 transaction(s)."
+    },
+    {
+      "completed_at": "2026-08-06T18:31:05.220507Z",
+      "consumer": {
+        "display_name": "Fraud Review Agent",
+        "environment": "PROD",
+        "kind": "data_job",
+        "platform": "tripwire",
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+      },
+      "critical": true,
+      "evaluation_id": "agent-2",
+      "evaluator_version": "fraud-behavior-evaluator/1.0.0",
+      "kind": "agent",
+      "observations": {
+        "changed_transaction_ids": [
+          "TX-009",
+          "TX-012"
+        ]
+      },
+      "started_at": "2026-08-06T18:31:05.219412Z",
+      "status": "failed",
+      "summary": "Agent behavior changed for 2 transaction(s)."
+    }
+  ],
+  "limitations": [
+    "The Phase 1 evaluator covers the DuckDB fraud vertical slice only.",
+    "Safety is bounded by the consumers and lineage returned in Context Coverage.",
+    "Context provider was recorded-example-from-seeded-datahub, not live DataHub MCP."
+  ],
+  "lineage": [
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud feature table",
+          "environment": "PROD",
+          "kind": "dataset",
+          "platform": "duckdb",
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "Fraud Logistic Rule",
+          "environment": "PROD",
+          "kind": "ml_model",
+          "platform": "tripwire",
+          "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud feature table",
+          "environment": "PROD",
+          "kind": "dataset",
+          "platform": "duckdb",
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "Fraud Review Agent",
+          "environment": "PROD",
+          "kind": "data_job",
+          "platform": "tripwire",
+          "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    }
+  ],
+  "owner_routes": [
+    {
+      "display_name": "Fraud Platform Team",
+      "email": "fraud-platform@example.invalid",
+      "owner_urn": "urn:li:corpuser:fraud-platform",
+      "responsibility": "required_reviewer",
+      "source_entity_urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+    }
+  ],
+  "proposed_protection": {
+    "affected_entities": [
+      {
+        "display_name": "Fraud feature table",
+        "environment": "PROD",
+        "kind": "dataset",
+        "platform": "duckdb",
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+      },
+      {
+        "display_name": "Fraud Logistic Rule",
+        "environment": "PROD",
+        "kind": "ml_model",
+        "platform": "tripwire",
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+      },
+      {
+        "display_name": "Fraud Review Agent",
+        "environment": "PROD",
+        "kind": "data_job",
+        "platform": "tripwire",
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+      }
+    ],
+    "approved_at": null,
+    "approved_by": null,
+    "fixture": {
+      "amount_usd": 500.0,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 30,
+      "device_age_days": null,
+      "is_international": true,
+      "is_refunded": false,
+      "merchant_risk": "medium",
+      "transaction_id": "TX-009"
+    },
+    "invariant": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.",
+    "name": "Preserve fraud review behavior for the discovered witness",
+    "protection_id": "protection-witness-tx-009",
+    "source_change_id": "tw_bbed61fa4e9236d3a1956448",
+    "status": "proposed",
+    "version": 1
+  },
+  "reason_codes": [
+    "CRITICAL_BEHAVIOR_REGRESSION"
+  ],
+  "remediation": {
+    "change_fact_ids": [
+      "chg_dbe0c31a1e891003"
+    ],
+    "fixed_output_hash": "79f83b0cf28a2dad9719457157bcf6a4515c2fd24205fbc25c6143e08c887af2",
+    "patch": "--- candidate.sql\n+++ tripwire-verified-fix.sql\n@@ -11,8 +11,8 @@\n         + case when is_international then 0.18 else 0.00 end\n         + case merchant_risk when 'high' then 0.22 when 'medium' then 0.08 else 0.00 end\n         + case\n-            when coalesce(device_age_days, 365) < 7 then 0.18\n-            when coalesce(device_age_days, 365) < 30 then 0.08\n+            when COALESCE(device_age_days, 0) < 7 then 0.18\n+            when COALESCE(device_age_days, 0) < 30 then 0.08\n             else 0.00\n         end\n         + least(chargeback_count_30d, 2) * 0.12",
+    "remediation_id": "fix_1f2883b353f78e0b",
+    "restored_evaluations": [
+      "model-1",
+      "agent-2"
+    ],
+    "status": "verified",
+    "summary": "Restore the baseline null-handling semantics; Tripwire replayed the repair and recovered identical model predictions and agent decisions."
+  },
+  "resolved_entity": {
+    "display_name": "fct_fraud_features",
+    "environment": "PROD",
+    "kind": "dataset",
+    "platform": "duckdb",
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+  },
+  "run": {
+    "commit_sha": "9b635e36b9f66705dc3dcfda36a04bf42db043b3",
+    "created_at": "2026-08-06T18:31:05.219073Z",
+    "input_hashes": {
+      "baseline_output_hash": "689ceb206c5bb3afd7213447b0103a67dbf29ff4d1ae85914b6fa9cb8c77abd3",
+      "candidate": "675e1669fc2729afe86822d380ead4ca19f8958bec2b74a0877957119d0b244d",
+      "candidate_error": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "candidate_output_hash": "abe469b94299cb7f79d8db61e9abe90b7471c3ad74e38a83bd0006db2cbd9688",
+      "change_facts": "cca2231df5f96ca6cfe94d70f4dc6436542c32b7b5d6481889e648a804f6c7b3",
+      "context": "8edcc67558264197e5381ec67f02b3af7bfe623bed9fcb8e80e931c6c7ef142e",
+      "resolved_entity": "cb4c3772b46e35617e05bd440ac734515fe744b91d0bed0b0226115d592ddebd"
+    },
+    "policy_version": "tripwire-policy/1.0.0",
+    "run_id": "tw_bbed61fa4e9236d3a1956448",
+    "tool_versions": {
+      "datahub-sdk": "1.7.0",
+      "duckdb": "1.5.5",
+      "mcp": "1.29.0",
+      "tripwire": "0.1.0"
+    }
+  },
+  "schema_version": "1.1.0",
+  "scope_accounting": {
+    "completed_operations": 3,
+    "critical_consumers_discovered": 2,
+    "critical_consumers_evaluated": 2,
+    "lineage_frontier_complete": true,
+    "required_operations": 3,
+    "unresolved_gaps": 0
+  },
+  "verdict": "UNSAFE"
+}

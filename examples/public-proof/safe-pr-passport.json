@@ -1,0 +1,241 @@
+{
+  "applied_protections": [],
+  "change": {
+    "base_revision": "origin/main",
+    "candidate_revision": "origin/demo/safe-additive-proof",
+    "changed_paths": [
+      "demo/fraud/models/fct_fraud_features.sql"
+    ],
+    "repository": "DataHub",
+    "requested_by": "github:chinnuteja"
+  },
+  "change_facts": [
+    {
+      "after_expression": "CAST(NULL AS TEXT) AS reviewer_note",
+      "before_expression": null,
+      "dialect": "duckdb",
+      "fact_id": "chg_f8ab9895251432f1",
+      "kind": "projection",
+      "operation": "added",
+      "parser_version": "sqlglot/30.15.0"
+    },
+    {
+      "after_expression": "CAST(NULL AS TEXT)",
+      "before_expression": null,
+      "dialect": "duckdb",
+      "fact_id": "chg_8da64cbe1cd79dcc",
+      "kind": "cast",
+      "operation": "added",
+      "parser_version": "sqlglot/30.15.0"
+    }
+  ],
+  "context": [
+    {
+      "authority": "datahub_mcp",
+      "fact_type": "mcp.get_entities",
+      "operation": "get_entities",
+      "retrieved_at": "2026-08-05T18:38:39.721663Z",
+      "source_hash": "8527d2050c3eea5384e02ac0d6bcde50bb5c4027abf4dbd47fe1c82777c96366",
+      "subject": {
+        "display_name": "Fraud feature table",
+        "environment": "PROD",
+        "kind": "dataset",
+        "platform": "duckdb",
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+      },
+      "value": {
+        "result": {
+          "name": "Fraud Features",
+          "ownership": {
+            "owners": [
+              {
+                "owner": {
+                  "properties": {
+                    "displayName": "Fraud Platform Team",
+                    "email": "fraud-platform@example.invalid"
+                  },
+                  "urn": "urn:li:corpuser:fraud-platform"
+                }
+              }
+            ]
+          },
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        }
+      }
+    }
+  ],
+  "counterexample": null,
+  "coverage": {
+    "completed_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "critical_consumers": [
+      {
+        "display_name": "Fraud Logistic Rule",
+        "environment": "PROD",
+        "kind": "ml_model",
+        "platform": "tripwire",
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+      },
+      {
+        "display_name": "Fraud Review Agent",
+        "environment": "PROD",
+        "kind": "data_job",
+        "platform": "tripwire",
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+      }
+    ],
+    "gaps": [],
+    "required_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "status": "complete"
+  },
+  "evaluations": [
+    {
+      "completed_at": "2026-08-06T18:31:22.367298Z",
+      "consumer": {
+        "display_name": "Fraud Logistic Rule",
+        "environment": "PROD",
+        "kind": "ml_model",
+        "platform": "tripwire",
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+      },
+      "critical": true,
+      "evaluation_id": "model-1",
+      "evaluator_version": "fraud-behavior-evaluator/1.0.0",
+      "kind": "model",
+      "observations": {
+        "changed_transaction_ids": []
+      },
+      "started_at": "2026-08-06T18:31:22.367193Z",
+      "status": "passed",
+      "summary": "Model behavior is identical for every replayed transaction."
+    },
+    {
+      "completed_at": "2026-08-06T18:31:22.367336Z",
+      "consumer": {
+        "display_name": "Fraud Review Agent",
+        "environment": "PROD",
+        "kind": "data_job",
+        "platform": "tripwire",
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+      },
+      "critical": true,
+      "evaluation_id": "agent-2",
+      "evaluator_version": "fraud-behavior-evaluator/1.0.0",
+      "kind": "agent",
+      "observations": {
+        "changed_transaction_ids": []
+      },
+      "started_at": "2026-08-06T18:31:22.367193Z",
+      "status": "passed",
+      "summary": "Agent decisions are identical for every replayed transaction."
+    }
+  ],
+  "limitations": [
+    "The Phase 1 evaluator covers the DuckDB fraud vertical slice only.",
+    "Safety is bounded by the consumers and lineage returned in Context Coverage.",
+    "Context provider was recorded-example-from-seeded-datahub, not live DataHub MCP."
+  ],
+  "lineage": [
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud feature table",
+          "environment": "PROD",
+          "kind": "dataset",
+          "platform": "duckdb",
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "Fraud Logistic Rule",
+          "environment": "PROD",
+          "kind": "ml_model",
+          "platform": "tripwire",
+          "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud feature table",
+          "environment": "PROD",
+          "kind": "dataset",
+          "platform": "duckdb",
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "Fraud Review Agent",
+          "environment": "PROD",
+          "kind": "data_job",
+          "platform": "tripwire",
+          "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    }
+  ],
+  "owner_routes": [
+    {
+      "display_name": "Fraud Platform Team",
+      "email": "fraud-platform@example.invalid",
+      "owner_urn": "urn:li:corpuser:fraud-platform",
+      "responsibility": "required_reviewer",
+      "source_entity_urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+    }
+  ],
+  "proposed_protection": null,
+  "reason_codes": [
+    "ALL_CRITICAL_EVALUATIONS_PASSED"
+  ],
+  "remediation": null,
+  "resolved_entity": {
+    "display_name": "fct_fraud_features",
+    "environment": "PROD",
+    "kind": "dataset",
+    "platform": "duckdb",
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+  },
+  "run": {
+    "commit_sha": "9b635e36b9f66705dc3dcfda36a04bf42db043b3",
+    "created_at": "2026-08-06T18:31:22.366960Z",
+    "input_hashes": {
+      "baseline_output_hash": "689ceb206c5bb3afd7213447b0103a67dbf29ff4d1ae85914b6fa9cb8c77abd3",
+      "candidate": "675e1669fc2729afe86822d380ead4ca19f8958bec2b74a0877957119d0b244d",
+      "candidate_error": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "candidate_output_hash": "121a518b182f2533b31bdab9403008aa2c443ed7e19a3364e107eb2e51579cc3",
+      "change_facts": "5f4fe0325a0c5356a86a10a36bf0fd70d8c094bd6ab717b4b05833d23e7ac437",
+      "context": "8edcc67558264197e5381ec67f02b3af7bfe623bed9fcb8e80e931c6c7ef142e",
+      "resolved_entity": "cb4c3772b46e35617e05bd440ac734515fe744b91d0bed0b0226115d592ddebd"
+    },
+    "policy_version": "tripwire-policy/1.0.0",
+    "run_id": "tw_f8812874d557377ecb850d16",
+    "tool_versions": {
+      "datahub-sdk": "1.7.0",
+      "duckdb": "1.5.5",
+      "mcp": "1.29.0",
+      "tripwire": "0.1.0"
+    }
+  },
+  "schema_version": "1.1.0",
+  "scope_accounting": {
+    "completed_operations": 3,
+    "critical_consumers_discovered": 2,
+    "critical_consumers_evaluated": 2,
+    "lineage_frontier_complete": true,
+    "required_operations": 3,
+    "unresolved_gaps": 0
+  },
+  "verdict": "SAFE_WITHIN_SCOPE"
+}

@@ -5,6 +5,10 @@ running the evaluator.
 
 | Artifact | What it proves |
 |---|---|
+| [`public-proof/unsafe-pr-passport.json`](public-proof/unsafe-pr-passport.json) | Exact public PR base/head SQL produced `UNSAFE`, witness `TX-009`, explicit coverage and owner routing, plus an executed verified repair. |
+| [`public-proof/safe-pr-passport.json`](public-proof/safe-pr-passport.json) | A different public PR produced `SAFE_WITHIN_SCOPE`, 3/3 metadata operations, 2/2 critical consumers evaluated, and no witness. |
+| [`public-proof/unsafe-pr-check.md`](public-proof/unsafe-pr-check.md) | The judge-readable Check report containing the verified SQL patch and restored model/agent evaluations. |
+| [`public-proof/safe-pr-check.md`](public-proof/safe-pr-check.md) | The corresponding green Check report for the safe additive change. |
 | [`github-check-unsafe.md`](github-check-unsafe.md) | The exact evidence report rendered for an `UNSAFE` GitHub Check. |
 | [`minimized-witness-passport.json`](minimized-witness-passport.json) | A portable `TX-009` counterexample with executable minimization counts and a separately verifiable replay hash. |
 | [`learned-loop/01-unsafe-semantic-passport.json`](learned-loop/01-unsafe-semantic-passport.json) | Live DataHub MCP context plus executed model/agent failures and witness `TX-009`. |
