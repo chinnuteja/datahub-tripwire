@@ -6,7 +6,41 @@
     "platform": "duckdb",
     "environment": "PROD"
   },
-  "facts": [],
+  "facts": [
+    {
+      "fact_type": "mcp.get_entities",
+      "subject": {
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+        "kind": "dataset",
+        "display_name": "Fraud feature table",
+        "platform": "duckdb",
+        "environment": "PROD"
+      },
+      "value": {
+        "result": {
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+          "name": "Fraud Features",
+          "ownership": {
+            "owners": [
+              {
+                "owner": {
+                  "urn": "urn:li:corpuser:fraud-platform",
+                  "properties": {
+                    "displayName": "Fraud Platform Team",
+                    "email": "fraud-platform@example.invalid"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "authority": "datahub_mcp",
+      "operation": "get_entities",
+      "retrieved_at": "2026-08-05T18:38:39.721663Z",
+      "source_hash": "8527d2050c3eea5384e02ac0d6bcde50bb5c4027abf4dbd47fe1c82777c96366"
+    }
+  ],
   "paths": [
     {
       "nodes": [
