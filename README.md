@@ -47,12 +47,6 @@ change that is caught by a protection learned from the first. The live path uses
 real, seeded DataHub graph and genuine MCP reads; offline snapshots are test fixtures,
 not substitutes for the judge-facing integration.
 
-## Project documents
-
-- [Final researched idea](FINAL_TRIPWIRE_IDEA.md)
-- [Product contract](docs/PRODUCT_CONTRACT.md)
-- [Three-phase execution plan](TRIPWIRE_THREE_PHASE_EXECUTION_PLAN.md)
-
 ## Run the verified vertical slice
 
 Use Python 3.11-3.13, then install the locked development environment:
