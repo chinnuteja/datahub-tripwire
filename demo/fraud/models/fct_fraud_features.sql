@@ -1,3 +1,4 @@
+-- Safe additive proof: nullable reviewer metadata does not alter critical behavior.
 -- The dbt form of demo/fraud/sql/baseline.sql. A test keeps the scored expression aligned.
 with scored as (
     select
