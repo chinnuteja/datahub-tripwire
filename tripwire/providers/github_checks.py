@@ -116,9 +116,9 @@ def render_check_markdown(passport: ChangePassport) -> str:
     lines = [
         f"# {_title(passport)}",
         "",
-        f"**Verdict:** `{passport.verdict.value}`  ",
-        f"**Run:** `{passport.run.run_id}`  ",
-        f"**Context coverage:** `{passport.coverage.status.value}`  ",
+        f"**Verdict:** `{passport.verdict.value}`",
+        f"**Run:** `{passport.run.run_id}`",
+        f"**Context coverage:** `{passport.coverage.status.value}`",
         (
             "**Critical evaluations:** "
             f"{passed} passed · {failed} failed · {unresolved} unresolved"
@@ -209,7 +209,7 @@ def render_check_markdown(passport: ChangePassport) -> str:
                 "",
                 "## Executed remediation",
                 "",
-                f"**Status:** `{remediation.status.value}`  ",
+                f"**Status:** `{remediation.status.value}`",
                 remediation.summary,
                 "",
                 f"- Remediation: `{remediation.remediation_id}`",

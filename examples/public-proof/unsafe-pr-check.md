@@ -1,8 +1,8 @@
 # Blocked: executed evidence found a critical behavior change
 
-**Verdict:** `UNSAFE`  
-**Run:** `tw_bbed61fa4e9236d3a1956448`  
-**Context coverage:** `complete`  
+**Verdict:** `UNSAFE`
+**Run:** `tw_bbed61fa4e9236d3a1956448`
+**Context coverage:** `complete`
 **Critical evaluations:** 0 passed · 2 failed · 0 unresolved
 
 ## Why
@@ -36,7 +36,7 @@ Transaction `TX-009` reproduces the failure.
 
 ## Executed remediation
 
-**Status:** `verified`  
+**Status:** `verified`
 Restore the baseline null-handling semantics; Tripwire replayed the repair and recovered identical model predictions and agent decisions.
 
 - Remediation: `fix_1f2883b353f78e0b`

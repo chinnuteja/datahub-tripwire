@@ -1,8 +1,8 @@
 # Passed within the evaluated scope
 
-**Verdict:** `SAFE_WITHIN_SCOPE`  
-**Run:** `tw_f8812874d557377ecb850d16`  
-**Context coverage:** `complete`  
+**Verdict:** `SAFE_WITHIN_SCOPE`
+**Run:** `tw_f8812874d557377ecb850d16`
+**Context coverage:** `complete`
 **Critical evaluations:** 2 passed · 0 failed · 0 unresolved
 
 ## Why
