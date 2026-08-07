@@ -231,25 +231,37 @@ uv run mypy tripwire
 uv run pytest --cov=tripwire --cov-report=term-missing
 ```
 
+## Reuse as a DataHub Skill
+
+Tripwire includes an Agent Skills-compatible workflow at
+[`skills/tripwire-change-safety/`](skills/tripwire-change-safety/SKILL.md). It teaches
+another agent to assess exact dbt revisions, interpret bounded verdicts, verify model and
+owner evidence, publish a Check, and require explicit human approval before writing
+protection memory.
+
+Install it for Codex with the same open skills installer documented by DataHub:
+
+```powershell
+npx skills add chinnuteja/datahub-tripwire -a codex
+```
+
+The package is validated with the standard Agent Skills validator and delegates execution
+to Tripwire's tested CLI; it does not duplicate the safety logic in prompt text.
+
 ## Current status
 
-The first complete product slice is implemented and live-verified: typed evidence
-contracts, an executable
-DuckDB/dbt fraud system, a pinned fraud model, a deterministic Fraud Review Agent, exact
-dbt manifest resolution, a real DataHub graph seeder, an MCP client adapter, deterministic
-assessment orchestration, honest three-state verdicts, counterexample extraction, proposed
-protections, CI exit codes, and Change Passport artifacts. The official
-`mcp-server-datahub==0.6.0` server has been exercised against the seeded DataHub v1.7.0
-graph: it returned the real schema plus the downstream fraud model and review agent, and
-the live unsafe assessment produced witness `TX-009`. The complete human-approved
-learn-then-catch loop is also live-verified: DataHub stores the memory, MCP retrieves it,
-and a distinct later SQL change is stopped by the inherited protection.
+The complete fraud slice is implemented and live-verified: typed evidence contracts,
+DuckDB/dbt execution, a hash-pinned logistic model artifact, Fraud Review Agent replay,
+exact manifest and URN resolution, real DataHub seeding, official MCP reads, three-state
+verdicts, minimized witnesses, verified remediation, owner routing, human approval,
+DataHub write-back, and inherited protection replay.
 
-The `ACT` stage is also implemented as a real GitHub Checks adapter, with fail-closed
-verdict mapping, stable-run idempotency, a credential-free local renderer, a minimal-
-permission GitHub Actions workflow, and mocked API contract tests for both create and
-update paths. A live Check needs the final public repository and its GitHub Actions token;
-the evidence and report can already be inspected without either.
+Both public PR paths are proven. The unsafe PR's workflow succeeds while Tripwire's
+dedicated Check correctly returns `failure`; the safe PR's workflow and dedicated Check
+both return `success`. Repository-wide CI separately enforces Ruff, strict Mypy, 90%+
+branch coverage, all tests, package construction, and coverage-artifact preservation.
+The current [live v2 bundle](examples/live-v2/README.md) binds the MCP context, model
+artifact, DataHub write-back, related catch, and safe control to exact engine commits.
 
 ## Honest limitations
 

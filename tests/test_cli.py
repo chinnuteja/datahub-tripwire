@@ -93,6 +93,10 @@ def test_assess_writes_unsafe_passport_and_returns_ci_failure(
     passport = json.loads(
         (artifact_dir / "change-passport-unsafe_semantic.json").read_text(encoding="utf-8")
     )
+    assert passport["resolved_entity"]["urn"].endswith(
+        "tripwire_fraud.fraud.fct_fraud_features,PROD)"
+    )
+    assert any(fact["kind"] == "null_handling" for fact in passport["change_facts"])
     assert passport["counterexample"]["transaction"]["transaction_id"] == "TX-009"
 
 
@@ -115,6 +119,16 @@ def test_assess_safe_candidate_returns_success(tmp_path: Path, monkeypatch) -> N
 
     assert result.exit_code == 0
     assert '"verdict": "SAFE_WITHIN_SCOPE"' in result.stdout
+    passport = json.loads(
+        (artifact_dir / "change-passport-safe_additive.json").read_text(encoding="utf-8")
+    )
+    assert passport["resolved_entity"]["urn"].endswith(
+        "tripwire_fraud.fraud.fct_fraud_features,PROD)"
+    )
+    assert any(
+        fact["kind"] == "projection" and fact["operation"] == "added"
+        for fact in passport["change_facts"]
+    )
 
 
 def test_datahub_trace_can_preserve_the_complete_snapshot(

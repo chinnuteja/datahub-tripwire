@@ -17,6 +17,7 @@ from tripwire.application import AssessmentService, write_change_passport
 from tripwire.change import (
     ChangeAnalysisError,
     analyze_git_change,
+    analyze_sql_change,
     render_dbt_sql_for_analysis,
 )
 from tripwire.config import load_settings
@@ -115,11 +116,26 @@ def assess(
             typer.echo(f"Live DataHub MCP context retrieval failed: {exc}", err=True)
             raise typer.Exit(code=2) from None
 
+    baseline_path = settings.demo_dir / "sql" / "baseline.sql"
+    candidate_path = settings.demo_dir / "sql" / f"{candidate}.sql"
+    try:
+        baseline_sql = baseline_path.read_text(encoding="utf-8")
+        candidate_sql = candidate_path.read_text(encoding="utf-8")
+        change_facts = analyze_sql_change(baseline_sql, candidate_sql)
+    except (OSError, ChangeAnalysisError) as exc:
+        typer.echo(f"Candidate SQL analysis failed: {exc}", err=True)
+        raise typer.Exit(code=2) from None
+
     service = AssessmentService(root=Path.cwd(), demo_dir=settings.demo_dir)
     passport = service.assess(
         candidate=candidate,
         context=snapshot,
         requested_by=requested_by,
+        changed_path=f"demo/fraud/sql/{candidate}.sql",
+        resolved_entity=snapshot.root,
+        change_facts=change_facts,
+        baseline_sql=baseline_sql,
+        candidate_sql=candidate_sql,
     )
     target = output or settings.artifact_dir / f"change-passport-{candidate}.json"
     _emit_assessment(passport=passport, target=target, candidate=candidate)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tripwire Change Safety"
+  short_description: "Trace and prove downstream change safety"
+  default_prompt: "Use $tripwire-change-safety to assess this dbt or SQL change against DataHub context and produce an evidence-backed verdict."
