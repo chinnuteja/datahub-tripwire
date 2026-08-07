@@ -17,4 +17,6 @@ uv run tripwire datahub seed
 uv run tripwire datahub tools
 
 feature_urn="$(uv run python -c 'import json; print(json.load(open("artifacts/runtime/datahub-seed-manifest.json", encoding="utf-8"))["entities"]["feature_dataset"])')"
-uv run tripwire datahub trace --urn "$feature_urn"
+uv run tripwire datahub trace \
+  --urn "$feature_urn" \
+  --output artifacts/runtime/datahub-context-live.json

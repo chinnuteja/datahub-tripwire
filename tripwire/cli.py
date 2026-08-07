@@ -669,6 +669,10 @@ def datahub_tools() -> None:
 @datahub_app.command("trace")
 def datahub_trace(
     urn: Annotated[str, typer.Option(help="Exact changed DataHub entity URN.")],
+    output: Annotated[
+        Path | None,
+        typer.Option(help="Optional destination for the complete live Context Snapshot."),
+    ] = None,
 ) -> None:
     """Trace critical downstream consumers using genuine MCP calls."""
 
@@ -685,7 +689,27 @@ def datahub_trace(
     except Exception as exc:
         typer.echo(f"DataHub MCP lineage failed: {exc}", err=True)
         raise typer.Exit(code=2) from None
-    typer.echo(json.dumps(snapshot.model_dump(mode="json"), indent=2, sort_keys=True))
+    payload = json.dumps(snapshot.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+    if output is None:
+        typer.echo(payload, nl=False)
+        return
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(payload, encoding="utf-8")
+    typer.echo(
+        json.dumps(
+            {
+                "artifact": str(output),
+                "provider": snapshot.provider,
+                "context_facts": len(snapshot.facts),
+                "lineage_paths": len(snapshot.paths),
+                "critical_consumers": len(snapshot.coverage.critical_consumers),
+                "active_protections": len(snapshot.protections),
+                "coverage": snapshot.coverage.status.value,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":

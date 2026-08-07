@@ -1,0 +1,18 @@
+{
+  "datahub_url": "http://localhost:8080",
+  "entities": {
+    "agent_flow": "urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD)",
+    "domain": "urn:li:domain:fraud-risk",
+    "feature_dataset": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+    "feature_table": "urn:li:mlFeatureTable:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud_features)",
+    "fraud_feature": "urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)",
+    "fraud_model": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)",
+    "fraud_review_agent": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)",
+    "model_deployment": "urn:li:mlModelDeployment:(urn:li:dataPlatform:tripwire,fraud_model_prod,PROD)",
+    "owner": "urn:li:corpuser:fraud-platform",
+    "raw_dataset": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.raw_transactions,PROD)"
+  },
+  "entity_count": 10,
+  "manifest_hash": "2edbd089b381e87401db27f6f2e2257442a2a9f7fb2833eb805cb7be7ee03129",
+  "seed_version": "tripwire-fraud-graph/2.0.0"
+}

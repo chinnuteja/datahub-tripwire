@@ -18,4 +18,6 @@ New-Item -ItemType Directory -Force -Path artifacts\runtime | Out-Null
 & .\.venv\Scripts\tripwire.exe datahub tools
 
 $seed = Get-Content -LiteralPath artifacts\runtime\datahub-seed-manifest.json | ConvertFrom-Json
-& .\.venv\Scripts\tripwire.exe datahub trace --urn $seed.entities.feature_dataset
+& .\.venv\Scripts\tripwire.exe datahub trace `
+  --urn $seed.entities.feature_dataset `
+  --output artifacts\runtime\datahub-context-live.json
