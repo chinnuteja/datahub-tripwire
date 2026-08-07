@@ -1,18 +1,19 @@
 # Live DataHub v2 proof
 
 This bundle was produced on commit
-`b394df6b6274afe37bdb003ee3012211c6bceab7` against a healthy local DataHub
+`6a71fb58ee19d2c2971a12c36c81b7e8d48972bd` against a healthy local DataHub
 v1.7.0 stack through the official `mcp-server-datahub` 0.6.0 tools. It is the
 judge-inspectable proof that Tripwire's memory survives a model upgrade.
 
 The sequence is intentionally longitudinal:
 
 1. [`01-datahub-context.json`](01-datahub-context.json) is the complete live MCP
-   snapshot: three source-hashed facts, five lineage paths, two critical consumers,
+   snapshot: three source-hashed facts, six lineage paths, two critical consumers,
    DataHub ownership, and one human-approved protection inherited from the earlier
    `TX-009` incident.
 2. [`02-inherited-unsafe-passport.json`](02-inherited-unsafe-passport.json) executes
-   the semantic regression through `fraud-risk-calibrator/2.0.0`. All three critical
+   the semantic regression through `fraud-risk-calibrator/2.0.0`. Its exact DataHub
+   entity and three normalized SQL AST change facts are persisted with the run. All three critical
    evaluations fail and the inherited protection produces
    `LEARNED_PROTECTION_VIOLATED`. The compact Check report is
    [`02-inherited-unsafe-check.md`](02-inherited-unsafe-check.md).
@@ -24,8 +25,9 @@ The sequence is intentionally longitudinal:
 5. [`05-related-change-catch-passport.json`](05-related-change-catch-passport.json)
    proves a distinct related SQL expression is caught by the inherited memory.
 6. [`06-safe-control-passport.json`](06-safe-control-passport.json) runs a safe
-   additive change through the same live graph, model, agent, and protection. All
-   three critical evaluations pass and the verdict is `SAFE_WITHIN_SCOPE`. Its
+   additive change through the same live graph, model, agent, and protection. Its exact
+   DataHub entity and two normalized SQL AST facts are persisted with the run. All three
+   critical evaluations pass and the verdict is `SAFE_WITHIN_SCOPE`. Its
    compact report is [`06-safe-control-check.md`](06-safe-control-check.md).
 7. [`07-seed-manifest.json`](07-seed-manifest.json) binds the ten seeded DataHub
    entities to the exact dbt manifest and graph version.
