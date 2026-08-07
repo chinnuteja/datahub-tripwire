@@ -19,13 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
       description: "Trace. Test. Witness. Act. Immunize. Powered by DataHub.",
       type: "website",
       url: origin,
-      images: [{ url: `${origin}/og.png`, width: 1672, height: 941, alt: "Tripwire evidence chain blocking a learned data regression" }],
+      images: [{ url: `${origin}/og-v2.png`, width: 1734, height: 909, alt: "Tripwire turns a blocked data regression into reusable DataHub protection" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "Tripwire — Data systems that remember",
       description: "An adaptive change-safety agent powered by DataHub.",
-      images: [`${origin}/og.png`],
+      images: [`${origin}/og-v2.png`],
     },
   };
 }
