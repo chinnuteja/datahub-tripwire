@@ -11,8 +11,8 @@ with scored as (
         + case when is_international then 0.18 else 0.00 end
         + case merchant_risk when 'high' then 0.22 when 'medium' then 0.08 else 0.00 end
         + case
-            when coalesce(device_age_days, 0) < 7 then 0.18
-            when coalesce(device_age_days, 0) < 30 then 0.08
+            when coalesce(device_age_days, 365) < 7 then 0.18
+            when coalesce(device_age_days, 365) < 30 then 0.08
             else 0.00
         end
         + least(chargeback_count_30d, 2) * 0.12
