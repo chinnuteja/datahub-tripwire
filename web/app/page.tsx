@@ -1,7 +1,8 @@
-import semanticPassport from "../public/evidence/01-unsafe-semantic-passport.json";
-import activeProtection from "../public/evidence/02-active-protection.json";
-import memoryReceipt from "../public/evidence/03-datahub-memory-receipt.json";
-import learnedPassport from "../public/evidence/04-learned-catch-passport.json";
+import semanticPassport from "../public/evidence/live-v2-unsafe-passport.json";
+import activeProtection from "../public/evidence/live-v2-active-protection.json";
+import memoryReceipt from "../public/evidence/live-v2-writeback-receipt.json";
+import learnedPassport from "../public/evidence/live-v2-related-catch-passport.json";
+import safePassport from "../public/evidence/live-v2-safe-control-passport.json";
 import { TripwireConsole } from "./TripwireConsole";
 
 export const metadata = {
@@ -19,11 +20,16 @@ export default function Home() {
   const evidence = {
     first: {
       runId: semanticPassport.run.run_id,
+      engineCommit: semanticPassport.run.commit_sha,
       candidate: semanticPassport.change.candidate_revision,
       verdict: semanticPassport.verdict,
       reason: semanticPassport.reason_codes[0],
       contextFacts: semanticPassport.context.length,
       lineagePaths: semanticPassport.lineage.length,
+      resolvedEntity: semanticPassport.resolved_entity?.urn ?? "",
+      changeFacts: semanticPassport.change_facts.length,
+      completedOperations: semanticPassport.scope_accounting.completed_operations,
+      requiredOperations: semanticPassport.scope_accounting.required_operations,
       consumers: semanticPassport.coverage.critical_consumers.map((consumer) => ({
         name: consumer.display_name,
         kind: consumer.kind,
@@ -51,6 +57,12 @@ export default function Home() {
         candidateSignal: witness.candidate.model_result.feature_values.fraud_signal,
       },
       protectionId: semanticPassport.proposed_protection?.protection_id ?? "",
+      owner: semanticPassport.owner_routes[0]?.display_name ?? "Unrouted",
+      modelVersion: String(semanticPassport.evaluations[0]?.observations.model_version ?? ""),
+      modelArtifactHash: String(
+        semanticPassport.evaluations[0]?.observations.model_artifact_hash ?? "",
+      ),
+      replayedRows: Number(semanticPassport.evaluations[0]?.observations.replayed_rows ?? 0),
     },
     protection: {
       id: activeProtection.protection_id,
@@ -84,6 +96,26 @@ export default function Home() {
       appliedCount: learnedPassport.applied_protections.length,
       proposedAgain: learnedPassport.proposed_protection !== null,
       learnedObservation: learnedEvaluation?.observations ?? {},
+    },
+    safe: {
+      runId: safePassport.run.run_id,
+      candidate: safePassport.change.candidate_revision,
+      verdict: safePassport.verdict,
+      reason: safePassport.reason_codes[0],
+      resolvedEntity: safePassport.resolved_entity?.urn ?? "",
+      changeFacts: safePassport.change_facts.length,
+      evaluations: safePassport.evaluations.map((evaluation) => ({
+        id: evaluation.evaluation_id,
+        kind: evaluation.kind,
+        status: evaluation.status,
+        summary: evaluation.summary,
+        consumer: evaluation.consumer.display_name,
+      })),
+      modelVersion: String(safePassport.evaluations[0]?.observations.model_version ?? ""),
+      modelArtifactHash: String(
+        safePassport.evaluations[0]?.observations.model_artifact_hash ?? "",
+      ),
+      replayedRows: Number(safePassport.evaluations[0]?.observations.replayed_rows ?? 0),
     },
   };
 

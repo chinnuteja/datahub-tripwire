@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import difflib
 import json
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -16,6 +18,7 @@ from tripwire.demo.fraud import (
 )
 from tripwire.domain import (
     ChangeFact,
+    ChangeFactKind,
     ChangePassport,
     ChangeRequest,
     Counterexample,
@@ -25,13 +28,87 @@ from tripwire.domain import (
     EvaluationKind,
     EvaluationResult,
     EvaluationStatus,
+    OwnerRoute,
     Protection,
     ProtectionStatus,
+    ScopeAccounting,
     Verdict,
+    VerifiedRemediation,
 )
 from tripwire.ports import ContextSnapshot, RuntimeUnavailableError
 from tripwire.provenance import create_run_identity, sha256_value
 from tripwire.witness import minimize_fraud_witness
+
+
+def _scope_accounting(
+    *, context: ContextSnapshot, evaluations: tuple[EvaluationResult, ...]
+) -> ScopeAccounting:
+    required = set(context.coverage.required_operations)
+    completed = required.intersection(context.coverage.completed_operations)
+    discovered = {consumer.urn for consumer in context.coverage.critical_consumers}
+    evaluated = {
+        result.consumer.urn
+        for result in evaluations
+        if result.critical and result.consumer.urn in discovered
+    }
+    return ScopeAccounting(
+        required_operations=len(required),
+        completed_operations=len(completed),
+        critical_consumers_discovered=len(discovered),
+        critical_consumers_evaluated=len(evaluated),
+        unresolved_gaps=len(context.coverage.gaps),
+        lineage_frontier_complete=(
+            not any(path.truncated for path in context.paths)
+            and not any(gap.code == "LINEAGE_TRUNCATED" for gap in context.coverage.gaps)
+        ),
+    )
+
+
+def _owner_routes(context: ContextSnapshot) -> tuple[OwnerRoute, ...]:
+    relevant = {context.root.urn, *(item.urn for item in context.coverage.critical_consumers)}
+    routes: dict[tuple[str, str], OwnerRoute] = {}
+
+    def visit(value: Any, source_urn: str | None = None) -> None:
+        if isinstance(value, dict):
+            raw_urn = value.get("urn")
+            if isinstance(raw_urn, str) and raw_urn in relevant:
+                source_urn = raw_urn
+            ownership = value.get("ownership")
+            if source_urn and isinstance(ownership, dict):
+                owners = ownership.get("owners", [])
+                for item in owners if isinstance(owners, list) else []:
+                    owner = item.get("owner") if isinstance(item, dict) else None
+                    if not isinstance(owner, dict):
+                        continue
+                    owner_urn = owner.get("urn")
+                    if not isinstance(owner_urn, str) or not owner_urn.startswith(
+                        ("urn:li:corpuser:", "urn:li:corpGroup:")
+                    ):
+                        continue
+                    properties = owner.get("properties")
+                    details = properties if isinstance(properties, dict) else {}
+                    display_name = details.get("displayName")
+                    email = details.get("email")
+                    route = OwnerRoute(
+                        owner_urn=owner_urn,
+                        display_name=(
+                            display_name
+                            if isinstance(display_name, str) and display_name
+                            else owner_urn.rsplit(":", 1)[-1]
+                        ),
+                        email=email if isinstance(email, str) and email else None,
+                        source_entity_urn=source_urn,
+                    )
+                    routes[(route.owner_urn, route.source_entity_urn)] = route
+            for child in value.values():
+                visit(child, source_urn)
+        elif isinstance(value, list):
+            for child in value:
+                visit(child, source_urn)
+
+    for fact in context.facts:
+        visit(fact.value)
+    return tuple(routes[key] for key in sorted(routes))
 
 
 class AssessmentService:
@@ -146,6 +223,13 @@ class AssessmentService:
             else None
         )
         verdict, reason_codes = self._decide(context=context, evaluations=evaluations)
+        remediation = self._verified_remediation(
+            baseline=baseline,
+            candidate_sql=candidate_source,
+            change_facts=change_facts,
+            evaluations=evaluations,
+            verdict=verdict,
+        )
         protection = self._propose_protection(
             run_id=run.run_id,
             context=context,
@@ -173,6 +257,9 @@ class AssessmentService:
             limitations=tuple(limitations),
             applied_protections=context.protections,
             proposed_protection=protection,
+            scope_accounting=_scope_accounting(context=context, evaluations=evaluations),
+            owner_routes=_owner_routes(context),
+            remediation=remediation,
         )
 
     def _evaluate(
@@ -230,7 +317,12 @@ class AssessmentService:
                     if changed
                     else "Model behavior is identical for every replayed transaction."
                 )
-                observations = {"changed_transaction_ids": changed}
+                observations = {
+                    "changed_transaction_ids": changed,
+                    "replayed_rows": baseline.row_count,
+                    "model_version": baseline.model_version,
+                    "model_artifact_hash": baseline.model_artifact_hash,
+                }
             else:
                 changed = [
                     transaction_id
@@ -246,7 +338,13 @@ class AssessmentService:
                     if changed
                     else "Agent decisions are identical for every replayed transaction."
                 )
-                observations = {"changed_transaction_ids": changed}
+                observations = {
+                    "changed_transaction_ids": changed,
+                    "replayed_rows": baseline.row_count,
+                    "model_version": baseline.model_version,
+                    "model_artifact_hash": baseline.model_artifact_hash,
+                    "agent_version": baseline.agent_version,
+                }
             results.append(
                 EvaluationResult(
                     evaluation_id=f"{kind.value}-{index}",
@@ -443,6 +541,84 @@ class AssessmentService:
             invariant=witness.violated_invariant,
             fixture=witness.transaction,
             version=1,
+        )
+
+    def _verified_remediation(
+        self,
+        *,
+        baseline: DemoBuild,
+        candidate_sql: str | None,
+        change_facts: tuple[ChangeFact, ...],
+        evaluations: tuple[EvaluationResult, ...],
+        verdict: Verdict,
+    ) -> VerifiedRemediation | None:
+        if verdict is not Verdict.UNSAFE or candidate_sql is None:
+            return None
+        null_facts = tuple(
+            fact
+            for fact in change_facts
+            if fact.kind is ChangeFactKind.NULL_HANDLING
+            and fact.before_expression
+            and fact.after_expression
+        )
+        if not null_facts:
+            return None
+
+        fixed_sql = candidate_sql
+        applied_fact_ids: list[str] = []
+        for fact in null_facts:
+            assert fact.before_expression is not None
+            assert fact.after_expression is not None
+            fixed_sql, replacements = re.subn(
+                re.escape(fact.after_expression),
+                fact.before_expression,
+                fixed_sql,
+                flags=re.IGNORECASE,
+            )
+            if replacements:
+                applied_fact_ids.append(fact.fact_id)
+        if not applied_fact_ids or fixed_sql == candidate_sql:
+            return None
+
+        try:
+            fixed = build_demo_world_from_sql(
+                demo_dir=self.demo_dir,
+                scenario="verified-remediation",
+                sql=fixed_sql,
+            )
+        except Exception:
+            return None
+        if fixed.predictions != baseline.predictions or fixed.decisions != baseline.decisions:
+            return None
+
+        restored = tuple(
+            result.evaluation_id
+            for result in evaluations
+            if result.critical
+            and result.status is EvaluationStatus.FAILED
+            and result.kind in {EvaluationKind.MODEL, EvaluationKind.AGENT}
+        )
+        if not restored:
+            return None
+        patch = "".join(
+            difflib.unified_diff(
+                candidate_sql.splitlines(keepends=True),
+                fixed_sql.splitlines(keepends=True),
+                fromfile="candidate.sql",
+                tofile="tripwire-verified-fix.sql",
+            )
+        )
+        material = {"facts": applied_fact_ids, "patch": patch, "output": fixed.output_hash}
+        return VerifiedRemediation(
+            remediation_id=f"fix_{sha256_value(material)[:16]}",
+            summary=(
+                "Restore the baseline null-handling semantics; Tripwire replayed the repair "
+                "and recovered identical model predictions and agent decisions."
+            ),
+            change_fact_ids=tuple(applied_fact_ids),
+            patch=patch,
+            fixed_output_hash=fixed.output_hash,
+            restored_evaluations=restored,
         )
 
 

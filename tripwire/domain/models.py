@@ -94,6 +94,10 @@ class ProtectionStatus(StrEnum):
     DISABLED = "disabled"
 
 
+class RemediationStatus(StrEnum):
+    VERIFIED = "verified"
+
+
 class AgentAction(StrEnum):
     APPROVE = "approve"
     REVIEW = "review"
@@ -220,6 +224,7 @@ class FraudModelResult(FrozenModel):
     probability: float = Field(ge=0, le=1)
     predicted_fraud: bool
     model_version: str
+    model_artifact_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     threshold: float = Field(ge=0, le=1)
     feature_values: dict[str, float | int | bool | None]
 
@@ -272,6 +277,41 @@ class Counterexample(FrozenModel):
     accepted_simplifications: int = Field(default=0, ge=0)
 
 
+class ScopeAccounting(FrozenModel):
+    required_operations: int = Field(ge=0)
+    completed_operations: int = Field(ge=0)
+    critical_consumers_discovered: int = Field(ge=0)
+    critical_consumers_evaluated: int = Field(ge=0)
+    unresolved_gaps: int = Field(ge=0)
+    lineage_frontier_complete: bool
+
+    @model_validator(mode="after")
+    def completed_counts_are_bounded(self) -> ScopeAccounting:
+        if self.completed_operations > self.required_operations:
+            raise ValueError("completed operations cannot exceed required operations")
+        if self.critical_consumers_evaluated > self.critical_consumers_discovered:
+            raise ValueError("evaluated consumers cannot exceed discovered consumers")
+        return self
+
+
+class OwnerRoute(FrozenModel):
+    owner_urn: str = Field(pattern=r"^urn:li:(corpuser|corpGroup):.+")
+    display_name: str
+    email: str | None = None
+    source_entity_urn: str = Field(pattern=r"^urn:li:[^:]+:.+")
+    responsibility: str = "required_reviewer"
+
+
+class VerifiedRemediation(FrozenModel):
+    remediation_id: str = Field(pattern=r"^fix_[a-f0-9]{16}$")
+    status: RemediationStatus = RemediationStatus.VERIFIED
+    summary: str
+    change_fact_ids: tuple[str, ...] = Field(min_length=1)
+    patch: str
+    fixed_output_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    restored_evaluations: tuple[str, ...] = Field(min_length=1)
+
+
 class Protection(FrozenModel):
     protection_id: str
     name: str
@@ -292,7 +332,7 @@ class Protection(FrozenModel):
 
 
 class ChangePassport(FrozenModel):
-    schema_version: str = "1.0.0"
+    schema_version: str = "1.1.0"
     run: RunIdentity
     change: ChangeRequest
     resolved_entity: EntityRef | None = None
@@ -307,6 +347,9 @@ class ChangePassport(FrozenModel):
     limitations: tuple[str, ...]
     applied_protections: tuple[Protection, ...] = ()
     proposed_protection: Protection | None = None
+    scope_accounting: ScopeAccounting | None = None
+    owner_routes: tuple[OwnerRoute, ...] = ()
+    remediation: VerifiedRemediation | None = None
 
     @model_validator(mode="after")
     def verdict_has_required_evidence(self) -> ChangePassport:
@@ -328,4 +371,6 @@ class ChangePassport(FrozenModel):
                 raise ValueError(
                     "UNSAFE requires a critical executed failure or hard governance rule"
                 )
+        if self.remediation is not None and self.verdict is not Verdict.UNSAFE:
+            raise ValueError("verified remediation is only valid for an unsafe change")
         return self

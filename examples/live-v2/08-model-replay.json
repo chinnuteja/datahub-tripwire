@@ -1,0 +1,628 @@
+{
+  "agent_version": "fraud-review-agent/1.0.0",
+  "data_hash": "bd86bab222e2425e34be1a8bb5fbb09e3cd6bea45693dca8ad4ce0d40fc23171",
+  "decisions": [
+    {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 42.5,
+          "chargeback_count_30d": 0,
+          "device_age_days": 400,
+          "fraud_signal": 0.0,
+          "is_international": false,
+          "merchant_risk": 0
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": false,
+        "probability": 0.148347,
+        "threshold": 0.62,
+        "transaction_id": "TX-001"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-001"
+    },
+    {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 225.0,
+          "chargeback_count_30d": 0,
+          "device_age_days": 120,
+          "fraud_signal": 0.16,
+          "is_international": false,
+          "merchant_risk": 1
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": false,
+        "probability": 0.246933,
+        "threshold": 0.62,
+        "transaction_id": "TX-002"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-002"
+    },
+    {
+      "action": "block",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 780.0,
+          "chargeback_count_30d": 1,
+          "device_age_days": 2,
+          "fraud_signal": 0.96,
+          "is_international": true,
+          "merchant_risk": 2
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": true,
+        "probability": 0.885738,
+        "threshold": 0.62,
+        "transaction_id": "TX-003"
+      },
+      "reason_codes": [
+        "HIGH_CONFIDENCE_FRAUD"
+      ],
+      "transaction_id": "TX-003"
+    },
+    {
+      "action": "block",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 1200.0,
+          "chargeback_count_30d": 2,
+          "device_age_days": 1,
+          "fraud_signal": 1.0,
+          "is_international": true,
+          "merchant_risk": 2
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": true,
+        "probability": 0.900793,
+        "threshold": 0.62,
+        "transaction_id": "TX-004"
+      },
+      "reason_codes": [
+        "HIGH_CONFIDENCE_FRAUD"
+      ],
+      "transaction_id": "TX-004"
+    },
+    {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 510.0,
+          "chargeback_count_30d": 0,
+          "device_age_days": 60,
+          "fraud_signal": 0.13,
+          "is_international": false,
+          "merchant_risk": 0
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": false,
+        "probability": 0.225544,
+        "threshold": 0.62,
+        "transaction_id": "TX-005"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-005"
+    },
+    {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 88.0,
+          "chargeback_count_30d": 0,
+          "device_age_days": 4,
+          "fraud_signal": 0.52,
+          "is_international": true,
+          "merchant_risk": 1
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": false,
+        "probability": 0.576469,
+        "threshold": 0.62,
+        "transaction_id": "TX-006"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-006"
+    },
+    {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 330.0,
+          "chargeback_count_30d": 1,
+          "device_age_days": 20,
+          "fraud_signal": 0.5,
+          "is_international": false,
+          "merchant_risk": 2
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": false,
+        "probability": 0.557056,
+        "threshold": 0.62,
+        "transaction_id": "TX-007"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-007"
+    },
+    {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 60.0,
+          "chargeback_count_30d": 0,
+          "device_age_days": 800,
+          "fraud_signal": 0.0,
+          "is_international": false,
+          "merchant_risk": 0
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": false,
+        "probability": 0.148347,
+        "threshold": 0.62,
+        "transaction_id": "TX-008"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-008"
+    },
+    {
+      "action": "review",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 520.0,
+          "chargeback_count_30d": 0,
+          "device_age_days": null,
+          "fraud_signal": 0.62,
+          "is_international": true,
+          "merchant_risk": 1
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": true,
+        "probability": 0.669,
+        "threshold": 0.62,
+        "transaction_id": "TX-009"
+      },
+      "reason_codes": [
+        "MODEL_THRESHOLD_EXCEEDED"
+      ],
+      "transaction_id": "TX-009"
+    },
+    {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 1005.0,
+          "chargeback_count_30d": 0,
+          "device_age_days": 10,
+          "fraud_signal": 0.46,
+          "is_international": false,
+          "merchant_risk": 1
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": false,
+        "probability": 0.517761,
+        "threshold": 0.62,
+        "transaction_id": "TX-010"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-010"
+    },
+    {
+      "action": "approve",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 199.99,
+          "chargeback_count_30d": 1,
+          "device_age_days": 6,
+          "fraud_signal": 0.56,
+          "is_international": true,
+          "merchant_risk": 0
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": false,
+        "probability": 0.614542,
+        "threshold": 0.62,
+        "transaction_id": "TX-011"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "TX-011"
+    },
+    {
+      "action": "review",
+      "agent_version": "fraud-review-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "amount_usd": 450.0,
+          "chargeback_count_30d": 1,
+          "device_age_days": null,
+          "fraud_signal": 0.6,
+          "is_international": false,
+          "merchant_risk": 2
+        },
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "predicted_fraud": true,
+        "probability": 0.651262,
+        "threshold": 0.62,
+        "transaction_id": "TX-012"
+      },
+      "reason_codes": [
+        "MODEL_THRESHOLD_EXCEEDED"
+      ],
+      "transaction_id": "TX-012"
+    }
+  ],
+  "features": [
+    {
+      "amount_usd": 42.5,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 850,
+      "device_age_days": 400,
+      "fraud_signal": 0.0,
+      "is_international": false,
+      "is_refunded": false,
+      "merchant_risk": "low",
+      "transaction_id": "TX-001"
+    },
+    {
+      "amount_usd": 225.0,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 420,
+      "device_age_days": 120,
+      "fraud_signal": 0.16,
+      "is_international": false,
+      "is_refunded": false,
+      "merchant_risk": "medium",
+      "transaction_id": "TX-002"
+    },
+    {
+      "amount_usd": 780.0,
+      "chargeback_count_30d": 1,
+      "customer_age_days": 18,
+      "device_age_days": 2,
+      "fraud_signal": 0.96,
+      "is_international": true,
+      "is_refunded": false,
+      "merchant_risk": "high",
+      "transaction_id": "TX-003"
+    },
+    {
+      "amount_usd": 1200.0,
+      "chargeback_count_30d": 2,
+      "customer_age_days": 5,
+      "device_age_days": 1,
+      "fraud_signal": 1.0,
+      "is_international": true,
+      "is_refunded": false,
+      "merchant_risk": "high",
+      "transaction_id": "TX-004"
+    },
+    {
+      "amount_usd": 510.0,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 900,
+      "device_age_days": 60,
+      "fraud_signal": 0.13,
+      "is_international": false,
+      "is_refunded": true,
+      "merchant_risk": "low",
+      "transaction_id": "TX-005"
+    },
+    {
+      "amount_usd": 88.0,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 12,
+      "device_age_days": 4,
+      "fraud_signal": 0.52,
+      "is_international": true,
+      "is_refunded": false,
+      "merchant_risk": "medium",
+      "transaction_id": "TX-006"
+    },
+    {
+      "amount_usd": 330.0,
+      "chargeback_count_30d": 1,
+      "customer_age_days": 150,
+      "device_age_days": 20,
+      "fraud_signal": 0.5,
+      "is_international": false,
+      "is_refunded": false,
+      "merchant_risk": "high",
+      "transaction_id": "TX-007"
+    },
+    {
+      "amount_usd": 60.0,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 2000,
+      "device_age_days": 800,
+      "fraud_signal": 0.0,
+      "is_international": false,
+      "is_refunded": false,
+      "merchant_risk": "low",
+      "transaction_id": "TX-008"
+    },
+    {
+      "amount_usd": 520.0,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 90,
+      "device_age_days": null,
+      "fraud_signal": 0.62,
+      "is_international": true,
+      "is_refunded": false,
+      "merchant_risk": "medium",
+      "transaction_id": "TX-009"
+    },
+    {
+      "amount_usd": 1005.0,
+      "chargeback_count_30d": 0,
+      "customer_age_days": 365,
+      "device_age_days": 10,
+      "fraud_signal": 0.46,
+      "is_international": false,
+      "is_refunded": false,
+      "merchant_risk": "medium",
+      "transaction_id": "TX-010"
+    },
+    {
+      "amount_usd": 199.99,
+      "chargeback_count_30d": 1,
+      "customer_age_days": 25,
+      "device_age_days": 6,
+      "fraud_signal": 0.56,
+      "is_international": true,
+      "is_refunded": false,
+      "merchant_risk": "low",
+      "transaction_id": "TX-011"
+    },
+    {
+      "amount_usd": 450.0,
+      "chargeback_count_30d": 1,
+      "customer_age_days": 75,
+      "device_age_days": null,
+      "fraud_signal": 0.6,
+      "is_international": false,
+      "is_refunded": false,
+      "merchant_risk": "high",
+      "transaction_id": "TX-012"
+    }
+  ],
+  "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+  "model_version": "fraud-risk-calibrator/2.0.0",
+  "output_hash": "8558cf238067c25ace8504edbb456633bfc9d78703eb49f76ec92c7098c82132",
+  "predictions": [
+    {
+      "feature_values": {
+        "amount_usd": 42.5,
+        "chargeback_count_30d": 0,
+        "device_age_days": 400,
+        "fraud_signal": 0.0,
+        "is_international": false,
+        "merchant_risk": 0
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": false,
+      "probability": 0.148347,
+      "threshold": 0.62,
+      "transaction_id": "TX-001"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 225.0,
+        "chargeback_count_30d": 0,
+        "device_age_days": 120,
+        "fraud_signal": 0.16,
+        "is_international": false,
+        "merchant_risk": 1
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": false,
+      "probability": 0.246933,
+      "threshold": 0.62,
+      "transaction_id": "TX-002"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 780.0,
+        "chargeback_count_30d": 1,
+        "device_age_days": 2,
+        "fraud_signal": 0.96,
+        "is_international": true,
+        "merchant_risk": 2
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": true,
+      "probability": 0.885738,
+      "threshold": 0.62,
+      "transaction_id": "TX-003"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 1200.0,
+        "chargeback_count_30d": 2,
+        "device_age_days": 1,
+        "fraud_signal": 1.0,
+        "is_international": true,
+        "merchant_risk": 2
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": true,
+      "probability": 0.900793,
+      "threshold": 0.62,
+      "transaction_id": "TX-004"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 510.0,
+        "chargeback_count_30d": 0,
+        "device_age_days": 60,
+        "fraud_signal": 0.13,
+        "is_international": false,
+        "merchant_risk": 0
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": false,
+      "probability": 0.225544,
+      "threshold": 0.62,
+      "transaction_id": "TX-005"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 88.0,
+        "chargeback_count_30d": 0,
+        "device_age_days": 4,
+        "fraud_signal": 0.52,
+        "is_international": true,
+        "merchant_risk": 1
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": false,
+      "probability": 0.576469,
+      "threshold": 0.62,
+      "transaction_id": "TX-006"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 330.0,
+        "chargeback_count_30d": 1,
+        "device_age_days": 20,
+        "fraud_signal": 0.5,
+        "is_international": false,
+        "merchant_risk": 2
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": false,
+      "probability": 0.557056,
+      "threshold": 0.62,
+      "transaction_id": "TX-007"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 60.0,
+        "chargeback_count_30d": 0,
+        "device_age_days": 800,
+        "fraud_signal": 0.0,
+        "is_international": false,
+        "merchant_risk": 0
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": false,
+      "probability": 0.148347,
+      "threshold": 0.62,
+      "transaction_id": "TX-008"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 520.0,
+        "chargeback_count_30d": 0,
+        "device_age_days": null,
+        "fraud_signal": 0.62,
+        "is_international": true,
+        "merchant_risk": 1
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": true,
+      "probability": 0.669,
+      "threshold": 0.62,
+      "transaction_id": "TX-009"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 1005.0,
+        "chargeback_count_30d": 0,
+        "device_age_days": 10,
+        "fraud_signal": 0.46,
+        "is_international": false,
+        "merchant_risk": 1
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": false,
+      "probability": 0.517761,
+      "threshold": 0.62,
+      "transaction_id": "TX-010"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 199.99,
+        "chargeback_count_30d": 1,
+        "device_age_days": 6,
+        "fraud_signal": 0.56,
+        "is_international": true,
+        "merchant_risk": 0
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": false,
+      "probability": 0.614542,
+      "threshold": 0.62,
+      "transaction_id": "TX-011"
+    },
+    {
+      "feature_values": {
+        "amount_usd": 450.0,
+        "chargeback_count_30d": 1,
+        "device_age_days": null,
+        "fraud_signal": 0.6,
+        "is_international": false,
+        "merchant_risk": 2
+      },
+      "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+      "model_version": "fraud-risk-calibrator/2.0.0",
+      "predicted_fraud": true,
+      "probability": 0.651262,
+      "threshold": 0.62,
+      "transaction_id": "TX-012"
+    }
+  ],
+  "row_count": 12,
+  "scenario": "baseline",
+  "sql_hash": "319c12222076b1fbf9ef2361caea0b0b6b2a88332deb414fbaa933d27617151f"
+}

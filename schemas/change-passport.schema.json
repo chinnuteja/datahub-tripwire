@@ -514,6 +514,49 @@
       "title": "LineagePath",
       "type": "object"
     },
+    "OwnerRoute": {
+      "additionalProperties": false,
+      "properties": {
+        "display_name": {
+          "title": "Display Name",
+          "type": "string"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "owner_urn": {
+          "pattern": "^urn:li:(corpuser|corpGroup):.+",
+          "title": "Owner Urn",
+          "type": "string"
+        },
+        "responsibility": {
+          "default": "required_reviewer",
+          "title": "Responsibility",
+          "type": "string"
+        },
+        "source_entity_urn": {
+          "pattern": "^urn:li:[^:]+:.+",
+          "title": "Source Entity Urn",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_urn",
+        "display_name",
+        "source_entity_urn"
+      ],
+      "title": "OwnerRoute",
+      "type": "object"
+    },
     "Protection": {
       "additionalProperties": false,
       "properties": {
@@ -604,6 +647,13 @@
       "title": "ProtectionStatus",
       "type": "string"
     },
+    "RemediationStatus": {
+      "enum": [
+        "verified"
+      ],
+      "title": "RemediationStatus",
+      "type": "string"
+    },
     "RunIdentity": {
       "additionalProperties": false,
       "properties": {
@@ -651,6 +701,50 @@
       "title": "RunIdentity",
       "type": "object"
     },
+    "ScopeAccounting": {
+      "additionalProperties": false,
+      "properties": {
+        "completed_operations": {
+          "minimum": 0,
+          "title": "Completed Operations",
+          "type": "integer"
+        },
+        "critical_consumers_discovered": {
+          "minimum": 0,
+          "title": "Critical Consumers Discovered",
+          "type": "integer"
+        },
+        "critical_consumers_evaluated": {
+          "minimum": 0,
+          "title": "Critical Consumers Evaluated",
+          "type": "integer"
+        },
+        "lineage_frontier_complete": {
+          "title": "Lineage Frontier Complete",
+          "type": "boolean"
+        },
+        "required_operations": {
+          "minimum": 0,
+          "title": "Required Operations",
+          "type": "integer"
+        },
+        "unresolved_gaps": {
+          "minimum": 0,
+          "title": "Unresolved Gaps",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "required_operations",
+        "completed_operations",
+        "critical_consumers_discovered",
+        "critical_consumers_evaluated",
+        "unresolved_gaps",
+        "lineage_frontier_complete"
+      ],
+      "title": "ScopeAccounting",
+      "type": "object"
+    },
     "Verdict": {
       "enum": [
         "UNSAFE",
@@ -659,6 +753,59 @@
       ],
       "title": "Verdict",
       "type": "string"
+    },
+    "VerifiedRemediation": {
+      "additionalProperties": false,
+      "properties": {
+        "change_fact_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Change Fact Ids",
+          "type": "array"
+        },
+        "fixed_output_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Fixed Output Hash",
+          "type": "string"
+        },
+        "patch": {
+          "title": "Patch",
+          "type": "string"
+        },
+        "remediation_id": {
+          "pattern": "^fix_[a-f0-9]{16}$",
+          "title": "Remediation Id",
+          "type": "string"
+        },
+        "restored_evaluations": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Restored Evaluations",
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/RemediationStatus",
+          "default": "verified"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remediation_id",
+        "summary",
+        "change_fact_ids",
+        "patch",
+        "fixed_output_hash",
+        "restored_evaluations"
+      ],
+      "title": "VerifiedRemediation",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -724,6 +871,14 @@
       "title": "Lineage",
       "type": "array"
     },
+    "owner_routes": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/OwnerRoute"
+      },
+      "title": "Owner Routes",
+      "type": "array"
+    },
     "proposed_protection": {
       "anyOf": [
         {
@@ -743,6 +898,17 @@
       "title": "Reason Codes",
       "type": "array"
     },
+    "remediation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VerifiedRemediation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "resolved_entity": {
       "anyOf": [
         {
@@ -758,9 +924,20 @@
       "$ref": "#/$defs/RunIdentity"
     },
     "schema_version": {
-      "default": "1.0.0",
+      "default": "1.1.0",
       "title": "Schema Version",
       "type": "string"
+    },
+    "scope_accounting": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ScopeAccounting"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "verdict": {
       "$ref": "#/$defs/Verdict"

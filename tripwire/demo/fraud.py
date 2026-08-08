@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 from collections.abc import Sequence
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import duckdb
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from tripwire.domain import AgentAction, AgentDecision, FraudModelResult
 from tripwire.provenance import sha256_file, sha256_value
@@ -26,6 +27,7 @@ class DemoBuild(BaseModel):
     data_hash: str
     sql_hash: str
     model_version: str
+    model_artifact_hash: str
     agent_version: str
     row_count: int
     features: tuple[dict[str, Any], ...]
@@ -44,6 +46,41 @@ TRANSACTION_COLUMNS: tuple[tuple[str, str], ...] = (
     ("chargeback_count_30d", "INTEGER NOT NULL"),
     ("is_refunded", "BOOLEAN NOT NULL"),
 )
+
+DEFAULT_MODEL_ARTIFACT = Path(__file__).with_name("fraud_logistic_v2.json")
+
+
+class LogisticModelArtifact(BaseModel):
+    """Strict, executable contract for the pinned fraud probability model."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0.0"]
+    model_version: str = Field(min_length=1)
+    model_family: Literal["logistic_regression"]
+    target: Literal["fraud_probability"]
+    feature_order: tuple[str, ...] = Field(min_length=1)
+    intercept: float
+    coefficients: dict[str, float]
+    decision_threshold: float = Field(gt=0, lt=1)
+    probability_precision: int = Field(ge=1, le=12)
+    provenance: dict[str, str]
+
+    @model_validator(mode="after")
+    def feature_contract_is_exact(self) -> LogisticModelArtifact:
+        if set(self.feature_order) != set(self.coefficients):
+            raise ValueError("feature_order must exactly match coefficient names")
+        parameters = (self.intercept, *self.coefficients.values())
+        if not all(math.isfinite(value) for value in parameters):
+            raise ValueError("model parameters must be finite")
+        return self
+
+
+@lru_cache(maxsize=8)
+def load_model_artifact(path: Path = DEFAULT_MODEL_ARTIFACT) -> LogisticModelArtifact:
+    """Load and validate a versioned model artifact once per process."""
+
+    return LogisticModelArtifact.model_validate_json(path.read_text(encoding="utf-8"))
 
 
 def _parse_bool(value: str) -> bool:
@@ -128,19 +165,33 @@ class DuckDBTransformationRuntime:
 
 
 class DeterministicFraudModel:
-    """A transparent pinned model whose prediction is exactly reproducible."""
+    """A hash-pinned logistic model whose prediction is exactly reproducible."""
 
-    version = "fraud-logistic-rule/1.0.0"
-    threshold = 0.62
+    def __init__(self, artifact_path: Path = DEFAULT_MODEL_ARTIFACT) -> None:
+        self.artifact = load_model_artifact(artifact_path)
+        self.artifact_hash = sha256_file(artifact_path)
+        self.version = self.artifact.model_version
+        self.threshold = self.artifact.decision_threshold
 
     def predict(self, feature_row: dict[str, Any]) -> FraudModelResult:
-        fraud_signal = float(feature_row["fraud_signal"])
-        probability = round(min(0.99, max(0.01, 0.08 + 0.95 * fraud_signal)), 6)
+        values = {
+            feature: float(feature_row[feature]) for feature in self.artifact.feature_order
+        }
+        logit = self.artifact.intercept + sum(
+            self.artifact.coefficients[feature] * values[feature]
+            for feature in self.artifact.feature_order
+        )
+        probability = round(
+            1.0 / (1.0 + math.exp(-logit)),
+            self.artifact.probability_precision,
+        )
+        fraud_signal = values["fraud_signal"]
         return FraudModelResult(
             transaction_id=str(feature_row["transaction_id"]),
             probability=probability,
             predicted_fraud=probability >= self.threshold,
             model_version=self.version,
+            model_artifact_hash=self.artifact_hash,
             threshold=self.threshold,
             feature_values={
                 "fraud_signal": fraud_signal,
@@ -275,6 +326,7 @@ def build_demo_world_from_sql(*, demo_dir: Path, scenario: str, sql: str) -> Dem
         data_hash=sha256_file(data_path),
         sql_hash=sha256_value(sql),
         model_version=model.version,
+        model_artifact_hash=model.artifact_hash,
         agent_version=agent.version,
         row_count=len(features),
         features=tuple(features),

@@ -1,0 +1,43 @@
+{
+  "affected_entities": [
+    {
+      "display_name": "Fraud Features",
+      "environment": null,
+      "kind": "dataset",
+      "platform": null,
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+    },
+    {
+      "display_name": "fraud_logistic_rule",
+      "environment": null,
+      "kind": "ml_model",
+      "platform": null,
+      "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+    },
+    {
+      "display_name": "Fraud Review Agent",
+      "environment": null,
+      "kind": "data_job",
+      "platform": null,
+      "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+    }
+  ],
+  "approved_at": "2026-08-05T19:32:04.928851Z",
+  "approved_by": "urn:li:corpuser:fraud-platform",
+  "fixture": {
+    "amount_usd": 520.0,
+    "chargeback_count_30d": 0,
+    "customer_age_days": 90,
+    "device_age_days": null,
+    "is_international": true,
+    "is_refunded": false,
+    "merchant_risk": "medium",
+    "transaction_id": "TX-009"
+  },
+  "invariant": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.",
+  "name": "Preserve fraud review behavior for the discovered witness",
+  "protection_id": "protection-witness-tx-009",
+  "source_change_id": "tw_a17f62cb38d4c95947ac8655",
+  "status": "active",
+  "version": 1
+}

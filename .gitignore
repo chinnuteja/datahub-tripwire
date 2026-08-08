@@ -8,6 +8,8 @@ __pycache__/
 .uv-tools/
 dist/
 build/
+!web/build/
+!web/build/sites-vite-plugin.ts
 *.egg-info/
 .env
 .env.*

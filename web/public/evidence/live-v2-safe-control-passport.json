@@ -1,0 +1,1352 @@
+{
+  "applied_protections": [
+    {
+      "affected_entities": [
+        {
+          "display_name": "Fraud Features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "fraud_logistic_rule",
+          "environment": null,
+          "kind": "ml_model",
+          "platform": null,
+          "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+        },
+        {
+          "display_name": "Fraud Review Agent",
+          "environment": null,
+          "kind": "data_job",
+          "platform": null,
+          "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+        }
+      ],
+      "approved_at": "2026-08-05T19:32:04.928851Z",
+      "approved_by": "urn:li:corpuser:fraud-platform",
+      "fixture": {
+        "amount_usd": 520.0,
+        "chargeback_count_30d": 0,
+        "customer_age_days": 90,
+        "device_age_days": null,
+        "is_international": true,
+        "is_refunded": false,
+        "merchant_risk": "medium",
+        "transaction_id": "TX-009"
+      },
+      "invariant": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.",
+      "name": "Preserve fraud review behavior for the discovered witness",
+      "protection_id": "protection-witness-tx-009",
+      "source_change_id": "tw_a17f62cb38d4c95947ac8655",
+      "status": "active",
+      "version": 1
+    }
+  ],
+  "change": {
+    "base_revision": "baseline",
+    "candidate_revision": "safe_additive",
+    "changed_paths": [
+      "demo/fraud/sql/safe_additive.sql"
+    ],
+    "repository": "datahub-tripwire",
+    "requested_by": "local-user"
+  },
+  "change_facts": [
+    {
+      "after_expression": "CAST(NULL AS TEXT) AS reviewer_note",
+      "before_expression": null,
+      "dialect": "duckdb",
+      "fact_id": "chg_f8ab9895251432f1",
+      "kind": "projection",
+      "operation": "added",
+      "parser_version": "sqlglot/30.15.0"
+    },
+    {
+      "after_expression": "CAST(NULL AS TEXT)",
+      "before_expression": null,
+      "dialect": "duckdb",
+      "fact_id": "chg_8da64cbe1cd79dcc",
+      "kind": "cast",
+      "operation": "added",
+      "parser_version": "sqlglot/30.15.0"
+    }
+  ],
+  "context": [
+    {
+      "authority": "datahub_mcp",
+      "fact_type": "mcp.get_entities",
+      "operation": "get_entities",
+      "retrieved_at": "2026-08-07T11:47:25.917213Z",
+      "source_hash": "09f7699c5efaedba19e0792502a5367e6313c2a7a285c8f798276efb242f3140",
+      "subject": {
+        "display_name": "Fraud Features",
+        "environment": null,
+        "kind": "dataset",
+        "platform": null,
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+      },
+      "value": {
+        "result": {
+          "domain": {
+            "domain": {
+              "children": {
+                "total": 0
+              },
+              "dataProducts": {
+                "total": 0
+              },
+              "entities": {
+                "total": 5
+              },
+              "parentDomains": {
+                "count": 0
+              },
+              "properties": {
+                "description": "Critical fraud detection datasets, models, and agents.",
+                "name": "Fraud & Risk"
+              },
+              "urn": "urn:li:domain:fraud-risk"
+            }
+          },
+          "editableProperties": {
+            "description": "Production-critical feature table consumed by model and review agent."
+          },
+          "health": [
+            {
+              "status": "PASS",
+              "type": "INCIDENTS"
+            }
+          ],
+          "name": "Fraud Features",
+          "ownership": {
+            "owners": [
+              {
+                "owner": {
+                  "properties": {
+                    "active": true,
+                    "displayName": "Fraud Platform Team",
+                    "email": "fraud-platform@example.invalid",
+                    "title": "Technical Owner"
+                  },
+                  "urn": "urn:li:corpuser:fraud-platform"
+                },
+                "ownershipType": {
+                  "info": {
+                    "description": "Involved in the production, maintenance, or distribution of the asset(s).",
+                    "name": "Technical Owner"
+                  },
+                  "type": "CUSTOM_OWNERSHIP_TYPE",
+                  "urn": "urn:li:ownershipType:__system__technical_owner"
+                },
+                "type": "TECHNICAL_OWNER"
+              }
+            ]
+          },
+          "platform": {
+            "name": "duckdb",
+            "urn": "urn:li:dataPlatform:duckdb"
+          },
+          "properties": {
+            "customProperties": [
+              {
+                "key": "tripwire.criticality",
+                "value": "production"
+              },
+              {
+                "key": "tripwire.dbt.original_file_path",
+                "value": "models\\fct_fraud_features.sql"
+              },
+              {
+                "key": "tripwire.seed.version",
+                "value": "tripwire-fraud-graph/2.0.0"
+              },
+              {
+                "key": "tripwire.dbt.unique_id",
+                "value": "model.tripwire_fraud.fct_fraud_features"
+              }
+            ],
+            "name": "Fraud Features"
+          },
+          "relatedDocuments": {
+            "count": 10,
+            "start": 0,
+            "total": 0
+          },
+          "schemaMetadata": {
+            "fields": [
+              {
+                "description": "Critical fraud-model input feature",
+                "fieldPath": "fraud_signal",
+                "nativeDataType": "DOUBLE",
+                "nullable": false
+              },
+              {
+                "description": "Stable synthetic transaction ID",
+                "fieldPath": "transaction_id",
+                "nativeDataType": "VARCHAR",
+                "nullable": false
+              },
+              {
+                "fieldPath": "amount_usd",
+                "nativeDataType": "DOUBLE",
+                "nullable": false
+              },
+              {
+                "fieldPath": "chargeback_count_30d",
+                "nativeDataType": "INTEGER",
+                "nullable": false
+              },
+              {
+                "fieldPath": "customer_age_days",
+                "nativeDataType": "INTEGER",
+                "nullable": false
+              },
+              {
+                "fieldPath": "device_age_days",
+                "nativeDataType": "INTEGER",
+                "nullable": false
+              },
+              {
+                "fieldPath": "is_international",
+                "nativeDataType": "BOOLEAN",
+                "nullable": false
+              },
+              {
+                "fieldPath": "is_refunded",
+                "nativeDataType": "BOOLEAN",
+                "nullable": false
+              },
+              {
+                "fieldPath": "merchant_risk",
+                "nativeDataType": "VARCHAR",
+                "nullable": false
+              }
+            ],
+            "name": "",
+            "platformUrn": "urn:li:dataPlatform:duckdb"
+          },
+          "subTypes": {
+            "typeNames": [
+              "dbt Model"
+            ]
+          },
+          "tags": {
+            "tags": [
+              {
+                "tag": {
+                  "properties": {
+                    "description": "Managed by the Tripwire demo seed.",
+                    "name": "Tripwire"
+                  },
+                  "urn": "urn:li:tag:Tripwire"
+                }
+              },
+              {
+                "tag": {
+                  "properties": {
+                    "description": "Participates in a production-critical path.",
+                    "name": "Production"
+                  },
+                  "urn": "urn:li:tag:Production"
+                }
+              },
+              {
+                "tag": {
+                  "properties": {
+                    "description": "Requires complete change-safety evaluation.",
+                    "name": "Critical"
+                  },
+                  "urn": "urn:li:tag:Critical"
+                }
+              },
+              {
+                "tag": {
+                  "properties": {
+                    "description": "Active Tripwire protection approved by urn:li:corpuser:fraud-platform; source change tw_a17f62cb38d4c95947ac8655.",
+                    "name": "Tripwire: Preserve fraud review behavior for the discovered witness (v1)"
+                  },
+                  "urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+                }
+              }
+            ]
+          },
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        }
+      }
+    },
+    {
+      "authority": "datahub_mcp",
+      "fact_type": "mcp.list_schema_fields",
+      "operation": "list_schema_fields",
+      "retrieved_at": "2026-08-07T11:47:26.102756Z",
+      "source_hash": "f634ad4e81fb2cd83b5b5b2d3e2d8e7542859125c6a7338f3ea87e7836c00742",
+      "subject": {
+        "display_name": "Fraud Features",
+        "environment": null,
+        "kind": "dataset",
+        "platform": null,
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+      },
+      "value": {
+        "result": {
+          "fields": [
+            {
+              "description": "Critical fraud-model input feature",
+              "fieldPath": "fraud_signal",
+              "nativeDataType": "DOUBLE",
+              "nullable": false
+            },
+            {
+              "description": "Stable synthetic transaction ID",
+              "fieldPath": "transaction_id",
+              "nativeDataType": "VARCHAR",
+              "nullable": false
+            },
+            {
+              "fieldPath": "amount_usd",
+              "nativeDataType": "DOUBLE",
+              "nullable": false
+            },
+            {
+              "fieldPath": "chargeback_count_30d",
+              "nativeDataType": "INTEGER",
+              "nullable": false
+            },
+            {
+              "fieldPath": "customer_age_days",
+              "nativeDataType": "INTEGER",
+              "nullable": false
+            },
+            {
+              "fieldPath": "device_age_days",
+              "nativeDataType": "INTEGER",
+              "nullable": false
+            },
+            {
+              "fieldPath": "is_international",
+              "nativeDataType": "BOOLEAN",
+              "nullable": false
+            },
+            {
+              "fieldPath": "is_refunded",
+              "nativeDataType": "BOOLEAN",
+              "nullable": false
+            },
+            {
+              "fieldPath": "merchant_risk",
+              "nativeDataType": "VARCHAR",
+              "nullable": false
+            }
+          ],
+          "matchingCount": null,
+          "offset": 0,
+          "remainingCount": 0,
+          "returned": 9,
+          "totalFields": 9,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        }
+      }
+    },
+    {
+      "authority": "datahub_mcp",
+      "fact_type": "mcp.get_lineage",
+      "operation": "get_lineage",
+      "retrieved_at": "2026-08-07T11:47:26.384789Z",
+      "source_hash": "8e5248f3e1f828b3538cd29a1b0804eee73772e56e0d3afd956dcf03d8f8e48b",
+      "subject": {
+        "display_name": "Fraud Features",
+        "environment": null,
+        "kind": "dataset",
+        "platform": null,
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+      },
+      "value": {
+        "result": {
+          "downstreams": {
+            "facets": [
+              {
+                "aggregations": [
+                  {
+                    "count": 0,
+                    "value": "1"
+                  },
+                  {
+                    "count": 0,
+                    "value": "2"
+                  },
+                  {
+                    "count": 0,
+                    "value": "3+"
+                  }
+                ],
+                "displayName": "Degree of Dependencies",
+                "field": "degree"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 3,
+                    "value": "DATASET"
+                  },
+                  {
+                    "count": 1,
+                    "value": "DATA_JOB"
+                  },
+                  {
+                    "count": 1,
+                    "value": "MLFEATURE"
+                  }
+                ],
+                "displayName": "Type",
+                "field": "_entityType"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 2,
+                    "value": "Tripwire Change Passport"
+                  },
+                  {
+                    "count": 1,
+                    "value": "Tripwire Protection"
+                  },
+                  {
+                    "count": 1,
+                    "value": "AI Agent"
+                  }
+                ],
+                "displayName": "Sub Type",
+                "field": "typeNames"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 5,
+                    "entity": {
+                      "urn": "urn:li:dataPlatform:tripwire"
+                    },
+                    "value": "urn:li:dataPlatform:tripwire"
+                  }
+                ],
+                "displayName": "Platform",
+                "field": "platform"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 2,
+                    "entity": {
+                      "urn": "urn:li:domain:fraud-risk"
+                    },
+                    "value": "urn:li:domain:fraud-risk"
+                  }
+                ],
+                "displayName": "Domain",
+                "field": "domains"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 5,
+                    "entity": {
+                      "urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+                    },
+                    "value": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+                  },
+                  {
+                    "count": 2,
+                    "entity": {
+                      "urn": "urn:li:tag:Critical"
+                    },
+                    "value": "urn:li:tag:Critical"
+                  },
+                  {
+                    "count": 2,
+                    "entity": {
+                      "urn": "urn:li:tag:Production"
+                    },
+                    "value": "urn:li:tag:Production"
+                  }
+                ],
+                "displayName": "Tagged With",
+                "field": "tags"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 2,
+                    "entity": {
+                      "urn": "urn:li:corpuser:fraud-platform"
+                    },
+                    "value": "urn:li:corpuser:fraud-platform"
+                  }
+                ],
+                "displayName": "Owned By",
+                "field": "owners"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 4,
+                    "value": "PROD"
+                  }
+                ],
+                "displayName": "Environment",
+                "field": "origin"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 3,
+                    "value": "DATASET"
+                  },
+                  {
+                    "count": 2,
+                    "value": "DATASET\u241eTripwire Change Passport"
+                  },
+                  {
+                    "count": 1,
+                    "value": "DATA_JOB\u241eAI Agent"
+                  },
+                  {
+                    "count": 1,
+                    "value": "DATA_JOB"
+                  },
+                  {
+                    "count": 1,
+                    "value": "DATASET\u241eTripwire Protection"
+                  },
+                  {
+                    "count": 1,
+                    "value": "MLFEATURE"
+                  }
+                ],
+                "displayName": "Type\u241eSub Type",
+                "field": "_entityType\u241etypeNames"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 0,
+                    "value": "true"
+                  }
+                ],
+                "displayName": "removed",
+                "field": "removed"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 1,
+                    "value": "PROD"
+                  }
+                ],
+                "displayName": "Environment",
+                "field": "env"
+              },
+              {
+                "aggregations": [
+                  {
+                    "count": 3,
+                    "value": "DATASET"
+                  },
+                  {
+                    "count": 1,
+                    "value": "MLFEATURE"
+                  },
+                  {
+                    "count": 1,
+                    "value": "DATA_JOB"
+                  }
+                ],
+                "displayName": "Type",
+                "field": "entity"
+              }
+            ],
+            "hasMore": false,
+            "offset": 0,
+            "returned": 6,
+            "searchResults": [
+              {
+                "degree": 2,
+                "entity": {
+                  "description": "Versioned logistic-regression artifact executed by Tripwire consumer replay.",
+                  "name": "fraud_logistic_rule",
+                  "origin": "PROD",
+                  "ownership": {
+                    "owners": [
+                      {
+                        "owner": {
+                          "properties": {
+                            "active": true,
+                            "displayName": "Fraud Platform Team",
+                            "email": "fraud-platform@example.invalid",
+                            "title": "Technical Owner"
+                          },
+                          "urn": "urn:li:corpuser:fraud-platform"
+                        },
+                        "ownershipType": {
+                          "info": {
+                            "description": "Involved in the production, maintenance, or distribution of the asset(s).",
+                            "name": "Technical Owner"
+                          },
+                          "type": "CUSTOM_OWNERSHIP_TYPE",
+                          "urn": "urn:li:ownershipType:__system__technical_owner"
+                        },
+                        "type": "TECHNICAL_OWNER"
+                      }
+                    ]
+                  },
+                  "platform": {
+                    "name": "tripwire",
+                    "urn": "urn:li:dataPlatform:tripwire"
+                  },
+                  "tags": {
+                    "tags": [
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Managed by the Tripwire demo seed.",
+                            "name": "Tripwire"
+                          },
+                          "urn": "urn:li:tag:Tripwire"
+                        }
+                      },
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Participates in a production-critical path.",
+                            "name": "Production"
+                          },
+                          "urn": "urn:li:tag:Production"
+                        }
+                      },
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Requires complete change-safety evaluation.",
+                            "name": "Critical"
+                          },
+                          "urn": "urn:li:tag:Critical"
+                        }
+                      },
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Active Tripwire protection approved by urn:li:corpuser:fraud-platform; source change tw_a17f62cb38d4c95947ac8655.",
+                            "name": "Tripwire: Preserve fraud review behavior for the discovered witness (v1)"
+                          },
+                          "urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+                        }
+                      }
+                    ]
+                  },
+                  "type": "MLMODEL",
+                  "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+                }
+              },
+              {
+                "degree": 1,
+                "entity": {
+                  "dataFlow": {
+                    "cluster": "PROD",
+                    "domain": {
+                      "domain": {
+                        "children": {
+                          "total": 0
+                        },
+                        "dataProducts": {
+                          "total": 0
+                        },
+                        "entities": {
+                          "total": 5
+                        },
+                        "parentDomains": {
+                          "count": 0
+                        },
+                        "properties": {
+                          "description": "Critical fraud detection datasets, models, and agents.",
+                          "name": "Fraud & Risk"
+                        },
+                        "urn": "urn:li:domain:fraud-risk"
+                      }
+                    },
+                    "editableProperties": {
+                      "description": "Deterministic fraud consumers registered in DataHub Core."
+                    },
+                    "flowId": "tripwire_fraud_agents",
+                    "orchestrator": "tripwire",
+                    "ownership": {
+                      "owners": [
+                        {
+                          "owner": {
+                            "properties": {
+                              "active": true,
+                              "displayName": "Fraud Platform Team",
+                              "email": "fraud-platform@example.invalid",
+                              "title": "Technical Owner"
+                            },
+                            "urn": "urn:li:corpuser:fraud-platform"
+                          },
+                          "ownershipType": {
+                            "info": {
+                              "description": "Involved in the production, maintenance, or distribution of the asset(s).",
+                              "name": "Technical Owner"
+                            },
+                            "type": "CUSTOM_OWNERSHIP_TYPE",
+                            "urn": "urn:li:ownershipType:__system__technical_owner"
+                          },
+                          "type": "TECHNICAL_OWNER"
+                        }
+                      ]
+                    },
+                    "platform": {
+                      "name": "tripwire",
+                      "urn": "urn:li:dataPlatform:tripwire"
+                    },
+                    "properties": {
+                      "customProperties": [
+                        {
+                          "key": "tripwire.seed.version",
+                          "value": "tripwire-fraud-graph/2.0.0"
+                        }
+                      ],
+                      "name": "Tripwire Fraud Agents"
+                    },
+                    "urn": "urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD)"
+                  },
+                  "domain": {
+                    "domain": {
+                      "children": {
+                        "total": 0
+                      },
+                      "dataProducts": {
+                        "total": 0
+                      },
+                      "entities": {
+                        "total": 5
+                      },
+                      "parentDomains": {
+                        "count": 0
+                      },
+                      "properties": {
+                        "description": "Critical fraud detection datasets, models, and agents.",
+                        "name": "Fraud & Risk"
+                      },
+                      "urn": "urn:li:domain:fraud-risk"
+                    }
+                  },
+                  "editableProperties": {
+                    "description": "OSS-compatible AI-agent registry representation. Consumes fraud features and fraud-risk-calibrator/2.0.0 to approve, review, or block transactions."
+                  },
+                  "health": [
+                    {
+                      "status": "PASS",
+                      "type": "INCIDENTS"
+                    }
+                  ],
+                  "jobId": "fraud_review_agent",
+                  "ownership": {
+                    "owners": [
+                      {
+                        "owner": {
+                          "properties": {
+                            "active": true,
+                            "displayName": "Fraud Platform Team",
+                            "email": "fraud-platform@example.invalid",
+                            "title": "Technical Owner"
+                          },
+                          "urn": "urn:li:corpuser:fraud-platform"
+                        },
+                        "ownershipType": {
+                          "info": {
+                            "description": "Involved in the production, maintenance, or distribution of the asset(s).",
+                            "name": "Technical Owner"
+                          },
+                          "type": "CUSTOM_OWNERSHIP_TYPE",
+                          "urn": "urn:li:ownershipType:__system__technical_owner"
+                        },
+                        "type": "TECHNICAL_OWNER"
+                      }
+                    ]
+                  },
+                  "properties": {
+                    "customProperties": [
+                      {
+                        "key": "tripwire.entity.kind",
+                        "value": "ai_agent"
+                      },
+                      {
+                        "key": "tripwire.agent.version",
+                        "value": "fraud-review-agent/1.0.0"
+                      },
+                      {
+                        "key": "tripwire.seed.version",
+                        "value": "tripwire-fraud-graph/2.0.0"
+                      }
+                    ],
+                    "name": "Fraud Review Agent"
+                  },
+                  "subTypes": {
+                    "typeNames": [
+                      "AI Agent"
+                    ]
+                  },
+                  "tags": {
+                    "tags": [
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Managed by the Tripwire demo seed.",
+                            "name": "Tripwire"
+                          },
+                          "urn": "urn:li:tag:Tripwire"
+                        }
+                      },
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Participates in a production-critical path.",
+                            "name": "Production"
+                          },
+                          "urn": "urn:li:tag:Production"
+                        }
+                      },
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Requires complete change-safety evaluation.",
+                            "name": "Critical"
+                          },
+                          "urn": "urn:li:tag:Critical"
+                        }
+                      },
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Active Tripwire protection approved by urn:li:corpuser:fraud-platform; source change tw_a17f62cb38d4c95947ac8655.",
+                            "name": "Tripwire: Preserve fraud review behavior for the discovered witness (v1)"
+                          },
+                          "urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+                        }
+                      }
+                    ]
+                  },
+                  "type": "DATA_JOB",
+                  "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+                }
+              },
+              {
+                "degree": 1,
+                "entity": {
+                  "description": "Fraud signal consumed by fraud-risk-calibrator/2.0.0",
+                  "name": "fraud_signal",
+                  "type": "MLFEATURE",
+                  "urn": "urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)"
+                }
+              },
+              {
+                "degree": 1,
+                "entity": {
+                  "editableProperties": {
+                    "description": "Evidence-backed UNSAFE decision for unsafe_semantic."
+                  },
+                  "health": [
+                    {
+                      "status": "PASS",
+                      "type": "INCIDENTS"
+                    }
+                  ],
+                  "name": "Tripwire Change Passport tw_0f4441f5d063ef2f937540e2",
+                  "platform": {
+                    "name": "tripwire",
+                    "urn": "urn:li:dataPlatform:tripwire"
+                  },
+                  "properties": {
+                    "customProperties": [
+                      {
+                        "key": "tripwire.memory.kind",
+                        "value": "change-passport"
+                      },
+                      {
+                        "key": "tripwire.passport.verdict",
+                        "value": "UNSAFE"
+                      },
+                      {
+                        "key": "tripwire.passport.id",
+                        "value": "tw_0f4441f5d063ef2f937540e2"
+                      },
+                      {
+                        "key": "tripwire.passport.payload",
+                        "value": "{\"applied_protections\":[{\"affected_entities\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"},{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}],\"approved_at\":\"2026-08-05T19:32:04.928851Z\",\"approved_by\":\"urn:li:corpuser:fraud-platform\",\"fixture\":{\"amount_usd\":520.0,\"chargeback_count_30d\":0,\"customer_age_days\":90,\"device_age_days\":null,\"is_international\":true,\"is_refunded\":false,\"merchant_risk\":\"medium\",\"transaction_id\":\"TX-009\"},\"invariant\":\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\",\"name\":\"Preserve fraud review behavior for the discovered witness\",\"protection_id\":\"protection-witness-tx-009\",\"source_change_id\":\"tw_a17f62cb38d4c95947ac8655\",\"status\":\"active\",\"version\":1}],\"change\":{\"base_revision\":\"baseline\",\"candidate_revision\":\"unsafe_semantic\",\"changed_paths\":[\"demo/fraud/sql/unsafe_semantic.sql\"],\"repository\":\"datahub-tripwire\",\"requested_by\":\"judge-live-v2\"},\"change_facts\":[],\"context\":[{\"authority\":\"datahub_mcp\",\"fact_type\":\"mcp.get_entities\",\"operation\":\"get_entities\",\"retrieved_at\":\"2026-08-07T11:07:51.281311Z\",\"source_hash\":\"0f33df5ef465341f6a84e346747faa8e3401da17a1ed44e2e7ac7030e4f6219f\",\"subject\":{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},\"value\":{\"result\":{\"domain\":{\"domain\":{\"children\":{\"total\":0},\"dataProducts\":{\"total\":0},\"entities\":{\"total\":5},\"parentDomains\":{\"count\":0},\"properties\":{\"description\":\"Critical fraud detection datasets, models, and agents.\",\"name\":\"Fraud & Risk\"},\"urn\":\"urn:li:domain:fraud-risk\"}},\"editableProperties\":{\"description\":\"Production-critical feature table consumed by model and review agent.\"},\"health\":[{\"status\":\"PASS\",\"type\":\"INCIDENTS\"}],\"name\":\"Fraud Features\",\"ownership\":{\"owners\":[{\"owner\":{\"properties\":{\"active\":true,\"displayName\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"title\":\"Technical Owner\"},\"urn\":\"urn:li:corpuser:fraud-platform\"},\"ownershipType\":{\"info\":{\"description\":\"Involved in the production, maintenance, or distribution of the asset(s).\",\"name\":\"Technical Owner\"},\"type\":\"CUSTOM_OWNERSHIP_TYPE\",\"urn\":\"urn:li:ownershipType:__system__technical_owner\"},\"type\":\"TECHNICAL_OWNER\"}]},\"platform\":{\"name\":\"duckdb\",\"urn\":\"urn:li:dataPlatform:duckdb\"},\"properties\":{\"customProperties\":[{\"key\":\"tripwire.criticality\",\"value\":\"production\"},{\"key\":\"tripwire.dbt.original_file_path\",\"value\":\"models\\\\fct_fraud_features.sql\"},{\"key\":\"tripwire.seed.version\",\"value\":\"tripwire-fraud-graph/2.0.0\"},{\"key\":\"tripwire.dbt.unique_id\",\"value\":\"model.tripwire_fraud.fct_fraud_features\"}],\"name\":\"Fraud Features\"},\"relatedDocuments\":{\"count\":10,\"start\":0,\"total\":0},\"schemaMetadata\":{\"fields\":[{\"description\":\"Critical fraud-model input feature\",\"fieldPath\":\"fraud_signal\",\"nativeDataType\":\"DOUBLE\",\"nullable\":false},{\"description\":\"Stable synthetic transaction ID\",\"fieldPath\":\"transaction_id\",\"nativeDataType\":\"VARCHAR\",\"nullable\":false},{\"fieldPath\":\"amount_usd\",\"nativeDataType\":\"DOUBLE\",\"nullable\":false},{\"fieldPath\":\"chargeback_count_30d\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"customer_age_days\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"device_age_days\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"is_international\",\"nativeDataType\":\"BOOLEAN\",\"nullable\":false},{\"fieldPath\":\"is_refunded\",\"nativeDataType\":\"BOOLEAN\",\"nullable\":false},{\"fieldPath\":\"merchant_risk\",\"nativeDataType\":\"VARCHAR\",\"nullable\":false}],\"name\":\"\",\"platformUrn\":\"urn:li:dataPlatform:duckdb\"},\"subTypes\":{\"typeNames\":[\"dbt Model\"]},\"tags\":{\"tags\":[{\"tag\":{\"properties\":{\"description\":\"Managed by the Tripwire demo seed.\",\"name\":\"Tripwire\"},\"urn\":\"urn:li:tag:Tripwire\"}},{\"tag\":{\"properties\":{\"description\":\"Participates in a production-critical path.\",\"name\":\"Production\"},\"urn\":\"urn:li:tag:Production\"}},{\"tag\":{\"properties\":{\"description\":\"Requires complete change-safety evaluation.\",\"name\":\"Critical\"},\"urn\":\"urn:li:tag:Critical\"}}]},\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"}}},{\"authority\":\"datahub_mcp\",\"fact_type\":\"mcp.list_schema_fields\",\"operation\":\"list_schema_fields\",\"retrieved_at\":\"2026-08-07T11:07:51.685944Z\",\"source_hash\":\"f634ad4e81fb2cd83b5b5b2d3e2d8e7542859125c6a7338f3ea87e7836c00742\",\"subject\":{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},\"value\":{\"result\":{\"fields\":[{\"description\":\"Critical fraud-model input feature\",\"fieldPath\":\"fraud_signal\",\"nativeDataType\":\"DOUBLE\",\"nullable\":false},{\"description\":\"Stable synthetic transaction ID\",\"fieldPath\":\"transaction_id\",\"nativeDataType\":\"VARCHAR\",\"nullable\":false},{\"fieldPath\":\"amount_usd\",\"nativeDataType\":\"DOUBLE\",\"nullable\":false},{\"fieldPath\":\"chargeback_count_30d\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"customer_age_days\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"device_age_days\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"is_international\",\"nativeDataType\":\"BOOLEAN\",\"nullable\":false},{\"fieldPath\":\"is_refunded\",\"nativeDataType\":\"BOOLEAN\",\"nullable\":false},{\"fieldPath\":\"merchant_risk\",\"nativeDataType\":\"VARCHAR\",\"nullable\":false}],\"matchingCount\":null,\"offset\":0,\"remainingCount\":0,\"returned\":9,\"totalFields\":9,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"}}},{\"authority\":\"datahub_mcp\",\"fact_type\":\"mcp.get_lineage\",\"operation\":\"get_lineage\",\"retrieved_at\":\"2026-08-07T11:07:52.256358Z\",\"source_hash\":\"b91ea0f3e5dc7fae48f782b7c9132df6848e620434936921a8be32e5f19f648f\",\"subject\":{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},\"value\":{\"result\":{\"downstreams\":{\"facets\":[{\"aggregations\":[{\"count\":0,\"value\":\"1\"},{\"count\":0,\"value\":\"2\"},{\"count\":0,\"value\":\"3+\"}],\"displayName\":\"Degree of Dependencies\",\"field\":\"degree\"},{\"aggregations\":[{\"count\":2,\"value\":\"DATASET\"},{\"count\":1,\"value\":\"DATA_JOB\"},{\"count\":1,\"value\":\"MLFEATURE\"}],\"displayName\":\"Type\",\"field\":\"_entityType\"},{\"aggregations\":[{\"count\":1,\"value\":\"Tripwire Change Passport\"},{\"count\":1,\"value\":\"Tripwire Protection\"},{\"count\":1,\"value\":\"AI Agent\"}],\"displayName\":\"Sub Type\",\"field\":\"typeNames\"},{\"aggregations\":[{\"count\":4,\"entity\":{\"urn\":\"urn:li:dataPlatform:tripwire\"},\"value\":\"urn:li:dataPlatform:tripwire\"}],\"displayName\":\"Platform\",\"field\":\"platform\"},{\"aggregations\":[{\"count\":2,\"entity\":{\"urn\":\"urn:li:domain:fraud-risk\"},\"value\":\"urn:li:domain:fraud-risk\"}],\"displayName\":\"Domain\",\"field\":\"domains\"},{\"aggregations\":[{\"count\":2,\"entity\":{\"urn\":\"urn:li:tag:Critical\"},\"value\":\"urn:li:tag:Critical\"},{\"count\":2,\"entity\":{\"urn\":\"urn:li:tag:Production\"},\"value\":\"urn:li:tag:Production\"},{\"count\":2,\"entity\":{\"urn\":\"urn:li:tag:Tripwire\"},\"value\":\"urn:li:tag:Tripwire\"}],\"displayName\":\"Tagged With\",\"field\":\"tags\"},{\"aggregations\":[{\"count\":2,\"entity\":{\"urn\":\"urn:li:corpuser:fraud-platform\"},\"value\":\"urn:li:corpuser:fraud-platform\"}],\"displayName\":\"Owned By\",\"field\":\"owners\"},{\"aggregations\":[{\"count\":3,\"value\":\"PROD\"}],\"displayName\":\"Environment\",\"field\":\"origin\"},{\"aggregations\":[{\"count\":2,\"value\":\"DATASET\"},{\"count\":1,\"value\":\"DATASET\\u241eTripwire Change Passport\"},{\"count\":1,\"value\":\"DATA_JOB\\u241eAI Agent\"},{\"count\":1,\"value\":\"DATA_JOB\"},{\"count\":1,\"value\":\"DATASET\\u241eTripwire Protection\"},{\"count\":1,\"value\":\"MLFEATURE\"}],\"displayName\":\"Type\\u241eSub Type\",\"field\":\"_entityType\\u241etypeNames\"},{\"aggregations\":[{\"count\":0,\"value\":\"true\"}],\"displayName\":\"removed\",\"field\":\"removed\"},{\"aggregations\":[{\"count\":1,\"value\":\"PROD\"}],\"displayName\":\"Environment\",\"field\":\"env\"},{\"aggregations\":[{\"count\":2,\"value\":\"DATASET\"},{\"count\":1,\"value\":\"MLFEATURE\"},{\"count\":1,\"value\":\"DATA_JOB\"}],\"displayName\":\"Type\",\"field\":\"entity\"}],\"hasMore\":false,\"offset\":0,\"returned\":5,\"searchResults\":[{\"degree\":2,\"entity\":{\"description\":\"Versioned logistic-regression artifact executed by Tripwire consumer replay.\",\"name\":\"fraud_logistic_rule\",\"origin\":\"PROD\",\"ownership\":{\"owners\":[{\"owner\":{\"properties\":{\"active\":true,\"displayName\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"title\":\"Technical Owner\"},\"urn\":\"urn:li:corpuser:fraud-platform\"},\"ownershipType\":{\"info\":{\"description\":\"Involved in the production, maintenance, or distribution of the asset(s).\",\"name\":\"Technical Owner\"},\"type\":\"CUSTOM_OWNERSHIP_TYPE\",\"urn\":\"urn:li:ownershipType:__system__technical_owner\"},\"type\":\"TECHNICAL_OWNER\"}]},\"platform\":{\"name\":\"tripwire\",\"urn\":\"urn:li:dataPlatform:tripwire\"},\"tags\":{\"tags\":[{\"tag\":{\"properties\":{\"description\":\"Managed by the Tripwire demo seed.\",\"name\":\"Tripwire\"},\"urn\":\"urn:li:tag:Tripwire\"}},{\"tag\":{\"properties\":{\"description\":\"Participates in a production-critical path.\",\"name\":\"Production\"},\"urn\":\"urn:li:tag:Production\"}},{\"tag\":{\"properties\":{\"description\":\"Requires complete change-safety evaluation.\",\"name\":\"Critical\"},\"urn\":\"urn:li:tag:Critical\"}}]},\"type\":\"MLMODEL\",\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"}},{\"degree\":1,\"entity\":{\"dataFlow\":{\"cluster\":\"PROD\",\"domain\":{\"domain\":{\"children\":{\"total\":0},\"dataProducts\":{\"total\":0},\"entities\":{\"total\":5},\"parentDomains\":{\"count\":0},\"properties\":{\"description\":\"Critical fraud detection datasets, models, and agents.\",\"name\":\"Fraud & Risk\"},\"urn\":\"urn:li:domain:fraud-risk\"}},\"editableProperties\":{\"description\":\"Deterministic fraud consumers registered in DataHub Core.\"},\"flowId\":\"tripwire_fraud_agents\",\"orchestrator\":\"tripwire\",\"ownership\":{\"owners\":[{\"owner\":{\"properties\":{\"active\":true,\"displayName\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"title\":\"Technical Owner\"},\"urn\":\"urn:li:corpuser:fraud-platform\"},\"ownershipType\":{\"info\":{\"description\":\"Involved in the production, maintenance, or distribution of the asset(s).\",\"name\":\"Technical Owner\"},\"type\":\"CUSTOM_OWNERSHIP_TYPE\",\"urn\":\"urn:li:ownershipType:__system__technical_owner\"},\"type\":\"TECHNICAL_OWNER\"}]},\"platform\":{\"name\":\"tripwire\",\"urn\":\"urn:li:dataPlatform:tripwire\"},\"properties\":{\"customProperties\":[{\"key\":\"tripwire.seed.version\",\"value\":\"tripwire-fraud-graph/2.0.0\"}],\"name\":\"Tripwire Fraud Agents\"},\"urn\":\"urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD)\"},\"domain\":{\"domain\":{\"children\":{\"total\":0},\"dataProducts\":{\"total\":0},\"entities\":{\"total\":5},\"parentDomains\":{\"count\":0},\"properties\":{\"description\":\"Critical fraud detection datasets, models, and agents.\",\"name\":\"Fraud & Risk\"},\"urn\":\"urn:li:domain:fraud-risk\"}},\"editableProperties\":{\"description\":\"OSS-compatible AI-agent registry representation. Consumes fraud features and fraud-risk-calibrator/2.0.0 to approve, review, or block transactions.\"},\"health\":[{\"status\":\"PASS\",\"type\":\"INCIDENTS\"}],\"jobId\":\"fraud_review_agent\",\"ownership\":{\"owners\":[{\"owner\":{\"properties\":{\"active\":true,\"displayName\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"title\":\"Technical Owner\"},\"urn\":\"urn:li:corpuser:fraud-platform\"},\"ownershipType\":{\"info\":{\"description\":\"Involved in the production, maintenance, or distribution of the asset(s).\",\"name\":\"Technical Owner\"},\"type\":\"CUSTOM_OWNERSHIP_TYPE\",\"urn\":\"urn:li:ownershipType:__system__technical_owner\"},\"type\":\"TECHNICAL_OWNER\"}]},\"properties\":{\"customProperties\":[{\"key\":\"tripwire.entity.kind\",\"value\":\"ai_agent\"},{\"key\":\"tripwire.agent.version\",\"value\":\"fraud-review-agent/1.0.0\"},{\"key\":\"tripwire.seed.version\",\"value\":\"tripwire-fraud-graph/2.0.0\"}],\"name\":\"Fraud Review Agent\"},\"subTypes\":{\"typeNames\":[\"AI Agent\"]},\"tags\":{\"tags\":[{\"tag\":{\"properties\":{\"description\":\"Managed by the Tripwire demo seed.\",\"name\":\"Tripwire\"},\"urn\":\"urn:li:tag:Tripwire\"}},{\"tag\":{\"properties\":{\"description\":\"Participates in a production-critical path.\",\"name\":\"Production\"},\"urn\":\"urn:li:tag:Production\"}},{\"tag\":{\"properties\":{\"description\":\"Requires complete change-safety evaluation.\",\"name\":\"Critical\"},\"urn\":\"urn:li:tag:Critical\"}}]},\"type\":\"DATA_JOB\",\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}},{\"degree\":1,\"entity\":{\"description\":\"Fraud signal consumed by fraud-risk-calibrator/2.0.0\",\"name\":\"fraud_signal\",\"type\":\"MLFEATURE\",\"urn\":\"urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)\"}},{\"degree\":1,\"entity\":{\"editableProperties\":{\"description\":\"Evidence-backed UNSAFE decision for unsafe_semantic.\"},\"health\":[{\"status\":\"PASS\",\"type\":\"INCIDENTS\"}],\"name\":\"Tripwire Change Passport tw_a17f62cb38d4c95947ac8655\",\"platform\":{\"name\":\"tripwire\",\"urn\":\"urn:li:dataPlatform:tripwire\"},\"properties\":{\"customProperties\":[{\"key\":\"tripwire.memory.kind\",\"value\":\"change-passport\"},{\"key\":\"tripwire.passport.verdict\",\"value\":\"UNSAFE\"},{\"key\":\"tripwire.passport.id\",\"value\":\"tw_a17f62cb38d4c95947ac8655\"},{\"key\":\"tripwire.passport.payload\",\"value\":\"{\\\"applied_protections\\\":[],\\\"change\\\":{\\\"base_revision\\\":\\\"baseline\\\",\\\"candidate_revision\\\":\\\"unsafe_semantic\\\",\\\"changed_paths\\\":[\\\"demo/fraud/sql/unsafe_semantic.sql\\\"],\\\"repository\\\":\\\"datahub-tripwire\\\",\\\"requested_by\\\":\\\"local-user\\\"},\\\"context\\\":[{\\\"authority\\\":\\\"datahub_mcp\\\",\\\"fact_type\\\":\\\"mcp.get_entities\\\",\\\"operation\\\":\\\"get_entities\\\",\\\"retrieved_at\\\":\\\"2026-08-05T18:38:39.721663Z\\\",\\\"source_hash\\\":\\\"caf34f15d49ede59f96f5a1faf0e8f0ea63e0e14daa50a5a6f9603bcfec9a4ae\\\",\\\"subject\\\":{\\\"display_name\\\":\\\"Fraud Features\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"dataset\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"},\\\"value\\\":{\\\"result\\\":{\\\"domain\\\":{\\\"domain\\\":{\\\"children\\\":{\\\"total\\\":0},\\\"dataProducts\\\":{\\\"total\\\":0},\\\"entities\\\":{\\\"total\\\":5},\\\"parentDomains\\\":{\\\"count\\\":0},\\\"properties\\\":{\\\"description\\\":\\\"Critical fraud detection datasets, models, and agents.\\\",\\\"name\\\":\\\"Fraud & Risk\\\"},\\\"urn\\\":\\\"urn:li:domain:fraud-risk\\\"}},\\\"editableProperties\\\":{\\\"description\\\":\\\"Production-critical feature table consumed by model and review agent.\\\"},\\\"health\\\":[{\\\"status\\\":\\\"PASS\\\",\\\"type\\\":\\\"INCIDENTS\\\"}],\\\"name\\\":\\\"Fraud Features\\\",\\\"ownership\\\":{\\\"owners\\\":[{\\\"owner\\\":{\\\"properties\\\":{\\\"active\\\":true,\\\"displayName\\\":\\\"Fraud Platform Team\\\",\\\"email\\\":\\\"fraud-platform@example.invalid\\\",\\\"title\\\":\\\"Technical Owner\\\"},\\\"urn\\\":\\\"urn:li:corpuser:fraud-platform\\\"},\\\"ownershipType\\\":{\\\"info\\\":{\\\"description\\\":\\\"Involved in the production, maintenance, or distribution of the asset(s).\\\",\\\"name\\\":\\\"Technical Owner\\\"},\\\"type\\\":\\\"CUSTOM_OWNERSHIP_TYPE\\\",\\\"urn\\\":\\\"urn:li:ownershipType:__system__technical_owner\\\"},\\\"type\\\":\\\"TECHNICAL_OWNER\\\"}]},\\\"platform\\\":{\\\"name\\\":\\\"duckdb\\\",\\\"urn\\\":\\\"urn:li:dataPlatform:duckdb\\\"},\\\"properties\\\":{\\\"customProperties\\\":[{\\\"key\\\":\\\"tripwire.criticality\\\",\\\"value\\\":\\\"production\\\"},{\\\"key\\\":\\\"tripwire.dbt.original_file_path\\\",\\\"value\\\":\\\"models\\\\\\\\fct_fraud_features.sql\\\"},{\\\"key\\\":\\\"tripwire.dbt.unique_id\\\",\\\"value\\\":\\\"model.tripwire_fraud.fct_fraud_features\\\"},{\\\"key\\\":\\\"tripwire.seed.version\\\",\\\"value\\\":\\\"tripwire-fraud-graph/1.0.0\\\"}],\\\"name\\\":\\\"Fraud Features\\\"},\\\"relatedDocuments\\\":{\\\"count\\\":10,\\\"start\\\":0,\\\"total\\\":0},\\\"schemaMetadata\\\":{\\\"fields\\\":[{\\\"description\\\":\\\"Critical fraud-model input feature\\\",\\\"fieldPath\\\":\\\"fraud_signal\\\",\\\"nativeDataType\\\":\\\"DOUBLE\\\",\\\"nullable\\\":false},{\\\"description\\\":\\\"Stable synthetic transaction ID\\\",\\\"fieldPath\\\":\\\"transaction_id\\\",\\\"nativeDataType\\\":\\\"VARCHAR\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"amount_usd\\\",\\\"nativeDataType\\\":\\\"DOUBLE\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"chargeback_count_30d\\\",\\\"nativeDataType\\\":\\\"INTEGER\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"customer_age_days\\\",\\\"nativeDataType\\\":\\\"INTEGER\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"device_age_days\\\",\\\"nativeDataType\\\":\\\"INTEGER\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"is_international\\\",\\\"nativeDataType\\\":\\\"BOOLEAN\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"is_refunded\\\",\\\"nativeDataType\\\":\\\"BOOLEAN\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"merchant_risk\\\",\\\"nativeDataType\\\":\\\"VARCHAR\\\",\\\"nullable\\\":false}],\\\"name\\\":\\\"\\\",\\\"platformUrn\\\":\\\"urn:li:dataPlatform:duckdb\\\"},\\\"subTypes\\\":{\\\"typeNames\\\":[\\\"dbt Model\\\"]},\\\"tags\\\":{\\\"tags\\\":[{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Managed by the Tripwire demo seed.\\\",\\\"name\\\":\\\"Tripwire\\\"},\\\"urn\\\":\\\"urn:li:tag:Tripwire\\\"}},{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Participates in a production-critical path.\\\",\\\"name\\\":\\\"Production\\\"},\\\"urn\\\":\\\"urn:li:tag:Production\\\"}},{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Requires complete change-safety evaluation.\\\",\\\"name\\\":\\\"Critical\\\"},\\\"urn\\\":\\\"urn:li:tag:Critical\\\"}}]},\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"}}},{\\\"authority\\\":\\\"datahub_mcp\\\",\\\"fact_type\\\":\\\"mcp.list_schema_fields\\\",\\\"operation\\\":\\\"list_schema_fields\\\",\\\"retrieved_at\\\":\\\"2026-08-05T18:38:40.303537Z\\\",\\\"source_hash\\\":\\\"f634ad4e81fb2cd83b5b5b2d3e2d8e7542859125c6a7338f3ea87e7836c00742\\\",\\\"subject\\\":{\\\"display_name\\\":\\\"Fraud Features\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"dataset\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"},\\\"value\\\":{\\\"result\\\":{\\\"fields\\\":[{\\\"description\\\":\\\"Critical fraud-model input feature\\\",\\\"fieldPath\\\":\\\"fraud_signal\\\",\\\"nativeDataType\\\":\\\"DOUBLE\\\",\\\"nullable\\\":false},{\\\"description\\\":\\\"Stable synthetic transaction ID\\\",\\\"fieldPath\\\":\\\"transaction_id\\\",\\\"nativeDataType\\\":\\\"VARCHAR\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"amount_usd\\\",\\\"nativeDataType\\\":\\\"DOUBLE\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"chargeback_count_30d\\\",\\\"nativeDataType\\\":\\\"INTEGER\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"customer_age_days\\\",\\\"nativeDataType\\\":\\\"INTEGER\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"device_age_days\\\",\\\"nativeDataType\\\":\\\"INTEGER\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"is_international\\\",\\\"nativeDataType\\\":\\\"BOOLEAN\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"is_refunded\\\",\\\"nativeDataType\\\":\\\"BOOLEAN\\\",\\\"nullable\\\":false},{\\\"fieldPath\\\":\\\"merchant_risk\\\",\\\"nativeDataType\\\":\\\"VARCHAR\\\",\\\"nullable\\\":false}],\\\"matchingCount\\\":null,\\\"offset\\\":0,\\\"remainingCount\\\":0,\\\"returned\\\":9,\\\"totalFields\\\":9,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"}}},{\\\"authority\\\":\\\"datahub_mcp\\\",\\\"fact_type\\\":\\\"mcp.get_lineage\\\",\\\"operation\\\":\\\"get_lineage\\\",\\\"retrieved_at\\\":\\\"2026-08-05T18:38:40.871235Z\\\",\\\"source_hash\\\":\\\"70db5f4767ec26fcfac3216e44e0b109f6498b83120eb87fced749ed9070b047\\\",\\\"subject\\\":{\\\"display_name\\\":\\\"Fraud Features\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"dataset\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"},\\\"value\\\":{\\\"result\\\":{\\\"downstreams\\\":{\\\"facets\\\":[{\\\"aggregations\\\":[{\\\"count\\\":0,\\\"value\\\":\\\"1\\\"},{\\\"count\\\":0,\\\"value\\\":\\\"2\\\"},{\\\"count\\\":0,\\\"value\\\":\\\"3+\\\"}],\\\"displayName\\\":\\\"Degree of Dependencies\\\",\\\"field\\\":\\\"degree\\\"},{\\\"aggregations\\\":[{\\\"count\\\":1,\\\"value\\\":\\\"DATA_JOB\\\"},{\\\"count\\\":1,\\\"value\\\":\\\"MLMODEL\\\"},{\\\"count\\\":1,\\\"value\\\":\\\"MLFEATURE\\\"}],\\\"displayName\\\":\\\"Type\\\",\\\"field\\\":\\\"_entityType\\\"},{\\\"aggregations\\\":[{\\\"count\\\":1,\\\"value\\\":\\\"AI Agent\\\"}],\\\"displayName\\\":\\\"Sub Type\\\",\\\"field\\\":\\\"typeNames\\\"},{\\\"aggregations\\\":[{\\\"count\\\":2,\\\"entity\\\":{\\\"urn\\\":\\\"urn:li:dataPlatform:tripwire\\\"},\\\"value\\\":\\\"urn:li:dataPlatform:tripwire\\\"}],\\\"displayName\\\":\\\"Platform\\\",\\\"field\\\":\\\"platform\\\"},{\\\"aggregations\\\":[{\\\"count\\\":2,\\\"entity\\\":{\\\"urn\\\":\\\"urn:li:domain:fraud-risk\\\"},\\\"value\\\":\\\"urn:li:domain:fraud-risk\\\"}],\\\"displayName\\\":\\\"Domain\\\",\\\"field\\\":\\\"domains\\\"},{\\\"aggregations\\\":[{\\\"count\\\":2,\\\"entity\\\":{\\\"urn\\\":\\\"urn:li:tag:Critical\\\"},\\\"value\\\":\\\"urn:li:tag:Critical\\\"},{\\\"count\\\":2,\\\"entity\\\":{\\\"urn\\\":\\\"urn:li:tag:Production\\\"},\\\"value\\\":\\\"urn:li:tag:Production\\\"},{\\\"count\\\":2,\\\"entity\\\":{\\\"urn\\\":\\\"urn:li:tag:Tripwire\\\"},\\\"value\\\":\\\"urn:li:tag:Tripwire\\\"}],\\\"displayName\\\":\\\"Tagged With\\\",\\\"field\\\":\\\"tags\\\"},{\\\"aggregations\\\":[{\\\"count\\\":2,\\\"entity\\\":{\\\"urn\\\":\\\"urn:li:corpuser:fraud-platform\\\"},\\\"value\\\":\\\"urn:li:corpuser:fraud-platform\\\"}],\\\"displayName\\\":\\\"Owned By\\\",\\\"field\\\":\\\"owners\\\"},{\\\"aggregations\\\":[{\\\"count\\\":1,\\\"value\\\":\\\"PROD\\\"}],\\\"displayName\\\":\\\"Environment\\\",\\\"field\\\":\\\"origin\\\"},{\\\"aggregations\\\":[{\\\"count\\\":1,\\\"value\\\":\\\"DATA_JOB\\\\u241eAI Agent\\\"},{\\\"count\\\":1,\\\"value\\\":\\\"DATA_JOB\\\"},{\\\"count\\\":1,\\\"value\\\":\\\"MLMODEL\\\"},{\\\"count\\\":1,\\\"value\\\":\\\"MLFEATURE\\\"}],\\\"displayName\\\":\\\"Type\\\\u241eSub Type\\\",\\\"field\\\":\\\"_entityType\\\\u241etypeNames\\\"},{\\\"aggregations\\\":[{\\\"count\\\":0,\\\"value\\\":\\\"true\\\"}],\\\"displayName\\\":\\\"removed\\\",\\\"field\\\":\\\"removed\\\"},{\\\"aggregations\\\":[{\\\"count\\\":1,\\\"value\\\":\\\"PROD\\\"}],\\\"displayName\\\":\\\"Environment\\\",\\\"field\\\":\\\"env\\\"},{\\\"aggregations\\\":[{\\\"count\\\":1,\\\"value\\\":\\\"MLFEATURE\\\"},{\\\"count\\\":1,\\\"value\\\":\\\"MLMODEL\\\"},{\\\"count\\\":1,\\\"value\\\":\\\"DATA_JOB\\\"}],\\\"displayName\\\":\\\"Type\\\",\\\"field\\\":\\\"entity\\\"}],\\\"hasMore\\\":false,\\\"offset\\\":0,\\\"returned\\\":3,\\\"searchResults\\\":[{\\\"degree\\\":2,\\\"entity\\\":{\\\"description\\\":\\\"Transparent deterministic fraud model used by the Tripwire demo.\\\",\\\"name\\\":\\\"fraud_logistic_rule\\\",\\\"origin\\\":\\\"PROD\\\",\\\"ownership\\\":{\\\"owners\\\":[{\\\"owner\\\":{\\\"properties\\\":{\\\"active\\\":true,\\\"displayName\\\":\\\"Fraud Platform Team\\\",\\\"email\\\":\\\"fraud-platform@example.invalid\\\",\\\"title\\\":\\\"Technical Owner\\\"},\\\"urn\\\":\\\"urn:li:corpuser:fraud-platform\\\"},\\\"ownershipType\\\":{\\\"info\\\":{\\\"description\\\":\\\"Involved in the production, maintenance, or distribution of the asset(s).\\\",\\\"name\\\":\\\"Technical Owner\\\"},\\\"type\\\":\\\"CUSTOM_OWNERSHIP_TYPE\\\",\\\"urn\\\":\\\"urn:li:ownershipType:__system__technical_owner\\\"},\\\"type\\\":\\\"TECHNICAL_OWNER\\\"}]},\\\"platform\\\":{\\\"name\\\":\\\"tripwire\\\",\\\"urn\\\":\\\"urn:li:dataPlatform:tripwire\\\"},\\\"tags\\\":{\\\"tags\\\":[{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Managed by the Tripwire demo seed.\\\",\\\"name\\\":\\\"Tripwire\\\"},\\\"urn\\\":\\\"urn:li:tag:Tripwire\\\"}},{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Participates in a production-critical path.\\\",\\\"name\\\":\\\"Production\\\"},\\\"urn\\\":\\\"urn:li:tag:Production\\\"}},{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Requires complete change-safety evaluation.\\\",\\\"name\\\":\\\"Critical\\\"},\\\"urn\\\":\\\"urn:li:tag:Critical\\\"}}]},\\\"type\\\":\\\"MLMODEL\\\",\\\"urn\\\":\\\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\\\"}},{\\\"degree\\\":1,\\\"entity\\\":{\\\"dataFlow\\\":{\\\"cluster\\\":\\\"PROD\\\",\\\"domain\\\":{\\\"domain\\\":{\\\"children\\\":{\\\"total\\\":0},\\\"dataProducts\\\":{\\\"total\\\":0},\\\"entities\\\":{\\\"total\\\":5},\\\"parentDomains\\\":{\\\"count\\\":0},\\\"properties\\\":{\\\"description\\\":\\\"Critical fraud detection datasets, models, and agents.\\\",\\\"name\\\":\\\"Fraud & Risk\\\"},\\\"urn\\\":\\\"urn:li:domain:fraud-risk\\\"}},\\\"editableProperties\\\":{\\\"description\\\":\\\"Deterministic fraud consumers registered in DataHub Core.\\\"},\\\"flowId\\\":\\\"tripwire_fraud_agents\\\",\\\"orchestrator\\\":\\\"tripwire\\\",\\\"ownership\\\":{\\\"owners\\\":[{\\\"owner\\\":{\\\"properties\\\":{\\\"active\\\":true,\\\"displayName\\\":\\\"Fraud Platform Team\\\",\\\"email\\\":\\\"fraud-platform@example.invalid\\\",\\\"title\\\":\\\"Technical Owner\\\"},\\\"urn\\\":\\\"urn:li:corpuser:fraud-platform\\\"},\\\"ownershipType\\\":{\\\"info\\\":{\\\"description\\\":\\\"Involved in the production, maintenance, or distribution of the asset(s).\\\",\\\"name\\\":\\\"Technical Owner\\\"},\\\"type\\\":\\\"CUSTOM_OWNERSHIP_TYPE\\\",\\\"urn\\\":\\\"urn:li:ownershipType:__system__technical_owner\\\"},\\\"type\\\":\\\"TECHNICAL_OWNER\\\"}]},\\\"platform\\\":{\\\"name\\\":\\\"tripwire\\\",\\\"urn\\\":\\\"urn:li:dataPlatform:tripwire\\\"},\\\"properties\\\":{\\\"customProperties\\\":[{\\\"key\\\":\\\"tripwire.seed.version\\\",\\\"value\\\":\\\"tripwire-fraud-graph/1.0.0\\\"}],\\\"name\\\":\\\"Tripwire Fraud Agents\\\"},\\\"urn\\\":\\\"urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD)\\\"},\\\"domain\\\":{\\\"domain\\\":{\\\"children\\\":{\\\"total\\\":0},\\\"dataProducts\\\":{\\\"total\\\":0},\\\"entities\\\":{\\\"total\\\":5},\\\"parentDomains\\\":{\\\"count\\\":0},\\\"properties\\\":{\\\"description\\\":\\\"Critical fraud detection datasets, models, and agents.\\\",\\\"name\\\":\\\"Fraud & Risk\\\"},\\\"urn\\\":\\\"urn:li:domain:fraud-risk\\\"}},\\\"editableProperties\\\":{\\\"description\\\":\\\"OSS-compatible AI-agent registry representation. Consumes fraud features and fraud-logistic-rule/1.0.0 to approve, review, or block transactions.\\\"},\\\"health\\\":[{\\\"status\\\":\\\"PASS\\\",\\\"type\\\":\\\"INCIDENTS\\\"}],\\\"jobId\\\":\\\"fraud_review_agent\\\",\\\"ownership\\\":{\\\"owners\\\":[{\\\"owner\\\":{\\\"properties\\\":{\\\"active\\\":true,\\\"displayName\\\":\\\"Fraud Platform Team\\\",\\\"email\\\":\\\"fraud-platform@example.invalid\\\",\\\"title\\\":\\\"Technical Owner\\\"},\\\"urn\\\":\\\"urn:li:corpuser:fraud-platform\\\"},\\\"ownershipType\\\":{\\\"info\\\":{\\\"description\\\":\\\"Involved in the production, maintenance, or distribution of the asset(s).\\\",\\\"name\\\":\\\"Technical Owner\\\"},\\\"type\\\":\\\"CUSTOM_OWNERSHIP_TYPE\\\",\\\"urn\\\":\\\"urn:li:ownershipType:__system__technical_owner\\\"},\\\"type\\\":\\\"TECHNICAL_OWNER\\\"}]},\\\"properties\\\":{\\\"customProperties\\\":[{\\\"key\\\":\\\"tripwire.agent.version\\\",\\\"value\\\":\\\"fraud-review-agent/1.0.0\\\"},{\\\"key\\\":\\\"tripwire.entity.kind\\\",\\\"value\\\":\\\"ai_agent\\\"},{\\\"key\\\":\\\"tripwire.seed.version\\\",\\\"value\\\":\\\"tripwire-fraud-graph/1.0.0\\\"}],\\\"name\\\":\\\"Fraud Review Agent\\\"},\\\"subTypes\\\":{\\\"typeNames\\\":[\\\"AI Agent\\\"]},\\\"tags\\\":{\\\"tags\\\":[{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Managed by the Tripwire demo seed.\\\",\\\"name\\\":\\\"Tripwire\\\"},\\\"urn\\\":\\\"urn:li:tag:Tripwire\\\"}},{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Participates in a production-critical path.\\\",\\\"name\\\":\\\"Production\\\"},\\\"urn\\\":\\\"urn:li:tag:Production\\\"}},{\\\"tag\\\":{\\\"properties\\\":{\\\"description\\\":\\\"Requires complete change-safety evaluation.\\\",\\\"name\\\":\\\"Critical\\\"},\\\"urn\\\":\\\"urn:li:tag:Critical\\\"}}]},\\\"type\\\":\\\"DATA_JOB\\\",\\\"urn\\\":\\\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\\\"}},{\\\"degree\\\":1,\\\"entity\\\":{\\\"description\\\":\\\"Fraud signal consumed by fraud-logistic-rule/1.0.0\\\",\\\"name\\\":\\\"fraud_signal\\\",\\\"type\\\":\\\"MLFEATURE\\\",\\\"urn\\\":\\\"urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)\\\"}}],\\\"total\\\":3}}}}],\\\"counterexample\\\":{\\\"baseline\\\":{\\\"action\\\":\\\"review\\\",\\\"agent_version\\\":\\\"fraud-review-agent/1.0.0\\\",\\\"model_result\\\":{\\\"feature_values\\\":{\\\"amount_usd\\\":520.0,\\\"chargeback_count_30d\\\":0,\\\"device_age_days\\\":null,\\\"fraud_signal\\\":0.62,\\\"is_international\\\":true,\\\"merchant_risk\\\":1},\\\"model_version\\\":\\\"fraud-logistic-rule/1.0.0\\\",\\\"predicted_fraud\\\":true,\\\"probability\\\":0.669,\\\"threshold\\\":0.62,\\\"transaction_id\\\":\\\"TX-009\\\"},\\\"reason_codes\\\":[\\\"MODEL_THRESHOLD_EXCEEDED\\\"],\\\"transaction_id\\\":\\\"TX-009\\\"},\\\"candidate\\\":{\\\"action\\\":\\\"approve\\\",\\\"agent_version\\\":\\\"fraud-review-agent/1.0.0\\\",\\\"model_result\\\":{\\\"feature_values\\\":{\\\"amount_usd\\\":520.0,\\\"chargeback_count_30d\\\":0,\\\"device_age_days\\\":null,\\\"fraud_signal\\\":0.44,\\\"is_international\\\":true,\\\"merchant_risk\\\":1},\\\"model_version\\\":\\\"fraud-logistic-rule/1.0.0\\\",\\\"predicted_fraud\\\":false,\\\"probability\\\":0.498,\\\"threshold\\\":0.62,\\\"transaction_id\\\":\\\"TX-009\\\"},\\\"reason_codes\\\":[\\\"MODEL_BELOW_REVIEW_THRESHOLD\\\"],\\\"transaction_id\\\":\\\"TX-009\\\"},\\\"replay_hash\\\":\\\"5e4c0b4dd8d3af6a8e81b3150b160fc12d56ac881c83d9314811ed117e814844\\\",\\\"transaction\\\":{\\\"amount_usd\\\":520.0,\\\"chargeback_count_30d\\\":0,\\\"customer_age_days\\\":90,\\\"device_age_days\\\":null,\\\"is_international\\\":true,\\\"is_refunded\\\":false,\\\"merchant_risk\\\":\\\"medium\\\",\\\"transaction_id\\\":\\\"TX-009\\\"},\\\"violated_invariant\\\":\\\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\\\",\\\"witness_id\\\":\\\"witness-tx-009\\\"},\\\"coverage\\\":{\\\"completed_operations\\\":[\\\"get_entities\\\",\\\"list_schema_fields\\\",\\\"get_lineage\\\"],\\\"critical_consumers\\\":[{\\\"display_name\\\":\\\"fraud_logistic_rule\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"ml_model\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\\\"},{\\\"display_name\\\":\\\"Fraud Review Agent\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"data_job\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\\\"}],\\\"gaps\\\":[],\\\"required_operations\\\":[\\\"get_entities\\\",\\\"get_lineage\\\",\\\"list_schema_fields\\\"],\\\"status\\\":\\\"complete\\\"},\\\"evaluations\\\":[{\\\"completed_at\\\":\\\"2026-08-05T18:38:43.260035Z\\\",\\\"consumer\\\":{\\\"display_name\\\":\\\"fraud_logistic_rule\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"ml_model\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\\\"},\\\"critical\\\":true,\\\"evaluation_id\\\":\\\"model-1\\\",\\\"evaluator_version\\\":\\\"fraud-behavior-evaluator/1.0.0\\\",\\\"kind\\\":\\\"model\\\",\\\"observations\\\":{\\\"changed_transaction_ids\\\":[\\\"TX-009\\\",\\\"TX-012\\\"]},\\\"started_at\\\":\\\"2026-08-05T18:38:43.259631Z\\\",\\\"status\\\":\\\"failed\\\",\\\"summary\\\":\\\"Model behavior changed for 2 transaction(s).\\\"},{\\\"completed_at\\\":\\\"2026-08-05T18:38:43.260119Z\\\",\\\"consumer\\\":{\\\"display_name\\\":\\\"Fraud Review Agent\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"data_job\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\\\"},\\\"critical\\\":true,\\\"evaluation_id\\\":\\\"agent-2\\\",\\\"evaluator_version\\\":\\\"fraud-behavior-evaluator/1.0.0\\\",\\\"kind\\\":\\\"agent\\\",\\\"observations\\\":{\\\"changed_transaction_ids\\\":[\\\"TX-009\\\",\\\"TX-012\\\"]},\\\"started_at\\\":\\\"2026-08-05T18:38:43.259631Z\\\",\\\"status\\\":\\\"failed\\\",\\\"summary\\\":\\\"Agent behavior changed for 2 transaction(s).\\\"}],\\\"limitations\\\":[\\\"The Phase 1 evaluator covers the DuckDB fraud vertical slice only.\\\",\\\"Safety is bounded by the consumers and lineage returned in Context Coverage.\\\"],\\\"lineage\\\":[{\\\"authority\\\":\\\"datahub_mcp\\\",\\\"nodes\\\":[{\\\"display_name\\\":\\\"Fraud Features\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"dataset\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"},{\\\"display_name\\\":\\\"fraud_logistic_rule\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"ml_model\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\\\"}],\\\"operation\\\":\\\"get_lineage\\\",\\\"truncated\\\":false},{\\\"authority\\\":\\\"datahub_mcp\\\",\\\"nodes\\\":[{\\\"display_name\\\":\\\"Fraud Features\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"dataset\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"},{\\\"display_name\\\":\\\"Fraud Review Agent\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"data_job\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\\\"}],\\\"operation\\\":\\\"get_lineage\\\",\\\"truncated\\\":false},{\\\"authority\\\":\\\"datahub_mcp\\\",\\\"nodes\\\":[{\\\"display_name\\\":\\\"Fraud Features\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"dataset\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"},{\\\"display_name\\\":\\\"fraud_signal\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"ml_feature\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)\\\"}],\\\"operation\\\":\\\"get_lineage\\\",\\\"truncated\\\":false}],\\\"proposed_protection\\\":{\\\"affected_entities\\\":[{\\\"display_name\\\":\\\"Fraud Features\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"dataset\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"},{\\\"display_name\\\":\\\"fraud_logistic_rule\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"ml_model\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\\\"},{\\\"display_name\\\":\\\"Fraud Review Agent\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"data_job\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\\\"}],\\\"approved_at\\\":null,\\\"approved_by\\\":null,\\\"fixture\\\":{\\\"amount_usd\\\":520.0,\\\"chargeback_count_30d\\\":0,\\\"customer_age_days\\\":90,\\\"device_age_days\\\":null,\\\"is_international\\\":true,\\\"is_refunded\\\":false,\\\"merchant_risk\\\":\\\"medium\\\",\\\"transaction_id\\\":\\\"TX-009\\\"},\\\"invariant\\\":\\\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\\\",\\\"name\\\":\\\"Preserve fraud review behavior for the discovered witness\\\",\\\"protection_id\\\":\\\"protection-witness-tx-009\\\",\\\"source_change_id\\\":\\\"tw_a17f62cb38d4c95947ac8655\\\",\\\"status\\\":\\\"proposed\\\",\\\"version\\\":1},\\\"reason_codes\\\":[\\\"CRITICAL_BEHAVIOR_REGRESSION\\\"],\\\"run\\\":{\\\"commit_sha\\\":\\\"UNCOMMITTED\\\",\\\"created_at\\\":\\\"2026-08-05T18:38:43.259335Z\\\",\\\"input_hashes\\\":{\\\"baseline_output_hash\\\":\\\"689ceb206c5bb3afd7213447b0103a67dbf29ff4d1ae85914b6fa9cb8c77abd3\\\",\\\"candidate\\\":\\\"f37601e1b6c90c8b8d8b545612d51afcaf3f605980a40b6d2087b98c59c7ae5f\\\",\\\"candidate_error\\\":\\\"74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b\\\",\\\"candidate_output_hash\\\":\\\"abe469b94299cb7f79d8db61e9abe90b7471c3ad74e38a83bd0006db2cbd9688\\\",\\\"context\\\":\\\"6bc265fee666f35535f331cd0540c52c15295a5e7a238d5581bcec60e7ace6d5\\\"},\\\"policy_version\\\":\\\"tripwire-policy/1.0.0\\\",\\\"run_id\\\":\\\"tw_a17f62cb38d4c95947ac8655\\\",\\\"tool_versions\\\":{\\\"datahub-sdk\\\":\\\"1.7.0\\\",\\\"duckdb\\\":\\\"1.5.5\\\",\\\"mcp\\\":\\\"1.29.0\\\",\\\"tripwire\\\":\\\"0.1.0\\\"}},\\\"schema_version\\\":\\\"1.0.0\\\",\\\"verdict\\\":\\\"UNSAFE\\\"}\"}],\"name\":\"Tripwire Change Passport tw_a17f62cb38d4c95947ac8655\"},\"subTypes\":{\"typeNames\":[\"Tripwire Change Passport\"]},\"tags\":{\"tags\":[{\"tag\":{\"properties\":{\"description\":\"Active Tripwire protection approved by urn:li:corpuser:fraud-platform; source change tw_a17f62cb38d4c95947ac8655.\",\"name\":\"Tripwire: Preserve fraud review behavior for the discovered witness (v1)\"},\"urn\":\"urn:li:tag:TripwireProtection_protection-witness-tx-009_v1\"}}]},\"type\":\"DATASET\",\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.passports.tw_a17f62cb38d4c95947ac8655,PROD)\"}},{\"degree\":1,\"entity\":{\"editableProperties\":{\"description\":\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\"},\"health\":[{\"status\":\"PASS\",\"type\":\"INCIDENTS\"}],\"name\":\"Tripwire Protection: Preserve fraud review behavior for the discovered witness\",\"platform\":{\"name\":\"tripwire\",\"urn\":\"urn:li:dataPlatform:tripwire\"},\"properties\":{\"customProperties\":[{\"key\":\"tripwire.memory.kind\",\"value\":\"protection\"},{\"key\":\"tripwire.protection.payload_hash\",\"value\":\"4218f01cba56793e2a1ffe75ef862b1d545a8545d7df57cff3134e2cca46697a\"},{\"key\":\"tripwire.protection.id\",\"value\":\"protection-witness-tx-009\"},{\"key\":\"tripwire.protection.status\",\"value\":\"active\"},{\"key\":\"tripwire.protection.version\",\"value\":\"1\"},{\"key\":\"tripwire.protection.payload\",\"value\":\"{\\\"affected_entities\\\":[{\\\"display_name\\\":\\\"Fraud Features\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"dataset\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\\\"},{\\\"display_name\\\":\\\"fraud_logistic_rule\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"ml_model\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\\\"},{\\\"display_name\\\":\\\"Fraud Review Agent\\\",\\\"environment\\\":null,\\\"kind\\\":\\\"data_job\\\",\\\"platform\\\":null,\\\"urn\\\":\\\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\\\"}],\\\"approved_at\\\":\\\"2026-08-05T19:32:04.928851Z\\\",\\\"approved_by\\\":\\\"urn:li:corpuser:fraud-platform\\\",\\\"fixture\\\":{\\\"amount_usd\\\":520.0,\\\"chargeback_count_30d\\\":0,\\\"customer_age_days\\\":90,\\\"device_age_days\\\":null,\\\"is_international\\\":true,\\\"is_refunded\\\":false,\\\"merchant_risk\\\":\\\"medium\\\",\\\"transaction_id\\\":\\\"TX-009\\\"},\\\"invariant\\\":\\\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\\\",\\\"name\\\":\\\"Preserve fraud review behavior for the discovered witness\\\",\\\"protection_id\\\":\\\"protection-witness-tx-009\\\",\\\"source_change_id\\\":\\\"tw_a17f62cb38d4c95947ac8655\\\",\\\"status\\\":\\\"active\\\",\\\"version\\\":1}\"}],\"name\":\"Tripwire Protection: Preserve fraud review behavior for the discovered witness\"},\"subTypes\":{\"typeNames\":[\"Tripwire Protection\"]},\"tags\":{\"tags\":[{\"tag\":{\"properties\":{\"description\":\"Active Tripwire protection approved by urn:li:corpuser:fraud-platform; source change tw_a17f62cb38d4c95947ac8655.\",\"name\":\"Tripwire: Preserve fraud review behavior for the discovered witness (v1)\"},\"urn\":\"urn:li:tag:TripwireProtection_protection-witness-tx-009_v1\"}}]},\"type\":\"DATASET\",\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.protections.protection-witness-tx-009.v1,PROD)\"}}],\"total\":5}}}}],\"counterexample\":{\"accepted_simplifications\":2,\"baseline\":{\"action\":\"review\",\"agent_version\":\"fraud-review-agent/1.0.0\",\"model_result\":{\"feature_values\":{\"amount_usd\":500.0,\"chargeback_count_30d\":0,\"device_age_days\":null,\"fraud_signal\":0.62,\"is_international\":true,\"merchant_risk\":1},\"model_artifact_hash\":\"7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6\",\"model_version\":\"fraud-risk-calibrator/2.0.0\",\"predicted_fraud\":true,\"probability\":0.669,\"threshold\":0.62,\"transaction_id\":\"TX-009\"},\"reason_codes\":[\"MODEL_THRESHOLD_EXCEEDED\"],\"transaction_id\":\"TX-009\"},\"candidate\":{\"action\":\"approve\",\"agent_version\":\"fraud-review-agent/1.0.0\",\"model_result\":{\"feature_values\":{\"amount_usd\":500.0,\"chargeback_count_30d\":0,\"device_age_days\":null,\"fraud_signal\":0.44,\"is_international\":true,\"merchant_risk\":1},\"model_artifact_hash\":\"7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6\",\"model_version\":\"fraud-risk-calibrator/2.0.0\",\"predicted_fraud\":false,\"probability\":0.498,\"threshold\":0.62,\"transaction_id\":\"TX-009\"},\"reason_codes\":[\"MODEL_BELOW_REVIEW_THRESHOLD\"],\"transaction_id\":\"TX-009\"},\"minimization_attempts\":5,\"replay_hash\":\"3ba94da21c5dcf2a524ec048f64d5e0347474f9576c4f05e7aa587693b61422d\",\"transaction\":{\"amount_usd\":500.0,\"chargeback_count_30d\":0,\"customer_age_days\":30,\"device_age_days\":null,\"is_international\":true,\"is_refunded\":false,\"merchant_risk\":\"medium\",\"transaction_id\":\"TX-009\"},\"violated_invariant\":\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\",\"witness_id\":\"witness-tx-009\"},\"coverage\":{\"completed_operations\":[\"get_entities\",\"list_schema_fields\",\"get_lineage\"],\"critical_consumers\":[{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"},{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}],\"gaps\":[],\"required_operations\":[\"get_entities\",\"get_lineage\",\"list_schema_fields\"],\"status\":\"complete\"},\"evaluations\":[{\"completed_at\":\"2026-08-07T11:07:56.790774Z\",\"consumer\":{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"},\"critical\":true,\"evaluation_id\":\"model-1\",\"evaluator_version\":\"fraud-behavior-evaluator/1.0.0\",\"kind\":\"model\",\"observations\":{\"changed_transaction_ids\":[\"TX-009\",\"TX-012\"],\"model_artifact_hash\":\"7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6\",\"model_version\":\"fraud-risk-calibrator/2.0.0\",\"replayed_rows\":12},\"started_at\":\"2026-08-07T11:07:56.790553Z\",\"status\":\"failed\",\"summary\":\"Model behavior changed for 2 transaction(s).\"},{\"completed_at\":\"2026-08-07T11:07:56.790860Z\",\"consumer\":{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"},\"critical\":true,\"evaluation_id\":\"agent-2\",\"evaluator_version\":\"fraud-behavior-evaluator/1.0.0\",\"kind\":\"agent\",\"observations\":{\"agent_version\":\"fraud-review-agent/1.0.0\",\"changed_transaction_ids\":[\"TX-009\",\"TX-012\"],\"model_artifact_hash\":\"7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6\",\"model_version\":\"fraud-risk-calibrator/2.0.0\",\"replayed_rows\":12},\"started_at\":\"2026-08-07T11:07:56.790553Z\",\"status\":\"failed\",\"summary\":\"Agent behavior changed for 2 transaction(s).\"},{\"completed_at\":\"2026-08-07T11:07:57.414028Z\",\"consumer\":{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},\"critical\":true,\"evaluation_id\":\"protection-1\",\"evaluator_version\":\"learned-protection-replay/1.0.0\",\"kind\":\"protection\",\"observations\":{\"approved_by\":\"urn:li:corpuser:fraud-platform\",\"baseline_action\":\"review\",\"baseline_probability\":0.669,\"candidate_action\":\"approve\",\"candidate_probability\":0.498,\"fixture_hash\":\"1f868cab09fc631da2642d8d846dcc18e76749b775c9bdb22660ee4e00d9ba2c\",\"protection_id\":\"protection-witness-tx-009\",\"protection_version\":1,\"source_change_id\":\"tw_a17f62cb38d4c95947ac8655\",\"transaction_id\":\"TX-009\"},\"started_at\":\"2026-08-07T11:07:56.790553Z\",\"status\":\"failed\",\"summary\":\"Candidate violates a human-approved learned protection.\"}],\"limitations\":[\"The Phase 1 evaluator covers the DuckDB fraud vertical slice only.\",\"Safety is bounded by the consumers and lineage returned in Context Coverage.\"],\"lineage\":[{\"authority\":\"datahub_mcp\",\"nodes\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"}],\"operation\":\"get_lineage\",\"truncated\":false},{\"authority\":\"datahub_mcp\",\"nodes\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}],\"operation\":\"get_lineage\",\"truncated\":false},{\"authority\":\"datahub_mcp\",\"nodes\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"fraud_signal\",\"environment\":null,\"kind\":\"ml_feature\",\"platform\":null,\"urn\":\"urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)\"}],\"operation\":\"get_lineage\",\"truncated\":false},{\"authority\":\"datahub_mcp\",\"nodes\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"Tripwire Change Passport tw_a17f62cb38d4c95947ac8655\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.passports.tw_a17f62cb38d4c95947ac8655,PROD)\"}],\"operation\":\"get_lineage\",\"truncated\":false},{\"authority\":\"datahub_mcp\",\"nodes\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"Tripwire Protection: Preserve fraud review behavior for the discovered witness\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.protections.protection-witness-tx-009.v1,PROD)\"}],\"operation\":\"get_lineage\",\"truncated\":false}],\"owner_routes\":[{\"display_name\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"owner_urn\":\"urn:li:corpuser:fraud-platform\",\"responsibility\":\"required_reviewer\",\"source_entity_urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"},{\"display_name\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"owner_urn\":\"urn:li:corpuser:fraud-platform\",\"responsibility\":\"required_reviewer\",\"source_entity_urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"owner_urn\":\"urn:li:corpuser:fraud-platform\",\"responsibility\":\"required_reviewer\",\"source_entity_urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"}],\"proposed_protection\":{\"affected_entities\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"},{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}],\"approved_at\":null,\"approved_by\":null,\"fixture\":{\"amount_usd\":500.0,\"chargeback_count_30d\":0,\"customer_age_days\":30,\"device_age_days\":null,\"is_international\":true,\"is_refunded\":false,\"merchant_risk\":\"medium\",\"transaction_id\":\"TX-009\"},\"invariant\":\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\",\"name\":\"Preserve fraud review behavior for the discovered witness\",\"protection_id\":\"protection-witness-tx-009\",\"source_change_id\":\"tw_0f4441f5d063ef2f937540e2\",\"status\":\"proposed\",\"version\":1},\"reason_codes\":[\"LEARNED_PROTECTION_VIOLATED\"],\"remediation\":null,\"resolved_entity\":null,\"run\":{\"commit_sha\":\"b394df6b6274afe37bdb003ee3012211c6bceab7\",\"created_at\":\"2026-08-07T11:07:56.790222Z\",\"input_hashes\":{\"baseline_output_hash\":\"2576780c668cd6f487ae91d9167643af0d529f269312fa4292db060276b7eab6\",\"candidate\":\"f37601e1b6c90c8b8d8b545612d51afcaf3f605980a40b6d2087b98c59c7ae5f\",\"candidate_error\":\"74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b\",\"candidate_output_hash\":\"fa35e08b532ad703283c655d1efb180031d0a90df05e47a794df148dcea64dc6\",\"change_facts\":\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\"context\":\"fc137c2cf1d3dbec0a5fc032496ab794250a295877fc11f7599652cc57c4a840\",\"resolved_entity\":\"74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b\"},\"policy_version\":\"tripwire-policy/1.0.0\",\"run_id\":\"tw_0f4441f5d063ef2f937540e2\",\"tool_versions\":{\"datahub-sdk\":\"1.7.0\",\"duckdb\":\"1.5.5\",\"mcp\":\"1.29.0\",\"tripwire\":\"0.1.0\"}},\"schema_version\":\"1.1.0\",\"scope_accounting\":{\"completed_operations\":3,\"critical_consumers_discovered\":2,\"critical_consumers_evaluated\":2,\"lineage_frontier_complete\":true,\"required_operations\":3,\"unresolved_gaps\":0},\"verdict\":\"UNSAFE\"}"
+                      }
+                    ],
+                    "name": "Tripwire Change Passport tw_0f4441f5d063ef2f937540e2"
+                  },
+                  "subTypes": {
+                    "typeNames": [
+                      "Tripwire Change Passport"
+                    ]
+                  },
+                  "tags": {
+                    "tags": [
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Active Tripwire protection approved by urn:li:corpuser:fraud-platform; source change tw_a17f62cb38d4c95947ac8655.",
+                            "name": "Tripwire: Preserve fraud review behavior for the discovered witness (v1)"
+                          },
+                          "urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+                        }
+                      }
+                    ]
+                  },
+                  "type": "DATASET",
+                  "urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.passports.tw_0f4441f5d063ef2f937540e2,PROD)"
+                }
+              },
+              {
+                "degree": 1,
+                "entity": {
+                  "editableProperties": {
+                    "description": "Evidence-backed UNSAFE decision for unsafe_semantic."
+                  },
+                  "health": [
+                    {
+                      "status": "PASS",
+                      "type": "INCIDENTS"
+                    }
+                  ],
+                  "name": "Tripwire Change Passport tw_a17f62cb38d4c95947ac8655",
+                  "platform": {
+                    "name": "tripwire",
+                    "urn": "urn:li:dataPlatform:tripwire"
+                  },
+                  "properties": {
+                    "customProperties": [
+                      {
+                        "key": "tripwire.memory.kind",
+                        "value": "change-passport"
+                      },
+                      {
+                        "key": "tripwire.passport.verdict",
+                        "value": "UNSAFE"
+                      },
+                      {
+                        "key": "tripwire.passport.id",
+                        "value": "tw_a17f62cb38d4c95947ac8655"
+                      },
+                      {
+                        "key": "tripwire.passport.payload",
+                        "value": "{\"applied_protections\":[],\"change\":{\"base_revision\":\"baseline\",\"candidate_revision\":\"unsafe_semantic\",\"changed_paths\":[\"demo/fraud/sql/unsafe_semantic.sql\"],\"repository\":\"datahub-tripwire\",\"requested_by\":\"local-user\"},\"context\":[{\"authority\":\"datahub_mcp\",\"fact_type\":\"mcp.get_entities\",\"operation\":\"get_entities\",\"retrieved_at\":\"2026-08-05T18:38:39.721663Z\",\"source_hash\":\"caf34f15d49ede59f96f5a1faf0e8f0ea63e0e14daa50a5a6f9603bcfec9a4ae\",\"subject\":{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},\"value\":{\"result\":{\"domain\":{\"domain\":{\"children\":{\"total\":0},\"dataProducts\":{\"total\":0},\"entities\":{\"total\":5},\"parentDomains\":{\"count\":0},\"properties\":{\"description\":\"Critical fraud detection datasets, models, and agents.\",\"name\":\"Fraud & Risk\"},\"urn\":\"urn:li:domain:fraud-risk\"}},\"editableProperties\":{\"description\":\"Production-critical feature table consumed by model and review agent.\"},\"health\":[{\"status\":\"PASS\",\"type\":\"INCIDENTS\"}],\"name\":\"Fraud Features\",\"ownership\":{\"owners\":[{\"owner\":{\"properties\":{\"active\":true,\"displayName\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"title\":\"Technical Owner\"},\"urn\":\"urn:li:corpuser:fraud-platform\"},\"ownershipType\":{\"info\":{\"description\":\"Involved in the production, maintenance, or distribution of the asset(s).\",\"name\":\"Technical Owner\"},\"type\":\"CUSTOM_OWNERSHIP_TYPE\",\"urn\":\"urn:li:ownershipType:__system__technical_owner\"},\"type\":\"TECHNICAL_OWNER\"}]},\"platform\":{\"name\":\"duckdb\",\"urn\":\"urn:li:dataPlatform:duckdb\"},\"properties\":{\"customProperties\":[{\"key\":\"tripwire.criticality\",\"value\":\"production\"},{\"key\":\"tripwire.dbt.original_file_path\",\"value\":\"models\\\\fct_fraud_features.sql\"},{\"key\":\"tripwire.dbt.unique_id\",\"value\":\"model.tripwire_fraud.fct_fraud_features\"},{\"key\":\"tripwire.seed.version\",\"value\":\"tripwire-fraud-graph/1.0.0\"}],\"name\":\"Fraud Features\"},\"relatedDocuments\":{\"count\":10,\"start\":0,\"total\":0},\"schemaMetadata\":{\"fields\":[{\"description\":\"Critical fraud-model input feature\",\"fieldPath\":\"fraud_signal\",\"nativeDataType\":\"DOUBLE\",\"nullable\":false},{\"description\":\"Stable synthetic transaction ID\",\"fieldPath\":\"transaction_id\",\"nativeDataType\":\"VARCHAR\",\"nullable\":false},{\"fieldPath\":\"amount_usd\",\"nativeDataType\":\"DOUBLE\",\"nullable\":false},{\"fieldPath\":\"chargeback_count_30d\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"customer_age_days\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"device_age_days\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"is_international\",\"nativeDataType\":\"BOOLEAN\",\"nullable\":false},{\"fieldPath\":\"is_refunded\",\"nativeDataType\":\"BOOLEAN\",\"nullable\":false},{\"fieldPath\":\"merchant_risk\",\"nativeDataType\":\"VARCHAR\",\"nullable\":false}],\"name\":\"\",\"platformUrn\":\"urn:li:dataPlatform:duckdb\"},\"subTypes\":{\"typeNames\":[\"dbt Model\"]},\"tags\":{\"tags\":[{\"tag\":{\"properties\":{\"description\":\"Managed by the Tripwire demo seed.\",\"name\":\"Tripwire\"},\"urn\":\"urn:li:tag:Tripwire\"}},{\"tag\":{\"properties\":{\"description\":\"Participates in a production-critical path.\",\"name\":\"Production\"},\"urn\":\"urn:li:tag:Production\"}},{\"tag\":{\"properties\":{\"description\":\"Requires complete change-safety evaluation.\",\"name\":\"Critical\"},\"urn\":\"urn:li:tag:Critical\"}}]},\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"}}},{\"authority\":\"datahub_mcp\",\"fact_type\":\"mcp.list_schema_fields\",\"operation\":\"list_schema_fields\",\"retrieved_at\":\"2026-08-05T18:38:40.303537Z\",\"source_hash\":\"f634ad4e81fb2cd83b5b5b2d3e2d8e7542859125c6a7338f3ea87e7836c00742\",\"subject\":{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},\"value\":{\"result\":{\"fields\":[{\"description\":\"Critical fraud-model input feature\",\"fieldPath\":\"fraud_signal\",\"nativeDataType\":\"DOUBLE\",\"nullable\":false},{\"description\":\"Stable synthetic transaction ID\",\"fieldPath\":\"transaction_id\",\"nativeDataType\":\"VARCHAR\",\"nullable\":false},{\"fieldPath\":\"amount_usd\",\"nativeDataType\":\"DOUBLE\",\"nullable\":false},{\"fieldPath\":\"chargeback_count_30d\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"customer_age_days\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"device_age_days\",\"nativeDataType\":\"INTEGER\",\"nullable\":false},{\"fieldPath\":\"is_international\",\"nativeDataType\":\"BOOLEAN\",\"nullable\":false},{\"fieldPath\":\"is_refunded\",\"nativeDataType\":\"BOOLEAN\",\"nullable\":false},{\"fieldPath\":\"merchant_risk\",\"nativeDataType\":\"VARCHAR\",\"nullable\":false}],\"matchingCount\":null,\"offset\":0,\"remainingCount\":0,\"returned\":9,\"totalFields\":9,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"}}},{\"authority\":\"datahub_mcp\",\"fact_type\":\"mcp.get_lineage\",\"operation\":\"get_lineage\",\"retrieved_at\":\"2026-08-05T18:38:40.871235Z\",\"source_hash\":\"70db5f4767ec26fcfac3216e44e0b109f6498b83120eb87fced749ed9070b047\",\"subject\":{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},\"value\":{\"result\":{\"downstreams\":{\"facets\":[{\"aggregations\":[{\"count\":0,\"value\":\"1\"},{\"count\":0,\"value\":\"2\"},{\"count\":0,\"value\":\"3+\"}],\"displayName\":\"Degree of Dependencies\",\"field\":\"degree\"},{\"aggregations\":[{\"count\":1,\"value\":\"DATA_JOB\"},{\"count\":1,\"value\":\"MLMODEL\"},{\"count\":1,\"value\":\"MLFEATURE\"}],\"displayName\":\"Type\",\"field\":\"_entityType\"},{\"aggregations\":[{\"count\":1,\"value\":\"AI Agent\"}],\"displayName\":\"Sub Type\",\"field\":\"typeNames\"},{\"aggregations\":[{\"count\":2,\"entity\":{\"urn\":\"urn:li:dataPlatform:tripwire\"},\"value\":\"urn:li:dataPlatform:tripwire\"}],\"displayName\":\"Platform\",\"field\":\"platform\"},{\"aggregations\":[{\"count\":2,\"entity\":{\"urn\":\"urn:li:domain:fraud-risk\"},\"value\":\"urn:li:domain:fraud-risk\"}],\"displayName\":\"Domain\",\"field\":\"domains\"},{\"aggregations\":[{\"count\":2,\"entity\":{\"urn\":\"urn:li:tag:Critical\"},\"value\":\"urn:li:tag:Critical\"},{\"count\":2,\"entity\":{\"urn\":\"urn:li:tag:Production\"},\"value\":\"urn:li:tag:Production\"},{\"count\":2,\"entity\":{\"urn\":\"urn:li:tag:Tripwire\"},\"value\":\"urn:li:tag:Tripwire\"}],\"displayName\":\"Tagged With\",\"field\":\"tags\"},{\"aggregations\":[{\"count\":2,\"entity\":{\"urn\":\"urn:li:corpuser:fraud-platform\"},\"value\":\"urn:li:corpuser:fraud-platform\"}],\"displayName\":\"Owned By\",\"field\":\"owners\"},{\"aggregations\":[{\"count\":1,\"value\":\"PROD\"}],\"displayName\":\"Environment\",\"field\":\"origin\"},{\"aggregations\":[{\"count\":1,\"value\":\"DATA_JOB\\u241eAI Agent\"},{\"count\":1,\"value\":\"DATA_JOB\"},{\"count\":1,\"value\":\"MLMODEL\"},{\"count\":1,\"value\":\"MLFEATURE\"}],\"displayName\":\"Type\\u241eSub Type\",\"field\":\"_entityType\\u241etypeNames\"},{\"aggregations\":[{\"count\":0,\"value\":\"true\"}],\"displayName\":\"removed\",\"field\":\"removed\"},{\"aggregations\":[{\"count\":1,\"value\":\"PROD\"}],\"displayName\":\"Environment\",\"field\":\"env\"},{\"aggregations\":[{\"count\":1,\"value\":\"MLFEATURE\"},{\"count\":1,\"value\":\"MLMODEL\"},{\"count\":1,\"value\":\"DATA_JOB\"}],\"displayName\":\"Type\",\"field\":\"entity\"}],\"hasMore\":false,\"offset\":0,\"returned\":3,\"searchResults\":[{\"degree\":2,\"entity\":{\"description\":\"Transparent deterministic fraud model used by the Tripwire demo.\",\"name\":\"fraud_logistic_rule\",\"origin\":\"PROD\",\"ownership\":{\"owners\":[{\"owner\":{\"properties\":{\"active\":true,\"displayName\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"title\":\"Technical Owner\"},\"urn\":\"urn:li:corpuser:fraud-platform\"},\"ownershipType\":{\"info\":{\"description\":\"Involved in the production, maintenance, or distribution of the asset(s).\",\"name\":\"Technical Owner\"},\"type\":\"CUSTOM_OWNERSHIP_TYPE\",\"urn\":\"urn:li:ownershipType:__system__technical_owner\"},\"type\":\"TECHNICAL_OWNER\"}]},\"platform\":{\"name\":\"tripwire\",\"urn\":\"urn:li:dataPlatform:tripwire\"},\"tags\":{\"tags\":[{\"tag\":{\"properties\":{\"description\":\"Managed by the Tripwire demo seed.\",\"name\":\"Tripwire\"},\"urn\":\"urn:li:tag:Tripwire\"}},{\"tag\":{\"properties\":{\"description\":\"Participates in a production-critical path.\",\"name\":\"Production\"},\"urn\":\"urn:li:tag:Production\"}},{\"tag\":{\"properties\":{\"description\":\"Requires complete change-safety evaluation.\",\"name\":\"Critical\"},\"urn\":\"urn:li:tag:Critical\"}}]},\"type\":\"MLMODEL\",\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"}},{\"degree\":1,\"entity\":{\"dataFlow\":{\"cluster\":\"PROD\",\"domain\":{\"domain\":{\"children\":{\"total\":0},\"dataProducts\":{\"total\":0},\"entities\":{\"total\":5},\"parentDomains\":{\"count\":0},\"properties\":{\"description\":\"Critical fraud detection datasets, models, and agents.\",\"name\":\"Fraud & Risk\"},\"urn\":\"urn:li:domain:fraud-risk\"}},\"editableProperties\":{\"description\":\"Deterministic fraud consumers registered in DataHub Core.\"},\"flowId\":\"tripwire_fraud_agents\",\"orchestrator\":\"tripwire\",\"ownership\":{\"owners\":[{\"owner\":{\"properties\":{\"active\":true,\"displayName\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"title\":\"Technical Owner\"},\"urn\":\"urn:li:corpuser:fraud-platform\"},\"ownershipType\":{\"info\":{\"description\":\"Involved in the production, maintenance, or distribution of the asset(s).\",\"name\":\"Technical Owner\"},\"type\":\"CUSTOM_OWNERSHIP_TYPE\",\"urn\":\"urn:li:ownershipType:__system__technical_owner\"},\"type\":\"TECHNICAL_OWNER\"}]},\"platform\":{\"name\":\"tripwire\",\"urn\":\"urn:li:dataPlatform:tripwire\"},\"properties\":{\"customProperties\":[{\"key\":\"tripwire.seed.version\",\"value\":\"tripwire-fraud-graph/1.0.0\"}],\"name\":\"Tripwire Fraud Agents\"},\"urn\":\"urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD)\"},\"domain\":{\"domain\":{\"children\":{\"total\":0},\"dataProducts\":{\"total\":0},\"entities\":{\"total\":5},\"parentDomains\":{\"count\":0},\"properties\":{\"description\":\"Critical fraud detection datasets, models, and agents.\",\"name\":\"Fraud & Risk\"},\"urn\":\"urn:li:domain:fraud-risk\"}},\"editableProperties\":{\"description\":\"OSS-compatible AI-agent registry representation. Consumes fraud features and fraud-logistic-rule/1.0.0 to approve, review, or block transactions.\"},\"health\":[{\"status\":\"PASS\",\"type\":\"INCIDENTS\"}],\"jobId\":\"fraud_review_agent\",\"ownership\":{\"owners\":[{\"owner\":{\"properties\":{\"active\":true,\"displayName\":\"Fraud Platform Team\",\"email\":\"fraud-platform@example.invalid\",\"title\":\"Technical Owner\"},\"urn\":\"urn:li:corpuser:fraud-platform\"},\"ownershipType\":{\"info\":{\"description\":\"Involved in the production, maintenance, or distribution of the asset(s).\",\"name\":\"Technical Owner\"},\"type\":\"CUSTOM_OWNERSHIP_TYPE\",\"urn\":\"urn:li:ownershipType:__system__technical_owner\"},\"type\":\"TECHNICAL_OWNER\"}]},\"properties\":{\"customProperties\":[{\"key\":\"tripwire.agent.version\",\"value\":\"fraud-review-agent/1.0.0\"},{\"key\":\"tripwire.entity.kind\",\"value\":\"ai_agent\"},{\"key\":\"tripwire.seed.version\",\"value\":\"tripwire-fraud-graph/1.0.0\"}],\"name\":\"Fraud Review Agent\"},\"subTypes\":{\"typeNames\":[\"AI Agent\"]},\"tags\":{\"tags\":[{\"tag\":{\"properties\":{\"description\":\"Managed by the Tripwire demo seed.\",\"name\":\"Tripwire\"},\"urn\":\"urn:li:tag:Tripwire\"}},{\"tag\":{\"properties\":{\"description\":\"Participates in a production-critical path.\",\"name\":\"Production\"},\"urn\":\"urn:li:tag:Production\"}},{\"tag\":{\"properties\":{\"description\":\"Requires complete change-safety evaluation.\",\"name\":\"Critical\"},\"urn\":\"urn:li:tag:Critical\"}}]},\"type\":\"DATA_JOB\",\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}},{\"degree\":1,\"entity\":{\"description\":\"Fraud signal consumed by fraud-logistic-rule/1.0.0\",\"name\":\"fraud_signal\",\"type\":\"MLFEATURE\",\"urn\":\"urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)\"}}],\"total\":3}}}}],\"counterexample\":{\"baseline\":{\"action\":\"review\",\"agent_version\":\"fraud-review-agent/1.0.0\",\"model_result\":{\"feature_values\":{\"amount_usd\":520.0,\"chargeback_count_30d\":0,\"device_age_days\":null,\"fraud_signal\":0.62,\"is_international\":true,\"merchant_risk\":1},\"model_version\":\"fraud-logistic-rule/1.0.0\",\"predicted_fraud\":true,\"probability\":0.669,\"threshold\":0.62,\"transaction_id\":\"TX-009\"},\"reason_codes\":[\"MODEL_THRESHOLD_EXCEEDED\"],\"transaction_id\":\"TX-009\"},\"candidate\":{\"action\":\"approve\",\"agent_version\":\"fraud-review-agent/1.0.0\",\"model_result\":{\"feature_values\":{\"amount_usd\":520.0,\"chargeback_count_30d\":0,\"device_age_days\":null,\"fraud_signal\":0.44,\"is_international\":true,\"merchant_risk\":1},\"model_version\":\"fraud-logistic-rule/1.0.0\",\"predicted_fraud\":false,\"probability\":0.498,\"threshold\":0.62,\"transaction_id\":\"TX-009\"},\"reason_codes\":[\"MODEL_BELOW_REVIEW_THRESHOLD\"],\"transaction_id\":\"TX-009\"},\"replay_hash\":\"5e4c0b4dd8d3af6a8e81b3150b160fc12d56ac881c83d9314811ed117e814844\",\"transaction\":{\"amount_usd\":520.0,\"chargeback_count_30d\":0,\"customer_age_days\":90,\"device_age_days\":null,\"is_international\":true,\"is_refunded\":false,\"merchant_risk\":\"medium\",\"transaction_id\":\"TX-009\"},\"violated_invariant\":\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\",\"witness_id\":\"witness-tx-009\"},\"coverage\":{\"completed_operations\":[\"get_entities\",\"list_schema_fields\",\"get_lineage\"],\"critical_consumers\":[{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"},{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}],\"gaps\":[],\"required_operations\":[\"get_entities\",\"get_lineage\",\"list_schema_fields\"],\"status\":\"complete\"},\"evaluations\":[{\"completed_at\":\"2026-08-05T18:38:43.260035Z\",\"consumer\":{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"},\"critical\":true,\"evaluation_id\":\"model-1\",\"evaluator_version\":\"fraud-behavior-evaluator/1.0.0\",\"kind\":\"model\",\"observations\":{\"changed_transaction_ids\":[\"TX-009\",\"TX-012\"]},\"started_at\":\"2026-08-05T18:38:43.259631Z\",\"status\":\"failed\",\"summary\":\"Model behavior changed for 2 transaction(s).\"},{\"completed_at\":\"2026-08-05T18:38:43.260119Z\",\"consumer\":{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"},\"critical\":true,\"evaluation_id\":\"agent-2\",\"evaluator_version\":\"fraud-behavior-evaluator/1.0.0\",\"kind\":\"agent\",\"observations\":{\"changed_transaction_ids\":[\"TX-009\",\"TX-012\"]},\"started_at\":\"2026-08-05T18:38:43.259631Z\",\"status\":\"failed\",\"summary\":\"Agent behavior changed for 2 transaction(s).\"}],\"limitations\":[\"The Phase 1 evaluator covers the DuckDB fraud vertical slice only.\",\"Safety is bounded by the consumers and lineage returned in Context Coverage.\"],\"lineage\":[{\"authority\":\"datahub_mcp\",\"nodes\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"}],\"operation\":\"get_lineage\",\"truncated\":false},{\"authority\":\"datahub_mcp\",\"nodes\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}],\"operation\":\"get_lineage\",\"truncated\":false},{\"authority\":\"datahub_mcp\",\"nodes\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"fraud_signal\",\"environment\":null,\"kind\":\"ml_feature\",\"platform\":null,\"urn\":\"urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)\"}],\"operation\":\"get_lineage\",\"truncated\":false}],\"proposed_protection\":{\"affected_entities\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"},{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}],\"approved_at\":null,\"approved_by\":null,\"fixture\":{\"amount_usd\":520.0,\"chargeback_count_30d\":0,\"customer_age_days\":90,\"device_age_days\":null,\"is_international\":true,\"is_refunded\":false,\"merchant_risk\":\"medium\",\"transaction_id\":\"TX-009\"},\"invariant\":\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\",\"name\":\"Preserve fraud review behavior for the discovered witness\",\"protection_id\":\"protection-witness-tx-009\",\"source_change_id\":\"tw_a17f62cb38d4c95947ac8655\",\"status\":\"proposed\",\"version\":1},\"reason_codes\":[\"CRITICAL_BEHAVIOR_REGRESSION\"],\"run\":{\"commit_sha\":\"UNCOMMITTED\",\"created_at\":\"2026-08-05T18:38:43.259335Z\",\"input_hashes\":{\"baseline_output_hash\":\"689ceb206c5bb3afd7213447b0103a67dbf29ff4d1ae85914b6fa9cb8c77abd3\",\"candidate\":\"f37601e1b6c90c8b8d8b545612d51afcaf3f605980a40b6d2087b98c59c7ae5f\",\"candidate_error\":\"74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b\",\"candidate_output_hash\":\"abe469b94299cb7f79d8db61e9abe90b7471c3ad74e38a83bd0006db2cbd9688\",\"context\":\"6bc265fee666f35535f331cd0540c52c15295a5e7a238d5581bcec60e7ace6d5\"},\"policy_version\":\"tripwire-policy/1.0.0\",\"run_id\":\"tw_a17f62cb38d4c95947ac8655\",\"tool_versions\":{\"datahub-sdk\":\"1.7.0\",\"duckdb\":\"1.5.5\",\"mcp\":\"1.29.0\",\"tripwire\":\"0.1.0\"}},\"schema_version\":\"1.0.0\",\"verdict\":\"UNSAFE\"}"
+                      }
+                    ],
+                    "name": "Tripwire Change Passport tw_a17f62cb38d4c95947ac8655"
+                  },
+                  "subTypes": {
+                    "typeNames": [
+                      "Tripwire Change Passport"
+                    ]
+                  },
+                  "tags": {
+                    "tags": [
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Active Tripwire protection approved by urn:li:corpuser:fraud-platform; source change tw_a17f62cb38d4c95947ac8655.",
+                            "name": "Tripwire: Preserve fraud review behavior for the discovered witness (v1)"
+                          },
+                          "urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+                        }
+                      }
+                    ]
+                  },
+                  "type": "DATASET",
+                  "urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.passports.tw_a17f62cb38d4c95947ac8655,PROD)"
+                }
+              },
+              {
+                "degree": 1,
+                "entity": {
+                  "editableProperties": {
+                    "description": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action."
+                  },
+                  "health": [
+                    {
+                      "status": "PASS",
+                      "type": "INCIDENTS"
+                    }
+                  ],
+                  "name": "Tripwire Protection: Preserve fraud review behavior for the discovered witness",
+                  "platform": {
+                    "name": "tripwire",
+                    "urn": "urn:li:dataPlatform:tripwire"
+                  },
+                  "properties": {
+                    "customProperties": [
+                      {
+                        "key": "tripwire.memory.kind",
+                        "value": "protection"
+                      },
+                      {
+                        "key": "tripwire.protection.payload_hash",
+                        "value": "4218f01cba56793e2a1ffe75ef862b1d545a8545d7df57cff3134e2cca46697a"
+                      },
+                      {
+                        "key": "tripwire.protection.id",
+                        "value": "protection-witness-tx-009"
+                      },
+                      {
+                        "key": "tripwire.protection.status",
+                        "value": "active"
+                      },
+                      {
+                        "key": "tripwire.protection.version",
+                        "value": "1"
+                      },
+                      {
+                        "key": "tripwire.protection.payload",
+                        "value": "{\"affected_entities\":[{\"display_name\":\"Fraud Features\",\"environment\":null,\"kind\":\"dataset\",\"platform\":null,\"urn\":\"urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)\"},{\"display_name\":\"fraud_logistic_rule\",\"environment\":null,\"kind\":\"ml_model\",\"platform\":null,\"urn\":\"urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)\"},{\"display_name\":\"Fraud Review Agent\",\"environment\":null,\"kind\":\"data_job\",\"platform\":null,\"urn\":\"urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)\"}],\"approved_at\":\"2026-08-05T19:32:04.928851Z\",\"approved_by\":\"urn:li:corpuser:fraud-platform\",\"fixture\":{\"amount_usd\":520.0,\"chargeback_count_30d\":0,\"customer_age_days\":90,\"device_age_days\":null,\"is_international\":true,\"is_refunded\":false,\"merchant_risk\":\"medium\",\"transaction_id\":\"TX-009\"},\"invariant\":\"Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.\",\"name\":\"Preserve fraud review behavior for the discovered witness\",\"protection_id\":\"protection-witness-tx-009\",\"source_change_id\":\"tw_a17f62cb38d4c95947ac8655\",\"status\":\"active\",\"version\":1}"
+                      }
+                    ],
+                    "name": "Tripwire Protection: Preserve fraud review behavior for the discovered witness"
+                  },
+                  "subTypes": {
+                    "typeNames": [
+                      "Tripwire Protection"
+                    ]
+                  },
+                  "tags": {
+                    "tags": [
+                      {
+                        "tag": {
+                          "properties": {
+                            "description": "Active Tripwire protection approved by urn:li:corpuser:fraud-platform; source change tw_a17f62cb38d4c95947ac8655.",
+                            "name": "Tripwire: Preserve fraud review behavior for the discovered witness (v1)"
+                          },
+                          "urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+                        }
+                      }
+                    ]
+                  },
+                  "type": "DATASET",
+                  "urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.protections.protection-witness-tx-009.v1,PROD)"
+                }
+              }
+            ],
+            "total": 6
+          }
+        }
+      }
+    }
+  ],
+  "counterexample": null,
+  "coverage": {
+    "completed_operations": [
+      "get_entities",
+      "list_schema_fields",
+      "get_lineage"
+    ],
+    "critical_consumers": [
+      {
+        "display_name": "fraud_logistic_rule",
+        "environment": null,
+        "kind": "ml_model",
+        "platform": null,
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+      },
+      {
+        "display_name": "Fraud Review Agent",
+        "environment": null,
+        "kind": "data_job",
+        "platform": null,
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+      }
+    ],
+    "gaps": [],
+    "required_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "status": "complete"
+  },
+  "evaluations": [
+    {
+      "completed_at": "2026-08-07T11:47:28.304445Z",
+      "consumer": {
+        "display_name": "fraud_logistic_rule",
+        "environment": null,
+        "kind": "ml_model",
+        "platform": null,
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+      },
+      "critical": true,
+      "evaluation_id": "model-1",
+      "evaluator_version": "fraud-behavior-evaluator/1.0.0",
+      "kind": "model",
+      "observations": {
+        "changed_transaction_ids": [],
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "replayed_rows": 12
+      },
+      "started_at": "2026-08-07T11:47:28.304249Z",
+      "status": "passed",
+      "summary": "Model behavior is identical for every replayed transaction."
+    },
+    {
+      "completed_at": "2026-08-07T11:47:28.304526Z",
+      "consumer": {
+        "display_name": "Fraud Review Agent",
+        "environment": null,
+        "kind": "data_job",
+        "platform": null,
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+      },
+      "critical": true,
+      "evaluation_id": "agent-2",
+      "evaluator_version": "fraud-behavior-evaluator/1.0.0",
+      "kind": "agent",
+      "observations": {
+        "agent_version": "fraud-review-agent/1.0.0",
+        "changed_transaction_ids": [],
+        "model_artifact_hash": "7d7edecb0868ae9fc068c5c73679b261f51e71bc2099f2fc0b6fd7887b9f89f6",
+        "model_version": "fraud-risk-calibrator/2.0.0",
+        "replayed_rows": 12
+      },
+      "started_at": "2026-08-07T11:47:28.304249Z",
+      "status": "passed",
+      "summary": "Agent decisions are identical for every replayed transaction."
+    },
+    {
+      "completed_at": "2026-08-07T11:47:28.601455Z",
+      "consumer": {
+        "display_name": "Fraud Features",
+        "environment": null,
+        "kind": "dataset",
+        "platform": null,
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+      },
+      "critical": true,
+      "evaluation_id": "protection-1",
+      "evaluator_version": "learned-protection-replay/1.0.0",
+      "kind": "protection",
+      "observations": {
+        "approved_by": "urn:li:corpuser:fraud-platform",
+        "baseline_action": "review",
+        "baseline_probability": 0.669,
+        "candidate_action": "review",
+        "candidate_probability": 0.669,
+        "fixture_hash": "1f868cab09fc631da2642d8d846dcc18e76749b775c9bdb22660ee4e00d9ba2c",
+        "protection_id": "protection-witness-tx-009",
+        "protection_version": 1,
+        "source_change_id": "tw_a17f62cb38d4c95947ac8655",
+        "transaction_id": "TX-009"
+      },
+      "started_at": "2026-08-07T11:47:28.304249Z",
+      "status": "passed",
+      "summary": "Candidate preserves the human-approved learned protection."
+    }
+  ],
+  "limitations": [
+    "The Phase 1 evaluator covers the DuckDB fraud vertical slice only.",
+    "Safety is bounded by the consumers and lineage returned in Context Coverage."
+  ],
+  "lineage": [
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud Features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "fraud_logistic_rule",
+          "environment": null,
+          "kind": "ml_model",
+          "platform": null,
+          "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud Features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "Fraud Review Agent",
+          "environment": null,
+          "kind": "data_job",
+          "platform": null,
+          "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud Features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "fraud_signal",
+          "environment": null,
+          "kind": "ml_feature",
+          "platform": null,
+          "urn": "urn:li:mlFeature:(urn:li:mlFeatureTable:%28urn:li:dataPlatform:duckdb%2Ctripwire_fraud.fraud_features%29,fraud_signal)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud Features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "Tripwire Change Passport tw_0f4441f5d063ef2f937540e2",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.passports.tw_0f4441f5d063ef2f937540e2,PROD)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud Features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "Tripwire Change Passport tw_a17f62cb38d4c95947ac8655",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.passports.tw_a17f62cb38d4c95947ac8655,PROD)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "Fraud Features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+        },
+        {
+          "display_name": "Tripwire Protection: Preserve fraud review behavior for the discovered witness",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.protections.protection-witness-tx-009.v1,PROD)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    }
+  ],
+  "owner_routes": [
+    {
+      "display_name": "Fraud Platform Team",
+      "email": "fraud-platform@example.invalid",
+      "owner_urn": "urn:li:corpuser:fraud-platform",
+      "responsibility": "required_reviewer",
+      "source_entity_urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+    },
+    {
+      "display_name": "Fraud Platform Team",
+      "email": "fraud-platform@example.invalid",
+      "owner_urn": "urn:li:corpuser:fraud-platform",
+      "responsibility": "required_reviewer",
+      "source_entity_urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+    },
+    {
+      "display_name": "Fraud Platform Team",
+      "email": "fraud-platform@example.invalid",
+      "owner_urn": "urn:li:corpuser:fraud-platform",
+      "responsibility": "required_reviewer",
+      "source_entity_urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)"
+    }
+  ],
+  "proposed_protection": null,
+  "reason_codes": [
+    "ALL_CRITICAL_EVALUATIONS_PASSED"
+  ],
+  "remediation": null,
+  "resolved_entity": {
+    "display_name": "Fraud Features",
+    "environment": null,
+    "kind": "dataset",
+    "platform": null,
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)"
+  },
+  "run": {
+    "commit_sha": "6a71fb58ee19d2c2971a12c36c81b7e8d48972bd",
+    "created_at": "2026-08-07T11:47:28.303884Z",
+    "input_hashes": {
+      "baseline_output_hash": "2576780c668cd6f487ae91d9167643af0d529f269312fa4292db060276b7eab6",
+      "candidate": "7c8738383e1ef7e9b5497f4a719ad36c08ff7376b7e2f49529eeda3ebdc8ddec",
+      "candidate_error": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "candidate_output_hash": "f5a1c15a480aa1bbea5867e63ec23a5e9236bb7b899c451c21f729a5023c8e4d",
+      "change_facts": "5f4fe0325a0c5356a86a10a36bf0fd70d8c094bd6ab717b4b05833d23e7ac437",
+      "context": "b281c912c46e05d6657ef0c053fb42a1d60cf0a613d9f14f22fb6ff5140389ca",
+      "resolved_entity": "13759acf0809c5e05c85e8578a2ff3493676d46ed8595c805f520fe693ef7802"
+    },
+    "policy_version": "tripwire-policy/1.0.0",
+    "run_id": "tw_cb7c4c96d50fe5535af9b55d",
+    "tool_versions": {
+      "datahub-sdk": "1.7.0",
+      "duckdb": "1.5.5",
+      "mcp": "1.29.0",
+      "tripwire": "0.1.0"
+    }
+  },
+  "schema_version": "1.1.0",
+  "scope_accounting": {
+    "completed_operations": 3,
+    "critical_consumers_discovered": 2,
+    "critical_consumers_evaluated": 2,
+    "lineage_frontier_complete": true,
+    "required_operations": 3,
+    "unresolved_gaps": 0
+  },
+  "verdict": "SAFE_WITHIN_SCOPE"
+}

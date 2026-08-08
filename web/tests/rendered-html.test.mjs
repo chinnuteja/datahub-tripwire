@@ -31,27 +31,37 @@ test("server-renders the evidence-backed Tripwire experience", async () => {
   assert.match(html, /remember/);
   assert.match(html, /TX-009/);
   assert.match(html, /LEARNED_PROTECTION_VIOLATED/);
+  assert.match(html, /SAFE_WITHIN_SCOPE/);
+  assert.match(html, /fraud-risk-calibrator\/2\.0\.0/);
+  assert.match(html, /6a71fb58/);
   assert.match(html, /TRACE → TEST → WITNESS → ACT → IMMUNIZE/);
-  assert.match(html, /https:\/\/tripwire\.test\/og\.png/);
+  assert.match(html, /https:\/\/tripwire\.test\/og-v2\.png/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Starter Project/);
 });
 
 test("ships public evidence and removes all starter-preview dependencies", async () => {
-  const [page, layout, packageJson, learnedPassport] = await Promise.all([
+  const [page, layout, packageJson, learnedPassport, safePassport] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(
-      new URL("../public/evidence/04-learned-catch-passport.json", import.meta.url),
+      new URL("../public/evidence/live-v2-related-catch-passport.json", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../public/evidence/live-v2-safe-control-passport.json", import.meta.url),
       "utf8",
     ),
   ]);
 
-  assert.match(page, /04-learned-catch-passport\.json/);
+  assert.match(page, /live-v2-related-catch-passport\.json/);
+  assert.match(page, /live-v2-safe-control-passport\.json/);
   assert.match(layout, /generateMetadata/);
   assert.match(layout, /x-forwarded-host/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   assert.match(learnedPassport, /LEARNED_PROTECTION_VIOLATED/);
-  await access(new URL("../public/og.png", import.meta.url));
+  assert.match(safePassport, /SAFE_WITHIN_SCOPE/);
+  assert.match(safePassport, /6a71fb58ee19d2c2971a12c36c81b7e8d48972bd/);
+  await access(new URL("../public/og-v2.png", import.meta.url));
   await assert.rejects(access(new URL("../app/_sites-preview", templateRoot)));
 });

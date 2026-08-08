@@ -26,7 +26,8 @@ from pydantic import BaseModel, ConfigDict
 
 from tripwire.change import DbtManifest
 from tripwire.config import TripwireSettings
-from tripwire.provenance import sha256_value
+from tripwire.demo import DEFAULT_MODEL_ARTIFACT, load_model_artifact
+from tripwire.provenance import sha256_file, sha256_value
 
 
 class DataHubSeedResult(BaseModel):
@@ -40,7 +41,7 @@ class DataHubSeedResult(BaseModel):
 
 
 class DataHubSeeder:
-    SEED_VERSION = "tripwire-fraud-graph/1.0.0"
+    SEED_VERSION = "tripwire-fraud-graph/2.0.0"
 
     def __init__(self, settings: TripwireSettings):
         self.settings = settings
@@ -55,6 +56,8 @@ class DataHubSeeder:
         self.client.test_connection()
 
     def seed(self, *, demo_dir: Path) -> DataHubSeedResult:
+        model_artifact = load_model_artifact()
+        model_artifact_hash = sha256_file(DEFAULT_MODEL_ARTIFACT)
         manifest = DbtManifest.load(demo_dir / "target" / "manifest.json")
         dbt_node = manifest.resolve_source_path(
             "models/fct_fraud_features.sql", project_dir=Path(".")
@@ -155,7 +158,7 @@ class DataHubSeeder:
         self._emit_aspect(
             feature_urn,
             models.MLFeaturePropertiesClass(
-                description="Fraud signal consumed by fraud-logistic-rule/1.0.0",
+                description=f"Fraud signal consumed by {model_artifact.model_version}",
                 dataType=models.MLFeatureDataTypeClass.CONTINUOUS,
                 sources=[feature_dataset_urn],
                 customProperties={"tripwire.seed.version": self.SEED_VERSION},
@@ -189,7 +192,7 @@ class DataHubSeeder:
             display_name="Fraud Review Agent",
             description=(
                 "OSS-compatible AI-agent registry representation. Consumes fraud features "
-                "and fraud-logistic-rule/1.0.0 to approve, review, or block transactions."
+                f"and {model_artifact.model_version} to approve, review, or block transactions."
             ),
             subtype="AI Agent",
             owners=[owner],
@@ -210,24 +213,32 @@ class DataHubSeeder:
         self._emit_aspect(
             deployment_urn,
             models.MLModelDeploymentPropertiesClass(
-                description="Deterministic production fraud-model deployment.",
-                version=models.VersionTagClass(versionTag="1.0.0"),
+                description="Hash-pinned logistic fraud-model deployment.",
+                version=models.VersionTagClass(versionTag="2.0.0"),
                 status=models.DeploymentStatusClass.IN_SERVICE,
-                customProperties={"tripwire.seed.version": self.SEED_VERSION},
+                customProperties={
+                    "tripwire.seed.version": self.SEED_VERSION,
+                    "tripwire.model.artifact.sha256": model_artifact_hash,
+                },
             ),
         )
         model = MLModel(
             id="fraud_logistic_rule",
             platform="tripwire",
-            version="1.0.0",
-            name="Fraud Logistic Rule",
-            description="Transparent deterministic fraud model used by the Tripwire demo.",
+            version="2.0.0",
+            name="Fraud Risk Calibrator",
+            description=(
+                "Versioned logistic-regression artifact executed by Tripwire consumer replay."
+            ),
             owners=[owner],
             tags=[tags[name].urn for name in ("Tripwire", "Production", "Critical")],
             downstream_jobs=[str(agent_job.urn)],
             custom_properties={
                 "tripwire.seed.version": self.SEED_VERSION,
-                "tripwire.threshold": "0.62",
+                "tripwire.model.version": model_artifact.model_version,
+                "tripwire.model.family": model_artifact.model_family,
+                "tripwire.model.artifact.sha256": model_artifact_hash,
+                "tripwire.threshold": str(model_artifact.decision_threshold),
             },
         )
         model_props = model._ensure_model_props()

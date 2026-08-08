@@ -1,0 +1,14 @@
+{
+  "attached_entities": [
+    "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+    "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)",
+    "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+  ],
+  "passport_urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.passports.tw_d3f9618ef559549401c3400e,PROD)",
+  "payload_hash": "4218f01cba56793e2a1ffe75ef862b1d545a8545d7df57cff3134e2cca46697a",
+  "protection_id": "protection-witness-tx-009",
+  "protection_urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.protections.protection-witness-tx-009.v1,PROD)",
+  "protection_version": 1,
+  "published_at": "2026-08-07T11:46:37.375312Z",
+  "tag_urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+}

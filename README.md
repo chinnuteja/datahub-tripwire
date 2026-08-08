@@ -1,5 +1,7 @@
 # Tripwire
 
+[![Product Quality](https://github.com/chinnuteja/datahub-tripwire/actions/workflows/quality.yml/badge.svg)](https://github.com/chinnuteja/datahub-tripwire/actions/workflows/quality.yml)
+
 > **DataHub maps the organism. Tripwire gives it an immune system.**
 
 Tripwire is an adaptive change-safety agent for data, ML, and AI systems. It uses
@@ -18,9 +20,13 @@ first learned failure with the later automatic catch, and download the underlyin
 Passport. The UI is built from the committed evidence artifacts rather than a separate
 hard-coded verdict.
 
-For a zero-setup review, open the committed
-[unsafe GitHub Check report](examples/github-check-unsafe.md) and the complete
-[learn → approve → remember → catch proof](examples/learned-loop/README.md).
+For a zero-setup review, compare the commit-bound
+[unsafe and safe public-PR proof](examples/public-proof/README.md), inspect the real
+[unsafe draft PR and failing Check](https://github.com/chinnuteja/datahub-tripwire/pull/1),
+inspect the real [safe PR and successful Check](https://github.com/chinnuteja/datahub-tripwire/pull/2),
+and follow the current [live DataHub v2 inheritance proof](examples/live-v2/README.md).
+The original [learn → approve → remember → catch proof](examples/learned-loop/README.md)
+shows where that durable memory came from.
 The [proof-bundle index](examples/README.md) explains every judge-visible artifact.
 
 ## The winning vertical slice
@@ -29,7 +35,7 @@ The [proof-bundle index](examples/README.md) explains every judge-visible artifa
 dbt/SQL change
   → DataHub MCP context and lineage
   → DuckDB baseline/candidate execution
-  → fraud feature and deterministic ML model replay
+  → fraud feature and hash-pinned logistic model artifact replay
   → Fraud Review Agent behavior replay
   → evidence-backed GitHub verdict
   → DataHub Change Passport and reusable protection
@@ -47,15 +53,50 @@ change that is caught by a protection learned from the first. The live path uses
 real, seeded DataHub graph and genuine MCP reads; offline snapshots are test fixtures,
 not substitutes for the judge-facing integration.
 
+The model consumer is an executable, typed logistic-regression artifact—not a mocked
+API or an inline risk condition. Its version, coefficient contract, decision threshold,
+and SHA-256 identity are recorded with every replay. DataHub stores the same artifact
+identity on the model and deployment, connecting graph context to the code that actually
+produced the evidence.
+
 ## Run the verified vertical slice
 
-Use Python 3.11-3.13, then install the locked development environment:
+### Judge quickstart with live DataHub
+
+Prerequisites: Python 3.11-3.13, `uv`, Docker with Compose, and enough free disk for
+DataHub's local containers. The bootstrap is idempotent and seeds only synthetic data.
+
+On Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/bootstrap-phase1.ps1
+```
+
+On Linux, macOS, or WSL:
+
+```bash
+bash scripts/bootstrap-phase1.sh
+```
+
+Both scripts install the locked environment, start DataHub v1.7.0, compile the exact dbt
+manifest, seed the fraud lineage graph, verify the official MCP tools, and trace the
+critical downstream consumers. No DataHub token is required for the default local stack.
+
+To run the steps manually, first install the locked development environment:
 
 ```powershell
 uv sync --extra dev
 ```
 
-The judge-facing path uses the live DataHub graph and official MCP server:
+Start and prepare the live stack:
+
+```powershell
+uv run datahub docker quickstart --version v1.7.0 --accept-version-default
+New-Item -ItemType Directory -Force artifacts/runtime | Out-Null
+uv run dbt build --project-dir demo/fraud --profiles-dir demo/fraud
+```
+
+Then use the live DataHub graph and official MCP server:
 
 ```powershell
 uv run tripwire datahub seed
@@ -118,10 +159,14 @@ Tripwire maps its three honest verdicts directly to enforceable GitHub Check con
 The checked-in workflow under `.github/workflows/tripwire.yml` runs the evidence engine,
 publishes the Check, and preserves the Change Passport. Publishing is idempotent: a retry
 updates the Check with the matching Tripwire run ID instead of creating duplicates.
+The dedicated `Tripwire / Change Safety` Check is emitted on every pull request: changes
+outside the supported dbt model scope receive an explicit not-applicable success, one model
+is assessed, and multiple models receive `action_required` instead of being guessed.
 For pull requests, the workflow compiles the dbt manifest, requires exactly one changed
 dbt SQL model, loads that file from Git's base and head revisions, parses normalized AST
 facts, resolves its exact DataHub URN, and executes those two SQL revisions. Zero or
-multiple models stop the run instead of selecting one by guesswork.
+multiple models never enter assessment: zero is explicitly out of scope, while multiple
+models fail closed for independent review.
 
 You can also render the exact Check body locally without GitHub credentials:
 
@@ -190,25 +235,38 @@ uv run mypy tripwire
 uv run pytest --cov=tripwire --cov-report=term-missing
 ```
 
+## Reuse as a DataHub Skill
+
+Tripwire includes an Agent Skills-compatible workflow at
+[`skills/tripwire-change-safety/`](skills/tripwire-change-safety/SKILL.md). It teaches
+another agent to assess exact dbt revisions, interpret bounded verdicts, verify model and
+owner evidence, publish a Check, and require explicit human approval before writing
+protection memory.
+
+Install it for Codex with the same open skills installer documented by DataHub:
+
+```powershell
+npx skills add chinnuteja/datahub-tripwire -a codex
+```
+
+The package is validated with the standard Agent Skills validator and delegates execution
+to Tripwire's tested CLI; it does not duplicate the safety logic in prompt text.
+
 ## Current status
 
-The first complete product slice is implemented and live-verified: typed evidence
-contracts, an executable
-DuckDB/dbt fraud system, a pinned fraud model, a deterministic Fraud Review Agent, exact
-dbt manifest resolution, a real DataHub graph seeder, an MCP client adapter, deterministic
-assessment orchestration, honest three-state verdicts, counterexample extraction, proposed
-protections, CI exit codes, and Change Passport artifacts. The official
-`mcp-server-datahub==0.6.0` server has been exercised against the seeded DataHub v1.7.0
-graph: it returned the real schema plus the downstream fraud model and review agent, and
-the live unsafe assessment produced witness `TX-009`. The complete human-approved
-learn-then-catch loop is also live-verified: DataHub stores the memory, MCP retrieves it,
-and a distinct later SQL change is stopped by the inherited protection.
+The complete fraud slice is implemented and live-verified: typed evidence contracts,
+DuckDB/dbt execution, a hash-pinned logistic model artifact, Fraud Review Agent replay,
+exact manifest and URN resolution, real DataHub seeding, official MCP reads, three-state
+verdicts, minimized witnesses, verified remediation, owner routing, human approval,
+DataHub write-back, and inherited protection replay.
 
-The `ACT` stage is also implemented as a real GitHub Checks adapter, with fail-closed
-verdict mapping, stable-run idempotency, a credential-free local renderer, a minimal-
-permission GitHub Actions workflow, and mocked API contract tests for both create and
-update paths. A live Check needs the final public repository and its GitHub Actions token;
-the evidence and report can already be inspected without either.
+Both public PR paths are proven. The unsafe PR's workflow succeeds while Tripwire's
+dedicated Check correctly returns `failure`; the safe PR's workflow and dedicated Check
+both return `success`. Repository-wide CI separately enforces Ruff, strict Mypy, 90%+
+branch coverage, all tests, package construction, coverage-artifact preservation, and the
+judge console's production build, server-render tests, and lint rules.
+The current [live v2 bundle](examples/live-v2/README.md) binds the MCP context, model
+artifact, DataHub write-back, related catch, and safe control to exact engine commits.
 
 ## Honest limitations
 

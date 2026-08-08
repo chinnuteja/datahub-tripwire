@@ -13,11 +13,16 @@ type Evaluation = {
 type Evidence = {
   first: {
     runId: string;
+    engineCommit: string;
     candidate: string;
     verdict: string;
     reason: string;
     contextFacts: number;
     lineagePaths: number;
+    resolvedEntity: string;
+    changeFacts: number;
+    completedOperations: number;
+    requiredOperations: number;
     consumers: { name: string; kind: string; urn: string }[];
     evaluations: Evaluation[];
     witness: {
@@ -35,6 +40,10 @@ type Evidence = {
       candidateSignal: number;
     };
     protectionId: string;
+    owner: string;
+    modelVersion: string;
+    modelArtifactHash: string;
+    replayedRows: number;
   };
   protection: {
     id: string;
@@ -63,6 +72,18 @@ type Evidence = {
     proposedAgain: boolean;
     learnedObservation: Record<string, unknown>;
   };
+  safe: {
+    runId: string;
+    candidate: string;
+    verdict: string;
+    reason: string;
+    resolvedEntity: string;
+    changeFacts: number;
+    evaluations: Evaluation[];
+    modelVersion: string;
+    modelArtifactHash: string;
+    replayedRows: number;
+  };
 };
 
 const stages = ["Trace", "Test", "Witness", "Act", "Immunize"] as const;
@@ -78,7 +99,7 @@ function percent(value: number) {
 
 export function TripwireConsole({ evidence }: { evidence: Evidence }) {
   const [stage, setStage] = useState<Stage>("Witness");
-  const [scenario, setScenario] = useState<"first" | "learned">("learned");
+  const [scenario, setScenario] = useState<"first" | "learned" | "safe">("learned");
 
   const scrollToWorkbench = (nextStage: Stage) => {
     setStage(nextStage);
@@ -98,6 +119,7 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
           <a href="#proof">Proof</a>
           <a href="#workbench">Evidence</a>
           <a href="#memory">Memory</a>
+          <a href="https://github.com/chinnuteja/datahub-tripwire" target="_blank" rel="noreferrer">GitHub</a>
         </nav>
         <span className="live-pill"><i /> Live graph verified</span>
       </header>
@@ -123,8 +145,13 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
           <div className="proof-strip" id="proof">
             <div><strong>{evidence.first.contextFacts}</strong><span>live MCP facts</span></div>
             <div><strong>{evidence.first.consumers.length}</strong><span>critical consumers</span></div>
-            <div><strong>1</strong><span>minimal witness</span></div>
+            <div><strong>{evidence.first.replayedRows}</strong><span>rows replayed</span></div>
             <div><strong>{evidence.memory.attachedCount}</strong><span>assets immunized</span></div>
+          </div>
+          <div className="provenance-strip" aria-label="Evidence provenance">
+            <span>ENGINE <code>{evidence.first.engineCommit.slice(0, 8)}</code></span>
+            <span>MODEL <code>{evidence.first.modelVersion}</code></span>
+            <span>ARTIFACT <code>{evidence.first.modelArtifactHash.slice(0, 12)}…</code></span>
           </div>
         </div>
 
@@ -148,8 +175,8 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
           </div>
           <div className="mini-diff" aria-label="Simplified SQL change">
             <div className="diff-neutral"><span>18</span>case when device_age_days is null</div>
-            <div className="diff-remove"><span>19</span>- then 0 <b>/* risky */</b></div>
-            <div className="diff-add"><span>19</span>+ then 365 <b>/* trusted */</b></div>
+            <div className="diff-remove"><span>19</span>- then 0 <b>{"/* risky */"}</b></div>
+            <div className="diff-add"><span>19</span>+ then 365 <b>{"/* trusted */"}</b></div>
           </div>
           <div className="caught-by">
             <span className="memory-glyph">◎</span>
@@ -197,11 +224,12 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
         <div className="scenario-header">
           <div>
             <div className="section-kicker">THE ADAPTIVE PROOF</div>
-            <h2>Two changes.<br />One learned invariant.</h2>
+            <h2>Break it. Learn it.<br />Prove the safe path.</h2>
           </div>
           <div className="scenario-toggle" role="group" aria-label="Choose proof scenario">
             <button className={scenario === "first" ? "active" : ""} onClick={() => setScenario("first")}>01 · Learn</button>
             <button className={scenario === "learned" ? "active" : ""} onClick={() => setScenario("learned")}>02 · Catch</button>
+            <button className={scenario === "safe" ? "active" : ""} onClick={() => setScenario("safe")}>03 · Pass</button>
           </div>
         </div>
 
@@ -218,7 +246,7 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
               <span>OUTPUT</span><strong>PROTECTION<br />PROPOSED</strong><small>{evidence.first.protectionId}</small>
             </div>
           </div>
-        ) : (
+        ) : scenario === "learned" ? (
           <div className="scenario-card catch-card">
             <div className="scenario-index">02</div>
             <div className="scenario-main">
@@ -231,6 +259,19 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
               <span>OUTPUT</span><strong>CHANGE<br />BLOCKED</strong><small>{evidence.learned.reason}</small>
             </div>
           </div>
+        ) : (
+          <div className="scenario-card safe-card">
+            <div className="scenario-index">03</div>
+            <div className="scenario-main">
+              <span className="scenario-label">SAFE CONTROL</span>
+              <h3>{evidence.safe.candidate}.sql</h3>
+              <p>An additive reviewer note is parsed into {evidence.safe.changeFacts} exact AST facts, then replayed through the same DataHub graph, model, agent, and learned protection.</p>
+              <div className="scenario-result"><span>EXECUTED SCOPE</span><strong>{evidence.safe.evaluations.length}/{evidence.safe.evaluations.length}</strong><b>{evidence.safe.replayedRows} rows · {evidence.safe.modelVersion}</b></div>
+            </div>
+            <div className="scenario-outcome safe">
+              <span>OUTPUT</span><strong>SAFE WITHIN<br />SCOPE</strong><small>{evidence.safe.reason}</small>
+            </div>
+          </div>
         )}
 
         <div className="memory-ledger">
@@ -238,6 +279,8 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
           <div className="ledger-row"><span>Protection</span><code>{evidence.protection.id} · v{evidence.protection.version}</code></div>
           <div className="ledger-row"><span>Approved by</span><code>{shortUrn(evidence.protection.approvedBy)}</code></div>
           <div className="ledger-row"><span>Attached to</span><code>{evidence.protection.affectedCount} affected graph entities</code></div>
+          <div className="ledger-row"><span>Required owner</span><code>{evidence.first.owner}</code></div>
+          <div className="ledger-row"><span>Exact entity</span><code>{shortUrn(evidence.first.resolvedEntity)}</code></div>
           <div className="ledger-row"><span>Payload proof</span><code>{evidence.memory.hash.slice(0, 18)}…{evidence.memory.hash.slice(-10)}</code></div>
         </div>
       </section>
@@ -246,15 +289,16 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
         <span className="closing-mark">T</span>
         <h2>The graph knows what depends on you.<br />Tripwire proves what your change will do.</h2>
         <div className="closing-actions">
-          <a className="primary-action" href="/evidence/04-learned-catch-passport.json" download>Download live Passport <span>↓</span></a>
-          <a className="text-action light" href="https://datahub.com" target="_blank" rel="noreferrer">Built on DataHub <span>↗</span></a>
+          <a className="primary-action" href="/evidence/live-v2-related-catch-passport.json" download>Download blocked Passport <span>↓</span></a>
+          <a className="text-action light" href="/evidence/live-v2-safe-control-passport.json" download>Download safe control <span>↓</span></a>
+          <a className="text-action light" href="https://github.com/chinnuteja/datahub-tripwire" target="_blank" rel="noreferrer">Inspect the code <span>↗</span></a>
         </div>
       </section>
 
       <footer>
         <div className="brand"><span className="brand-mark">T</span><span>TRIPWIRE</span></div>
         <p>Adaptive change safety for data, ML &amp; AI systems.</p>
-        <div><span>DATAHUB v1.7.0</span><span>MCP v0.6.0</span><span>APACHE 2.0</span></div>
+        <div><span>DATAHUB v1.7.0</span><span>MCP v0.6.0</span><span>MODEL v2.0.0</span><span>APACHE 2.0</span></div>
       </footer>
     </main>
   );

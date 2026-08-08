@@ -1,10 +1,13 @@
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tripwire.application import AssessmentService
 from tripwire.change import analyze_sql_change
 from tripwire.domain import (
     ChangeFactKind,
+    ContextAuthority,
     ContextCoverage,
+    ContextFact,
     CoverageGap,
     CoverageStatus,
     EntityKind,
@@ -39,10 +42,10 @@ AGENT = EntityRef(
 )
 
 
-def complete_context(*, protections: tuple = ()) -> ContextSnapshot:
+def complete_context(*, protections: tuple = (), facts: tuple = ()) -> ContextSnapshot:
     return ContextSnapshot(
         root=ROOT,
-        facts=(),
+        facts=facts,
         paths=(LineagePath(nodes=(ROOT, MODEL)), LineagePath(nodes=(ROOT, AGENT))),
         coverage=ContextCoverage(
             status=CoverageStatus.COMPLETE,
@@ -101,6 +104,12 @@ def test_additive_change_is_safe_within_explicit_scope() -> None:
     assert passport.counterexample is None
     assert passport.proposed_protection is None
     assert all(result.status.value == "passed" for result in passport.evaluations)
+    assert passport.scope_accounting is not None
+    assert passport.scope_accounting.completed_operations == 3
+    assert passport.scope_accounting.required_operations == 3
+    assert passport.scope_accounting.critical_consumers_evaluated == 2
+    assert passport.scope_accounting.critical_consumers_discovered == 2
+    assert passport.scope_accounting.lineage_frontier_complete
 
 
 def test_mechanical_break_is_unsafe_with_executed_error_evidence() -> None:
@@ -165,6 +174,48 @@ def test_git_loaded_sql_and_change_facts_drive_the_same_evidence_engine() -> Non
     assert passport.resolved_entity == ROOT
     assert passport.change_facts == facts
     assert any(fact.kind is ChangeFactKind.NULL_HANDLING for fact in passport.change_facts)
+    assert passport.remediation is not None
+    assert passport.remediation.status.value == "verified"
+    assert passport.remediation.restored_evaluations == ("model-1", "agent-2")
+    assert "COALESCE(device_age_days, 0)" in passport.remediation.patch
+
+
+def test_datahub_ownership_routes_required_reviewers() -> None:
+    fact = ContextFact(
+        fact_type="mcp.get_entities",
+        subject=ROOT,
+        value={
+            "result": {
+                "urn": ROOT.urn,
+                "ownership": {
+                    "owners": [
+                        {
+                            "owner": {
+                                "urn": "urn:li:corpuser:fraud-platform",
+                                "properties": {
+                                    "displayName": "Fraud Platform Team",
+                                    "email": "fraud-platform@example.invalid",
+                                },
+                            }
+                        }
+                    ]
+                },
+            }
+        },
+        authority=ContextAuthority.DATAHUB_MCP,
+        operation="get_entities",
+        retrieved_at=datetime.now(UTC),
+        source_hash="a" * 64,
+    )
+
+    passport = service().assess(
+        candidate="safe_additive",
+        context=complete_context(facts=(fact,)),
+    )
+
+    assert len(passport.owner_routes) == 1
+    assert passport.owner_routes[0].owner_urn == "urn:li:corpuser:fraud-platform"
+    assert passport.owner_routes[0].source_entity_urn == ROOT.urn
 
 
 def test_learned_protection_executes_its_stored_fixture_not_seed_lookup() -> None:
