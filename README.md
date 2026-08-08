@@ -159,10 +159,14 @@ Tripwire maps its three honest verdicts directly to enforceable GitHub Check con
 The checked-in workflow under `.github/workflows/tripwire.yml` runs the evidence engine,
 publishes the Check, and preserves the Change Passport. Publishing is idempotent: a retry
 updates the Check with the matching Tripwire run ID instead of creating duplicates.
+The dedicated `Tripwire / Change Safety` Check is emitted on every pull request: changes
+outside the supported dbt model scope receive an explicit not-applicable success, one model
+is assessed, and multiple models receive `action_required` instead of being guessed.
 For pull requests, the workflow compiles the dbt manifest, requires exactly one changed
 dbt SQL model, loads that file from Git's base and head revisions, parses normalized AST
 facts, resolves its exact DataHub URN, and executes those two SQL revisions. Zero or
-multiple models stop the run instead of selecting one by guesswork.
+multiple models never enter assessment: zero is explicitly out of scope, while multiple
+models fail closed for independent review.
 
 You can also render the exact Check body locally without GitHub credentials:
 
@@ -259,7 +263,8 @@ DataHub write-back, and inherited protection replay.
 Both public PR paths are proven. The unsafe PR's workflow succeeds while Tripwire's
 dedicated Check correctly returns `failure`; the safe PR's workflow and dedicated Check
 both return `success`. Repository-wide CI separately enforces Ruff, strict Mypy, 90%+
-branch coverage, all tests, package construction, and coverage-artifact preservation.
+branch coverage, all tests, package construction, coverage-artifact preservation, and the
+judge console's production build, server-render tests, and lint rules.
 The current [live v2 bundle](examples/live-v2/README.md) binds the MCP context, model
 artifact, DataHub write-back, related catch, and safe control to exact engine commits.
 

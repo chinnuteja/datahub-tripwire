@@ -14,8 +14,6 @@ on:
           - unsafe_mechanical
           - safe_additive
   pull_request:
-    paths:
-      - "demo/fraud/models/**"
 
 permissions:
   contents: read
@@ -37,15 +35,52 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+      - name: Classify pull-request scope
+        if: github.event_name == 'pull_request'
+        id: scope
+        shell: bash
+        run: |
+          mapfile -t changed_models < <(git diff --name-only \
+            "${{ github.event.pull_request.base.sha }}" \
+            "$TRIPWIRE_HEAD_SHA" -- "demo/fraud/models/*.sql")
+          echo "count=${#changed_models[@]}" >> "$GITHUB_OUTPUT"
+          printf 'model=%s\n' "${changed_models[0]:-}" >> "$GITHUB_OUTPUT"
+      - name: Publish non-applicable or ambiguous Check
+        if: github.event_name == 'pull_request' && steps.scope.outputs.count != '1'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const count = Number('${{ steps.scope.outputs.count }}');
+            const applicable = count === 0;
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: process.env.TRIPWIRE_HEAD_SHA,
+              name: 'Tripwire / Change Safety',
+              status: 'completed',
+              conclusion: applicable ? 'success' : 'action_required',
+              details_url: process.env.TRIPWIRE_DETAILS_URL,
+              output: {
+                title: applicable
+                  ? 'Not applicable: no dbt SQL model changed'
+                  : `Unverified: ${count} dbt SQL models changed`,
+                summary: applicable
+                  ? 'Tripwire makes no safety claim for this pull request because it does not change a supported dbt SQL model.'
+                  : 'Tripwire fails closed when more than one dbt SQL model changes; assess each exact model independently.',
+              },
+            });
       - name: Install locked environment
+        if: github.event_name == 'workflow_dispatch' || steps.scope.outputs.count == '1'
         run: uv sync --frozen --extra dev
       - name: Prepare isolated demo runtime
+        if: github.event_name == 'workflow_dispatch' || steps.scope.outputs.count == '1'
         run: mkdir -p artifacts/runtime
       - name: Compile exact dbt manifest
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.scope.outputs.count == '1'
         run: uv run dbt compile --project-dir demo/fraud --profiles-dir demo/fraud
       - name: Select the one changed dbt SQL model
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.scope.outputs.count == '1'
         id: changed
         shell: bash
         run: |
@@ -63,7 +98,7 @@ jobs:
           --output "$TRIPWIRE_PASSPORT"
           --requested-by "github:${{ github.actor }}"
       - name: Execute the actual pull-request SQL revisions
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.scope.outputs.count == '1'
         continue-on-error: true
         run: >-
           uv run tripwire assess-git
@@ -76,6 +111,7 @@ jobs:
           --output "$TRIPWIRE_PASSPORT"
           --requested-by "github:${{ github.actor }}"
       - name: Publish idempotent GitHub Check
+        if: github.event_name == 'workflow_dispatch' || steps.scope.outputs.count == '1'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
@@ -85,6 +121,7 @@ jobs:
           --head-sha "$TRIPWIRE_HEAD_SHA"
           --details-url "$TRIPWIRE_DETAILS_URL"
       - name: Preserve Change Passport
+        if: github.event_name == 'workflow_dispatch' || steps.scope.outputs.count == '1'
         uses: actions/upload-artifact@v4
         with:
           name: tripwire-change-passport

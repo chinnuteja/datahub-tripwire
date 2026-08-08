@@ -41,3 +41,24 @@ jobs:
           name: tripwire-coverage
           path: coverage.xml
           if-no-files-found: ignore
+
+  judge-console:
+    name: Judge console build, tests, and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install locked web dependencies
+        run: npm ci
+      - name: Build and test the public evidence console
+        run: npm run test
+      - name: Lint the public evidence console
+        run: npm run lint
