@@ -14,6 +14,9 @@ similar change is caught automatically.
 
 ## See the proof first
 
+Start with the [two-minute judge walkthrough](docs/JUDGE_WALKTHROUGH.md) for the shortest
+path through the hosted proof, public control PRs, and reproducible live run.
+
 Open the [hosted Tripwire evidence console](https://tripwire-datahub.tejachinnu572.chatgpt.site)
 to inspect the real `TX-009` witness, move through the five-stage safety path, compare the
 first learned failure with the later automatic catch, and download the underlying Change
