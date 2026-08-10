@@ -32,6 +32,11 @@ test("server-renders the evidence-backed Tripwire experience", async () => {
   assert.match(html, /TX-009/);
   assert.match(html, /LEARNED_PROTECTION_VIOLATED/);
   assert.match(html, /SAFE_WITHIN_SCOPE/);
+  assert.match(html, /NATIVE DATAHUB/);
+  assert.match(html, /DataHub Assertion/);
+  assert.match(html, /DataHub Incident/);
+  assert.match(html, /SKU-0102/);
+  assert.match(html, /ONE ENGINE · TWO DOMAINS/);
   assert.match(html, /fraud-risk-calibrator\/2\.0\.0/);
   assert.match(html, /6a71fb58/);
   assert.match(html, /TRACE → TEST → WITNESS → ACT → IMMUNIZE/);
@@ -40,7 +45,15 @@ test("server-renders the evidence-backed Tripwire experience", async () => {
 });
 
 test("ships public evidence and removes all starter-preview dependencies", async () => {
-  const [page, layout, packageJson, learnedPassport, safePassport] = await Promise.all([
+  const [
+    page,
+    layout,
+    packageJson,
+    learnedPassport,
+    safePassport,
+    governanceSummary,
+    inventorySummary,
+  ] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
@@ -50,6 +63,14 @@ test("ships public evidence and removes all starter-preview dependencies", async
     ),
     readFile(
       new URL("../public/evidence/live-v2-safe-control-passport.json", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../public/evidence/native-governance-summary.json", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../public/evidence/inventory-slice-summary.json", import.meta.url),
       "utf8",
     ),
   ]);
@@ -62,6 +83,9 @@ test("ships public evidence and removes all starter-preview dependencies", async
   assert.match(learnedPassport, /LEARNED_PROTECTION_VIOLATED/);
   assert.match(safePassport, /SAFE_WITHIN_SCOPE/);
   assert.match(safePassport, /6a71fb58ee19d2c2971a12c36c81b7e8d48972bd/);
+  assert.match(governanceSummary, /tripwire-protection-witness-tx-009-v1/);
+  assert.match(governanceSummary, /"incident_state": "ACTIVE"/);
+  assert.match(inventorySummary, /SKU-0102/);
   await access(new URL("../public/og-v2.png", import.meta.url));
   await assert.rejects(access(new URL("../app/_sites-preview", templateRoot)));
 });

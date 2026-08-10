@@ -1,0 +1,9 @@
+{
+  "assertion_urn": "urn:li:assertion:tripwire-protection-witness-tx-009-v1",
+  "assertion_result": "FAILURE",
+  "assertion_count": 1,
+  "incident_urn": "urn:li:incident:tripwire-1785a38bca648623466f4a25",
+  "incident_state": "ACTIVE",
+  "incident_count": 1,
+  "incident_message": "Opened by Tripwire run tw_377cfdf2ecc47468fda1f1ef. A verified fix is available (fix_e441728a2dfcf687) but has not been applied."
+}

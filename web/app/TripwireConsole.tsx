@@ -62,6 +62,15 @@ type Evidence = {
     attachedCount: number;
     hash: string;
   };
+  governance: {
+    assertionUrn: string;
+    assertionResult: string;
+    assertionCount: number;
+    incidentUrn: string;
+    incidentState: string;
+    incidentCount: number;
+    incidentMessage: string;
+  };
   learned: {
     runId: string;
     candidate: string;
@@ -83,6 +92,17 @@ type Evidence = {
     modelVersion: string;
     modelArtifactHash: string;
     replayedRows: number;
+  };
+  inventory: {
+    runId: string;
+    verdict: string;
+    reason: string;
+    witnessId: string;
+    sku: string;
+    baselineAction: string;
+    candidateAction: string;
+    modelVersion: string;
+    evaluationCount: number;
   };
 };
 
@@ -147,6 +167,12 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
             <div><strong>{evidence.first.consumers.length}</strong><span>critical consumers</span></div>
             <div><strong>{evidence.first.replayedRows}</strong><span>rows replayed</span></div>
             <div><strong>{evidence.memory.attachedCount}</strong><span>assets immunized</span></div>
+          </div>
+          <div className="native-proof-pill">
+            <span>NATIVE DATAHUB</span>
+            <b>{evidence.governance.assertionCount} Assertion</b>
+            <i />
+            <b>{evidence.governance.incidentCount} Incident</b>
           </div>
           <div className="provenance-strip" aria-label="Evidence provenance">
             <span>ENGINE <code>{evidence.first.engineCommit.slice(0, 8)}</code></span>
@@ -282,6 +308,28 @@ export function TripwireConsole({ evidence }: { evidence: Evidence }) {
           <div className="ledger-row"><span>Required owner</span><code>{evidence.first.owner}</code></div>
           <div className="ledger-row"><span>Exact entity</span><code>{shortUrn(evidence.first.resolvedEntity)}</code></div>
           <div className="ledger-row"><span>Payload proof</span><code>{evidence.memory.hash.slice(0, 18)}…{evidence.memory.hash.slice(-10)}</code></div>
+          <div className="ledger-row native-row"><span>DataHub Assertion</span><code>{shortUrn(evidence.governance.assertionUrn)} · {evidence.governance.assertionResult}</code></div>
+          <div className="ledger-row native-row"><span>DataHub Incident</span><code>{shortUrn(evidence.governance.incidentUrn)} · {evidence.governance.incidentState}</code></div>
+        </div>
+
+        <div className="domain-proof">
+          <div className="domain-proof-copy">
+            <span className="section-kicker">ONE ENGINE · TWO DOMAINS</span>
+            <h3>Not a fraud demo with the nouns swapped.</h3>
+            <p>The same evaluator catches a different defect class in an inventory stockout model and replenishment agent.</p>
+          </div>
+          <div className="domain-card fraud-domain">
+            <small>FRAUD SAFETY</small>
+            <strong>{evidence.first.witness.transactionId}</strong>
+            <span>{evidence.first.witness.baselineAction} → {evidence.first.witness.candidateAction}</span>
+            <b>NULL-HANDLING REGRESSION</b>
+          </div>
+          <div className="domain-card inventory-domain">
+            <small>INVENTORY SAFETY</small>
+            <strong>{evidence.inventory.sku}</strong>
+            <span>{evidence.inventory.baselineAction} → {evidence.inventory.candidateAction}</span>
+            <b>AGGREGATION-CAP REGRESSION</b>
+          </div>
         </div>
       </section>
 
@@ -380,6 +428,10 @@ function ImmunizePanel({ evidence }: { evidence: Evidence }) {
       <div className="immunize-step done"><span>02</span><div><small>HUMAN GATE</small><strong>Explicitly approved</strong><p>{shortUrn(evidence.protection.approvedBy)}</p></div><b>✓</b></div>
       <div className="immunize-line" />
       <div className="immunize-step done"><span>03</span><div><small>DATAHUB GRAPH</small><strong>Memory attached</strong><p>Passport + protection + tag on {evidence.memory.attachedCount} affected entities.</p></div><b>✓</b></div>
+      <div className="native-governance-proof">
+        <div><small>NATIVE ASSERTION</small><strong>{evidence.governance.assertionResult}</strong><code>{shortUrn(evidence.governance.assertionUrn)}</code></div>
+        <div><small>NATIVE INCIDENT</small><strong>{evidence.governance.incidentState}</strong><code>{shortUrn(evidence.governance.incidentUrn)}</code></div>
+      </div>
       <div className="immunize-line hot" />
       <div className="immunize-step caught"><span>04</span><div><small>NEXT CHANGE</small><strong>Defect caught again</strong><p>{evidence.learned.candidate}.sql violates inherited memory.</p></div><b>×</b></div>
     </div>
