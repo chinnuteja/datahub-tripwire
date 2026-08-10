@@ -330,6 +330,7 @@ def test_one_incident_per_asset_so_a_later_safe_run_can_close_it(
             critical_consumers=(MODEL,),
         ),
         provider="recorded-test-context",
+        protections=(approved,),
     )
     service = AssessmentService(root=Path.cwd(), demo_dir=Path("demo/fraud"))
     unsafe = service.assess(
@@ -429,15 +430,14 @@ def test_unverified_verdict_claims_nothing_in_datahub(
     _, graph = _install_fakes(
         monkeypatch, tuple(ref.urn for ref in approved.affected_entities)
     )
-    receipt = DataHubMemoryStore(TripwireSettings()).publish(
-        passport=unverified, protection=approved
-    )
+    with pytest.raises(ValueError, match="UNVERIFIED assessments cannot be published"):
+        DataHubMemoryStore(TripwireSettings()).publish(
+            passport=unverified, protection=approved
+        )
 
     assert graph.aspects("IncidentInfoClass") == []
-    assert receipt.incident_urn is None
-    assert receipt.incident_state is None
-    # No protection ran and no witness exists, so the run is honestly ERROR.
-    assert receipt.assertion_result == "ERROR"
+    assert graph.aspects("AssertionInfoClass") == []
+    assert graph.aspects("AssertionRunEventClass") == []
 
 
 def test_unapproved_protection_cannot_become_an_assertion(

@@ -64,6 +64,21 @@ class DataHubMemoryReceipt(BaseModel):
     incident_state: str | None = None
 
 
+class DataHubAssessmentReceipt(BaseModel):
+    """Native DataHub governance writes produced by one executed assessment."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str
+    verdict: str
+    protection_id: str
+    assertion_urn: str
+    assertion_result: str
+    incident_urn: str | None = None
+    incident_state: str | None = None
+    published_at: datetime
+
+
 def approve_protection(
     passport: ChangePassport,
     *,
@@ -234,7 +249,9 @@ class DataHubMemoryStore:
             # assertion's first recorded run is that real failure - not a synthetic pass.
             result_type = AssertionResultTypeClass.FAILURE
         else:
-            result_type = AssertionResultTypeClass.ERROR
+            raise ValueError(
+                "the assessment contains no executed result for this protection"
+            )
         native: dict[str, str] = {
             "tripwire.run_id": passport.run.run_id,
             "tripwire.verdict": passport.verdict.value,
@@ -320,6 +337,40 @@ class DataHubMemoryStore:
         )
         return urn, state
 
+    def publish_assessment(
+        self,
+        *,
+        passport: ChangePassport,
+        protection: Protection,
+    ) -> DataHubAssessmentReceipt:
+        """Write an executed assessment to DataHub's native governance surfaces.
+
+        `UNVERIFIED` is rejected before any write: missing evidence is neither a pass
+        nor a failure. Initial witness publication and every later live assessment use
+        this same path, so Assertion history and Incident state cannot drift apart.
+        """
+
+        if passport.verdict is Verdict.UNVERIFIED:
+            raise ValueError("UNVERIFIED assessments cannot be published to DataHub")
+        if protection.status is not ProtectionStatus.ACTIVE:
+            raise ValueError("only explicitly approved active protections can be published")
+
+        assertion_urn = self.publish_protection_assertion(protection)
+        _, assertion_result = self.record_assertion_run(
+            passport=passport, protection=protection
+        )
+        incident = self.publish_incident(passport)
+        return DataHubAssessmentReceipt(
+            run_id=passport.run.run_id,
+            verdict=passport.verdict.value,
+            protection_id=protection.protection_id,
+            assertion_urn=assertion_urn,
+            assertion_result=assertion_result,
+            incident_urn=incident[0] if incident else None,
+            incident_state=incident[1] if incident else None,
+            published_at=datetime.now(UTC),
+        )
+
     def find_active(self, proposed: Protection) -> Protection | None:
         """Return an existing approval so retries preserve human provenance."""
 
@@ -346,6 +397,8 @@ class DataHubMemoryStore:
         passport: ChangePassport,
         protection: Protection,
     ) -> DataHubMemoryReceipt:
+        if passport.verdict is Verdict.UNVERIFIED:
+            raise ValueError("UNVERIFIED assessments cannot be published to DataHub")
         if protection.status is not ProtectionStatus.ACTIVE:
             raise ValueError("only explicitly approved active protections can be published")
 
@@ -420,11 +473,9 @@ class DataHubMemoryStore:
         # Native governance surfaces. These are the writes a DataHub operator actually
         # looks at; the assets above remain the durable evidence blob behind them.
         # Any failure here propagates: a partial write must never be reported as success.
-        assertion_urn = self.publish_protection_assertion(protection)
-        _, assertion_result = self.record_assertion_run(
+        governance = self.publish_assessment(
             passport=passport, protection=protection
         )
-        incident = self.publish_incident(passport)
 
         return DataHubMemoryReceipt(
             passport_urn=str(passport_asset.urn),
@@ -435,11 +486,11 @@ class DataHubMemoryStore:
             protection_version=protection.version,
             payload_hash=payload_hash,
             published_at=datetime.now(UTC),
-            assertion_urn=assertion_urn,
+            assertion_urn=governance.assertion_urn,
             assertion_run_id=passport.run.run_id,
-            assertion_result=assertion_result,
-            incident_urn=incident[0] if incident else None,
-            incident_state=incident[1] if incident else None,
+            assertion_result=governance.assertion_result,
+            incident_urn=governance.incident_urn,
+            incident_state=governance.incident_state,
         )
 
 
@@ -452,6 +503,16 @@ def write_protection(protection: Protection, path: Path) -> None:
 
 
 def write_memory_receipt(receipt: DataHubMemoryReceipt, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(receipt.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def write_assessment_receipt(receipt: DataHubAssessmentReceipt, path: Path) -> None:
+    """Persist the compact receipt for a live native-governance write."""
+
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(receipt.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
