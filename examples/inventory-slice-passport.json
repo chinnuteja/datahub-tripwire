@@ -118,7 +118,7 @@
   },
   "evaluations": [
     {
-      "completed_at": "2026-08-09T13:59:20.347396Z",
+      "completed_at": "2026-08-10T12:14:35.256417Z",
       "consumer": {
         "display_name": "Stockout Risk Classifier",
         "environment": null,
@@ -142,12 +142,12 @@
         "model_version": "stockout-risk-classifier/1.0.0",
         "replayed_rows": 10
       },
-      "started_at": "2026-08-09T13:59:20.347232Z",
+      "started_at": "2026-08-10T12:14:35.256348Z",
       "status": "failed",
       "summary": "Model behavior changed for 5 transaction(s)."
     },
     {
-      "completed_at": "2026-08-09T13:59:20.347448Z",
+      "completed_at": "2026-08-10T12:14:35.256444Z",
       "consumer": {
         "display_name": "Replenishment Agent",
         "environment": null,
@@ -169,7 +169,7 @@
         "model_version": "stockout-risk-classifier/1.0.0",
         "replayed_rows": 10
       },
-      "started_at": "2026-08-09T13:59:20.347232Z",
+      "started_at": "2026-08-10T12:14:35.256348Z",
       "status": "failed",
       "summary": "Agent behavior changed for 2 transaction(s)."
     }
@@ -263,7 +263,7 @@
     "invariant": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.",
     "name": "Preserve fraud review behavior for the discovered witness",
     "protection_id": "protection-witness-sku-0102",
-    "source_change_id": "tw_2557333bfdeaaf454aed6af4",
+    "source_change_id": "tw_2884874a09d5c3e995325147",
     "status": "proposed",
     "version": 1
   },
@@ -279,8 +279,8 @@
     "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_inventory.supply.fct_inventory_features,PROD)"
   },
   "run": {
-    "commit_sha": "ab517f3216ee01b77397df6871ae8b9ae61e2104",
-    "created_at": "2026-08-09T13:59:20.347042Z",
+    "commit_sha": "210ece8df2711d98e50968da4a3c04aad2fa3d16",
+    "created_at": "2026-08-10T12:14:35.256261Z",
     "input_hashes": {
       "baseline_output_hash": "c1ecff32451132596259410d93a39c4b641051276e128b5ba31ea88aef9e9f3e",
       "candidate": "8578916e7376070c3a72254255c632531d929324c22a6c26381b7852b7354be5",
@@ -291,7 +291,7 @@
       "resolved_entity": "ade217f8a804484ad63952ad7e57b24f5f1aa3075ebee3b7653b56bb0f678ba9"
     },
     "policy_version": "tripwire-policy/1.0.0",
-    "run_id": "tw_2557333bfdeaaf454aed6af4",
+    "run_id": "tw_2884874a09d5c3e995325147",
     "tool_versions": {
       "datahub-sdk": "1.7.0",
       "duckdb": "1.5.5",
