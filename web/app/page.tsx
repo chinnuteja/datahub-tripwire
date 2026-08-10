@@ -3,6 +3,8 @@ import activeProtection from "../public/evidence/live-v2-active-protection.json"
 import memoryReceipt from "../public/evidence/live-v2-writeback-receipt.json";
 import learnedPassport from "../public/evidence/live-v2-related-catch-passport.json";
 import safePassport from "../public/evidence/live-v2-safe-control-passport.json";
+import nativeGovernance from "../public/evidence/native-governance-summary.json";
+import inventorySummary from "../public/evidence/inventory-slice-summary.json";
 import { TripwireConsole } from "./TripwireConsole";
 
 export const metadata = {
@@ -81,6 +83,15 @@ export default function Home() {
       attachedCount: memoryReceipt.attached_entities.length,
       hash: memoryReceipt.payload_hash,
     },
+    governance: {
+      assertionUrn: nativeGovernance.assertion_urn,
+      assertionResult: nativeGovernance.assertion_result,
+      assertionCount: nativeGovernance.assertion_count,
+      incidentUrn: nativeGovernance.incident_urn,
+      incidentState: nativeGovernance.incident_state,
+      incidentCount: nativeGovernance.incident_count,
+      incidentMessage: nativeGovernance.incident_message,
+    },
     learned: {
       runId: learnedPassport.run.run_id,
       candidate: learnedPassport.change.candidate_revision,
@@ -116,6 +127,17 @@ export default function Home() {
         safePassport.evaluations[0]?.observations.model_artifact_hash ?? "",
       ),
       replayedRows: Number(safePassport.evaluations[0]?.observations.replayed_rows ?? 0),
+    },
+    inventory: {
+      runId: inventorySummary.run_id,
+      verdict: inventorySummary.verdict,
+      reason: inventorySummary.reason,
+      witnessId: inventorySummary.witness_id,
+      sku: inventorySummary.sku,
+      baselineAction: inventorySummary.baseline_action,
+      candidateAction: inventorySummary.candidate_action,
+      modelVersion: inventorySummary.model_version,
+      evaluationCount: inventorySummary.evaluation_count,
     },
   };
 

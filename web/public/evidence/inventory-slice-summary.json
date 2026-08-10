@@ -1,0 +1,11 @@
+{
+  "run_id": "tw_2884874a09d5c3e995325147",
+  "verdict": "UNSAFE",
+  "reason": "CRITICAL_BEHAVIOR_REGRESSION",
+  "witness_id": "witness-sku-0102",
+  "sku": "SKU-0102",
+  "baseline_action": "review",
+  "candidate_action": "approve",
+  "model_version": "stockout-risk-classifier/1.0.0",
+  "evaluation_count": 2
+}
