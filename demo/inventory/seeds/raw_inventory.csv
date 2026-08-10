@@ -1,0 +1,11 @@
+sku_id,days_of_stock,lead_time_days,supplier_reliability,open_backorders,unit_cost_usd,is_seasonal,is_discontinued
+SKU-0101,45,7,high,0,12.50,false,false
+SKU-0102,10,30,medium,3,88.00,false,false
+SKU-0103,2,45,low,5,17.25,true,false
+SKU-0104,60,10,high,1,4.99,false,true
+SKU-0105,12,,medium,2,240.00,false,false
+SKU-0106,6,21,low,4,33.10,true,false
+SKU-0107,30,14,medium,0,9.75,false,false
+SKU-0108,3,60,low,6,155.00,false,false
+SKU-0109,18,,high,3,62.40,true,false
+SKU-0110,90,5,high,0,1.20,false,true

@@ -238,10 +238,10 @@ def test_learned_protection_executes_its_stored_fixture_not_seed_lookup() -> Non
 def test_runtime_outage_is_unverified_not_an_unsafe_code_claim(monkeypatch) -> None:
     from tripwire.demo.fraud import build_demo_world as real_build
 
-    def unavailable(*, demo_dir: Path, scenario: str):
+    def unavailable(*, demo_dir: Path, scenario: str, **kwargs):
         if scenario == "safe_additive":
             raise RuntimeUnavailableError("DuckDB worker is unavailable")
-        return real_build(demo_dir=demo_dir, scenario=scenario)
+        return real_build(demo_dir=demo_dir, scenario=scenario, **kwargs)
 
     monkeypatch.setattr("tripwire.application.assessment.build_demo_world", unavailable)
 

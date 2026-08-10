@@ -1,11 +1,14 @@
 import json
 import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 
 from typer.testing import CliRunner
 
+from tripwire.application import AssessmentService
 from tripwire.cli import app
 from tripwire.domain import ContextCoverage, CoverageStatus, EntityKind, EntityRef, LineagePath
+from tripwire.memory import DataHubAssessmentReceipt, approve_protection
 from tripwire.ports import ContextSnapshot
 
 
@@ -129,6 +132,76 @@ def test_assess_safe_candidate_returns_success(tmp_path: Path, monkeypatch) -> N
         fact["kind"] == "projection" and fact["operation"] == "added"
         for fact in passport["change_facts"]
     )
+
+
+def test_live_assess_writes_active_protection_result_back_to_datahub(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """The open/close governance loop must be reachable through the real CLI."""
+
+    context_path = tmp_path / "context.json"
+    artifact_dir = tmp_path / "artifacts"
+    _write_context(context_path)
+    base = ContextSnapshot.model_validate_json(context_path.read_text(encoding="utf-8"))
+    proposal = AssessmentService(root=Path.cwd(), demo_dir=Path("demo/fraud")).assess(
+        candidate="unsafe_semantic",
+        context=base,
+        resolved_entity=base.root,
+    )
+    active = approve_protection(
+        proposal,
+        approved_by="urn:li:corpuser:fraud-platform",
+        approved_at=datetime(2026, 8, 10, tzinfo=UTC),
+    )
+    live = base.model_copy(update={"protections": (active,)})
+
+    class FakeProvider:
+        async def resolve_exact(self, urn: str) -> EntityRef:
+            assert urn == live.root.urn
+            return live.root
+
+        async def trace_critical_consumers(self, root: EntityRef) -> ContextSnapshot:
+            assert root == live.root
+            return live
+
+    published: list[str] = []
+
+    class FakeStore:
+        def __init__(self, _settings) -> None:
+            pass
+
+        def publish_assessment(self, *, passport, protection):
+            assert passport.verdict.value == "SAFE_WITHIN_SCOPE"
+            assert protection == active
+            published.append(passport.run.run_id)
+            return DataHubAssessmentReceipt(
+                run_id=passport.run.run_id,
+                verdict=passport.verdict.value,
+                protection_id=protection.protection_id,
+                assertion_urn=(
+                    f"urn:li:assertion:tripwire-{protection.protection_id}-v1"
+                ),
+                assertion_result="SUCCESS",
+                incident_urn="urn:li:incident:tripwire-test",
+                incident_state="RESOLVED",
+                published_at=datetime(2026, 8, 10, tzinfo=UTC),
+            )
+
+    monkeypatch.setattr("tripwire.cli.DataHubMCPProvider", lambda _settings: FakeProvider())
+    monkeypatch.setattr("tripwire.cli.DataHubMemoryStore", FakeStore)
+    monkeypatch.setenv("TRIPWIRE_ARTIFACT_DIR", str(artifact_dir))
+
+    result = CliRunner().invoke(app, ["assess", "--candidate", "safe_additive"])
+
+    assert result.exit_code == 0
+    assert len(published) == 1
+    assert '"assertion_result": "SUCCESS"' in result.stdout
+    assert '"incident_state": "RESOLVED"' in result.stdout
+    receipts = list(artifact_dir.glob("datahub-assessment-*.json"))
+    assert len(receipts) == 1
+    receipt = json.loads(receipts[0].read_text(encoding="utf-8"))
+    assert receipt["run_id"] == published[0]
 
 
 def test_datahub_trace_can_preserve_the_complete_snapshot(

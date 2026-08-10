@@ -24,6 +24,7 @@ class TransformationRuntimePort(Protocol):
 
 class ModelRuntimePort(Protocol):
     version: str
+    artifact_hash: str
 
     def predict(self, feature_row: dict[str, Any]) -> FraudModelResult: ...
 

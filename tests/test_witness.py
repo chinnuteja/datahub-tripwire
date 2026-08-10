@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from tripwire.demo.fraud import load_transactions, replay_fraud_transaction
+from tripwire.domain import ChangePassport
+from tripwire.provenance import sha256_value
 from tripwire.witness import minimize_fraud_witness
 
 DEMO = Path("demo/fraud")
@@ -56,3 +58,35 @@ def test_each_remaining_risk_dimension_is_necessary_for_action_flip() -> None:
         before = replay_fraud_transaction(sql=baseline_sql, transaction=trial)
         after = replay_fraud_transaction(sql=candidate_sql, transaction=trial)
         assert before.action == after.action, field
+
+
+def test_committed_example_witness_still_replays_against_the_current_engine() -> None:
+    """The judge walkthrough tells reviewers to replay this exact file; keep it honest.
+
+    A model-artifact or runtime upgrade changes the replay hash. Failing here is correct:
+    regenerate examples/minimized-witness-passport.json rather than relaxing the check.
+    """
+
+    passport = ChangePassport.model_validate_json(
+        Path("examples/minimized-witness-passport.json").read_text(encoding="utf-8")
+    )
+    witness = passport.counterexample
+    assert witness is not None
+
+    baseline = replay_fraud_transaction(
+        sql=(DEMO / "sql" / "baseline.sql").read_text(encoding="utf-8"),
+        transaction=witness.transaction,
+    )
+    candidate = replay_fraud_transaction(
+        sql=(DEMO / "sql" / "unsafe_semantic.sql").read_text(encoding="utf-8"),
+        transaction=witness.transaction,
+    )
+    material = {
+        "transaction": witness.transaction,
+        "baseline": baseline.model_dump(mode="json"),
+        "candidate": candidate.model_dump(mode="json"),
+    }
+
+    assert material["baseline"] == witness.baseline
+    assert material["candidate"] == witness.candidate
+    assert sha256_value(material) == witness.replay_hash

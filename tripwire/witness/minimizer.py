@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from tripwire.demo.fraud import FraudReplaySession
+from tripwire.demo.fraud import FRAUD_SLICE, FraudReplaySession, SliceSpec
 from tripwire.domain import AgentDecision
 
 
@@ -16,17 +16,6 @@ class MinimizedWitness:
     candidate: AgentDecision
     attempted_simplifications: int
     accepted_simplifications: int
-
-
-_SIMPLIFICATIONS: tuple[tuple[str, tuple[Any, ...]], ...] = (
-    ("chargeback_count_30d", (0,)),
-    ("is_refunded", (False,)),
-    ("customer_age_days", (30,)),
-    ("merchant_risk", ("low",)),
-    ("is_international", (False,)),
-    ("amount_usd", (500.0,)),
-    ("device_age_days", (30,)),
-)
 
 
 def _difference_is_preserved(
@@ -45,13 +34,14 @@ def minimize_fraud_witness(
     transaction: dict[str, Any],
     baseline_sql: str,
     candidate_sql: str,
+    spec: SliceSpec = FRAUD_SLICE,
 ) -> MinimizedWitness:
     """Simplify values while repeatedly executing the full downstream behavior."""
 
     current = dict(transaction)
     with (
-        FraudReplaySession(sql=baseline_sql) as baseline_session,
-        FraudReplaySession(sql=candidate_sql) as candidate_session,
+        FraudReplaySession(sql=baseline_sql, spec=spec) as baseline_session,
+        FraudReplaySession(sql=candidate_sql, spec=spec) as candidate_session,
     ):
         baseline = baseline_session.replay(current)
         candidate = candidate_session.replay(current)
@@ -65,7 +55,7 @@ def minimize_fraud_witness(
 
         attempted = 0
         accepted = 0
-        for field, values in _SIMPLIFICATIONS:
+        for field, values in spec.simplifications:
             for value in values:
                 if current.get(field) == value:
                     continue

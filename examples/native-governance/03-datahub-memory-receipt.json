@@ -1,0 +1,19 @@
+{
+  "assertion_result": "FAILURE",
+  "assertion_run_id": "tw_377cfdf2ecc47468fda1f1ef",
+  "assertion_urn": "urn:li:assertion:tripwire-protection-witness-tx-009-v1",
+  "attached_entities": [
+    "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+    "urn:li:mlModel:(urn:li:dataPlatform:tripwire,fraud_logistic_rule,PROD)",
+    "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_fraud_agents,PROD),fraud_review_agent)"
+  ],
+  "incident_state": "ACTIVE",
+  "incident_urn": "urn:li:incident:tripwire-1785a38bca648623466f4a25",
+  "passport_urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.passports.tw_377cfdf2ecc47468fda1f1ef,PROD)",
+  "payload_hash": "4218f01cba56793e2a1ffe75ef862b1d545a8545d7df57cff3134e2cca46697a",
+  "protection_id": "protection-witness-tx-009",
+  "protection_urn": "urn:li:dataset:(urn:li:dataPlatform:tripwire,memory.protections.protection-witness-tx-009.v1,PROD)",
+  "protection_version": 1,
+  "published_at": "2026-08-10T11:18:56.604464Z",
+  "tag_urn": "urn:li:tag:TripwireProtection_protection-witness-tx-009_v1"
+}

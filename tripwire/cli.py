@@ -20,12 +20,21 @@ from tripwire.change import (
     analyze_sql_change,
     render_dbt_sql_for_analysis,
 )
-from tripwire.config import load_settings
+from tripwire.config import TripwireSettings, load_settings
+from tripwire.demo import resolve_slice
 from tripwire.demo.fraud import build_demo_world, replay_fraud_transaction, write_demo_build
-from tripwire.domain import ChangePassport, EntityKind, Protection, Verdict
+from tripwire.domain import (
+    ChangePassport,
+    EntityKind,
+    Protection,
+    ProtectionStatus,
+    Verdict,
+)
 from tripwire.memory import (
+    DataHubAssessmentReceipt,
     DataHubMemoryStore,
     approve_protection,
+    write_assessment_receipt,
     write_memory_receipt,
     write_protection,
 )
@@ -77,8 +86,15 @@ def version() -> None:
 def assess(
     candidate: Annotated[
         str,
-        typer.Option(help="Candidate SQL scenario under demo/fraud/sql."),
+        typer.Option(help="Candidate SQL scenario under the slice's sql directory."),
     ] = "unsafe_semantic",
+    slice_name: Annotated[
+        str,
+        typer.Option(
+            "--slice",
+            help="Vertical slice to evaluate. Both slices share one evaluator.",
+        ),
+    ] = "fraud",
     urn: Annotated[
         str,
         typer.Option(help="Exact changed DataHub dataset URN."),
@@ -116,8 +132,15 @@ def assess(
             typer.echo(f"Live DataHub MCP context retrieval failed: {exc}", err=True)
             raise typer.Exit(code=2) from None
 
-    baseline_path = settings.demo_dir / "sql" / "baseline.sql"
-    candidate_path = settings.demo_dir / "sql" / f"{candidate}.sql"
+    try:
+        spec = resolve_slice(slice_name)
+    except KeyError:
+        typer.echo(f"Unknown slice: {slice_name!r}", err=True)
+        raise typer.Exit(code=2) from None
+    demo_dir = settings.demo_dir if spec.name == "fraud" else Path("demo") / spec.name
+
+    baseline_path = demo_dir / "sql" / "baseline.sql"
+    candidate_path = demo_dir / "sql" / f"{candidate}.sql"
     try:
         baseline_sql = baseline_path.read_text(encoding="utf-8")
         candidate_sql = candidate_path.read_text(encoding="utf-8")
@@ -126,19 +149,67 @@ def assess(
         typer.echo(f"Candidate SQL analysis failed: {exc}", err=True)
         raise typer.Exit(code=2) from None
 
-    service = AssessmentService(root=Path.cwd(), demo_dir=settings.demo_dir)
+    service = AssessmentService(root=Path.cwd(), demo_dir=demo_dir, spec=spec)
     passport = service.assess(
         candidate=candidate,
         context=snapshot,
         requested_by=requested_by,
-        changed_path=f"demo/fraud/sql/{candidate}.sql",
+        changed_path=f"{demo_dir.as_posix()}/sql/{candidate}.sql",
         resolved_entity=snapshot.root,
         change_facts=change_facts,
         baseline_sql=baseline_sql,
         candidate_sql=candidate_sql,
     )
     target = output or settings.artifact_dir / f"change-passport-{candidate}.json"
-    _emit_assessment(passport=passport, target=target, candidate=candidate)
+    writebacks: tuple[DataHubAssessmentReceipt, ...] = ()
+    if context_file is None and passport.verdict is not Verdict.UNVERIFIED:
+        try:
+            writebacks = _publish_live_assessment_results(
+                passport=passport,
+                protections=snapshot.protections,
+                settings=settings,
+            )
+        except Exception as exc:
+            # Preserve the decision artifact, but fail closed because the promised
+            # DataHub governance history was not recorded.
+            write_change_passport(passport, target)
+            typer.echo(f"Native DataHub assessment writeback failed: {exc}", err=True)
+            raise typer.Exit(code=2) from None
+    _emit_assessment(
+        passport=passport,
+        target=target,
+        candidate=candidate,
+        writebacks=writebacks,
+    )
+
+
+def _publish_live_assessment_results(
+    *,
+    passport: ChangePassport,
+    protections: tuple[Protection, ...],
+    settings: TripwireSettings,
+) -> tuple[DataHubAssessmentReceipt, ...]:
+    """Record every active protection evaluated by a live assessment."""
+
+    active = tuple(
+        protection
+        for protection in protections
+        if protection.status is ProtectionStatus.ACTIVE
+    )
+    if not active:
+        return ()
+
+    store = DataHubMemoryStore(settings)
+    receipts: list[DataHubAssessmentReceipt] = []
+    for protection in active:
+        receipt = store.publish_assessment(passport=passport, protection=protection)
+        target = settings.artifact_dir / (
+            f"datahub-assessment-{passport.run.run_id}-"
+            f"{protection.protection_id}.json"
+        )
+        write_assessment_receipt(receipt, target)
+        receipts.append(receipt)
+    return tuple(receipts)
 
 
 def _emit_assessment(
@@ -146,6 +217,7 @@ def _emit_assessment(
     passport: ChangePassport,
     target: Path,
     candidate: str,
+    writebacks: tuple[DataHubAssessmentReceipt, ...] = (),
 ) -> None:
     write_change_passport(passport, target)
     typer.echo(
@@ -159,6 +231,16 @@ def _emit_assessment(
                 "witness": (
                     passport.counterexample.witness_id if passport.counterexample else None
                 ),
+                "datahub_writebacks": [
+                    {
+                        "protection_id": receipt.protection_id,
+                        "assertion_urn": receipt.assertion_urn,
+                        "assertion_result": receipt.assertion_result,
+                        "incident_urn": receipt.incident_urn,
+                        "incident_state": receipt.incident_state,
+                    }
+                    for receipt in writebacks
+                ],
                 "artifact": str(target),
             },
             indent=2,
@@ -635,6 +717,11 @@ def protection_approve(
                 "datahub_protection_urn": receipt.protection_urn,
                 "datahub_passport_urn": receipt.passport_urn,
                 "attached_entities": len(receipt.attached_entities),
+                # Native DataHub governance surfaces, not Tripwire-invented assets.
+                "datahub_assertion_urn": receipt.assertion_urn,
+                "datahub_assertion_result": receipt.assertion_result,
+                "datahub_incident_urn": receipt.incident_urn,
+                "datahub_incident_state": receipt.incident_state,
                 "artifact": str(protection_target),
                 "receipt": str(receipt_target),
             },

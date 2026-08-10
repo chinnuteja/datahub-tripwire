@@ -5,7 +5,8 @@ from __future__ import annotations
 import csv
 import json
 import math
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
@@ -15,6 +16,7 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from tripwire.domain import AgentAction, AgentDecision, FraudModelResult
+from tripwire.ports.runtime import AgentRuntimePort, ModelRuntimePort
 from tripwire.provenance import sha256_file, sha256_value
 
 
@@ -50,6 +52,75 @@ TRANSACTION_COLUMNS: tuple[tuple[str, str], ...] = (
 DEFAULT_MODEL_ARTIFACT = Path(__file__).with_name("fraud_logistic_v2.json")
 
 
+@dataclass(frozen=True)
+class SliceSpec:
+    """Everything a vertical slice must declare to run through the shared evaluator.
+
+    The evaluator itself is domain-neutral: it executes SQL, scores the result with a
+    pinned artifact, and replays a triage agent. This record is the only thing a second
+    domain has to supply.
+    """
+
+    name: str
+    table: str
+    key: str
+    columns: tuple[tuple[str, str], ...]
+    artifact_path: Path
+    agent_version: str
+    parse: Callable[[dict[str, str]], dict[str, Any]]
+    report: Callable[[dict[str, Any], dict[str, float]], dict[str, Any]]
+    # Ordered neutral values the witness minimizer may try, least-relevant first.
+    simplifications: tuple[tuple[str, tuple[Any, ...]], ...]
+
+
+def _fraud_parse(raw: dict[str, str]) -> dict[str, Any]:
+    return {
+        "transaction_id": raw["transaction_id"],
+        "amount_usd": float(raw["amount_usd"]),
+        "is_international": _parse_bool(raw["is_international"]),
+        "merchant_risk": raw["merchant_risk"],
+        "customer_age_days": int(raw["customer_age_days"]),
+        "device_age_days": (int(raw["device_age_days"]) if raw["device_age_days"] else None),
+        "chargeback_count_30d": int(raw["chargeback_count_30d"]),
+        "is_refunded": _parse_bool(raw["is_refunded"]),
+    }
+
+
+def _fraud_report(
+    feature_row: dict[str, Any],
+    values: dict[str, float],
+) -> dict[str, Any]:
+    return {
+        "fraud_signal": values["fraud_signal"],
+        "amount_usd": float(feature_row["amount_usd"]),
+        "is_international": bool(feature_row["is_international"]),
+        "merchant_risk": {"low": 0, "medium": 1, "high": 2}[str(feature_row["merchant_risk"])],
+        "device_age_days": feature_row["device_age_days"],
+        "chargeback_count_30d": int(feature_row["chargeback_count_30d"]),
+    }
+
+
+FRAUD_SLICE = SliceSpec(
+    name="fraud",
+    table="raw_transactions",
+    key="transaction_id",
+    columns=TRANSACTION_COLUMNS,
+    artifact_path=DEFAULT_MODEL_ARTIFACT,
+    agent_version="fraud-review-agent/1.0.0",
+    parse=_fraud_parse,
+    report=_fraud_report,
+    simplifications=(
+        ("chargeback_count_30d", (0,)),
+        ("is_refunded", (False,)),
+        ("customer_age_days", (30,)),
+        ("merchant_risk", ("low",)),
+        ("is_international", (False,)),
+        ("amount_usd", (500.0,)),
+        ("device_age_days", (30,)),
+    ),
+)
+
+
 class LogisticModelArtifact(BaseModel):
     """Strict, executable contract for the pinned fraud probability model."""
 
@@ -58,7 +129,7 @@ class LogisticModelArtifact(BaseModel):
     schema_version: Literal["1.0.0"]
     model_version: str = Field(min_length=1)
     model_family: Literal["logistic_regression"]
-    target: Literal["fraud_probability"]
+    target: str = Field(min_length=1)
     feature_order: tuple[str, ...] = Field(min_length=1)
     intercept: float
     coefficients: dict[str, float]
@@ -90,38 +161,27 @@ def _parse_bool(value: str) -> bool:
     return normalized == "true"
 
 
-def load_transactions(path: Path) -> list[dict[str, Any]]:
-    """Load and validate the public synthetic transaction fixture."""
+def load_transactions(path: Path, spec: SliceSpec = FRAUD_SLICE) -> list[dict[str, Any]]:
+    """Load and validate a slice's public synthetic input fixture."""
 
-    transactions: list[dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     with path.open(encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
-        expected = [name for name, _ in TRANSACTION_COLUMNS]
+        expected = [name for name, _ in spec.columns]
         if reader.fieldnames != expected:
-            raise ValueError(f"transaction columns must be {expected!r}")
-        for raw in reader:
-            transactions.append(
-                {
-                    "transaction_id": raw["transaction_id"],
-                    "amount_usd": float(raw["amount_usd"]),
-                    "is_international": _parse_bool(raw["is_international"]),
-                    "merchant_risk": raw["merchant_risk"],
-                    "customer_age_days": int(raw["customer_age_days"]),
-                    "device_age_days": (
-                        int(raw["device_age_days"]) if raw["device_age_days"] else None
-                    ),
-                    "chargeback_count_30d": int(raw["chargeback_count_30d"]),
-                    "is_refunded": _parse_bool(raw["is_refunded"]),
-                }
-            )
-    ids = [row["transaction_id"] for row in transactions]
+            raise ValueError(f"{spec.name} columns must be {expected!r}")
+        rows.extend(spec.parse(raw) for raw in reader)
+    ids = [row[spec.key] for row in rows]
     if len(ids) != len(set(ids)):
-        raise ValueError("transaction fixture contains duplicate transaction IDs")
-    return transactions
+        raise ValueError(f"{spec.name} fixture contains duplicate {spec.key} values")
+    return rows
 
 
 class DuckDBTransformationRuntime:
     """Isolated in-memory SQL execution against a declared input schema."""
+
+    def __init__(self, spec: SliceSpec = FRAUD_SLICE) -> None:
+        self.spec = spec
 
     def execute(
         self,
@@ -140,14 +200,15 @@ class DuckDBTransformationRuntime:
     ) -> list[dict[str, Any]]:
         """Execute supplied SQL in the same isolated runtime used by file scenarios."""
 
+        spec = self.spec
         connection = duckdb.connect(":memory:")
         try:
-            columns = ", ".join(f"{name} {kind}" for name, kind in TRANSACTION_COLUMNS)
-            connection.execute(f"CREATE TABLE raw_transactions ({columns})")
-            placeholders = ", ".join("?" for _ in TRANSACTION_COLUMNS)
-            values = [tuple(row[name] for name, _ in TRANSACTION_COLUMNS) for row in rows]
+            columns = ", ".join(f"{name} {kind}" for name, kind in spec.columns)
+            connection.execute(f"CREATE TABLE {spec.table} ({columns})")
+            placeholders = ", ".join("?" for _ in spec.columns)
+            values = [tuple(row[name] for name, _ in spec.columns) for row in rows]
             connection.executemany(
-                f"INSERT INTO raw_transactions VALUES ({placeholders})",
+                f"INSERT INTO {spec.table} VALUES ({placeholders})",
                 values,
             )
             result = connection.execute(sql)
@@ -159,7 +220,7 @@ class DuckDBTransformationRuntime:
                 }
                 for row in result.fetchall()
             ]
-            return sorted(output, key=lambda row: str(row["transaction_id"]))
+            return sorted(output, key=lambda row: str(row[spec.key]))
         finally:
             connection.close()
 
@@ -167,9 +228,10 @@ class DuckDBTransformationRuntime:
 class DeterministicFraudModel:
     """A hash-pinned logistic model whose prediction is exactly reproducible."""
 
-    def __init__(self, artifact_path: Path = DEFAULT_MODEL_ARTIFACT) -> None:
-        self.artifact = load_model_artifact(artifact_path)
-        self.artifact_hash = sha256_file(artifact_path)
+    def __init__(self, spec: SliceSpec = FRAUD_SLICE) -> None:
+        self.spec = spec
+        self.artifact = load_model_artifact(spec.artifact_path)
+        self.artifact_hash = sha256_file(spec.artifact_path)
         self.version = self.artifact.model_version
         self.threshold = self.artifact.decision_threshold
 
@@ -185,31 +247,23 @@ class DeterministicFraudModel:
             1.0 / (1.0 + math.exp(-logit)),
             self.artifact.probability_precision,
         )
-        fraud_signal = values["fraud_signal"]
         return FraudModelResult(
-            transaction_id=str(feature_row["transaction_id"]),
+            transaction_id=str(feature_row[self.spec.key]),
             probability=probability,
             predicted_fraud=probability >= self.threshold,
             model_version=self.version,
             model_artifact_hash=self.artifact_hash,
             threshold=self.threshold,
-            feature_values={
-                "fraud_signal": fraud_signal,
-                "amount_usd": float(feature_row["amount_usd"]),
-                "is_international": bool(feature_row["is_international"]),
-                "merchant_risk": {"low": 0, "medium": 1, "high": 2}[
-                    str(feature_row["merchant_risk"])
-                ],
-                "device_age_days": feature_row["device_age_days"],
-                "chargeback_count_30d": int(feature_row["chargeback_count_30d"]),
-            },
+            feature_values=self.spec.report(feature_row, values),
         )
 
 
-class FraudReviewAgent:
-    """A deterministic production-style consumer of the fraud model."""
+class TriageAgent:
+    """A deterministic production-style consumer that triages a scored row."""
 
-    version = "fraud-review-agent/1.0.0"
+    def __init__(self, spec: SliceSpec = FRAUD_SLICE) -> None:
+        self.spec = spec
+        self.version = spec.agent_version
 
     def decide(self, model_result: FraudModelResult) -> AgentDecision:
         if model_result.probability >= 0.85:
@@ -233,11 +287,12 @@ class FraudReviewAgent:
 class FraudReplaySession:
     """Reuse one isolated DuckDB connection while minimizing a witness."""
 
-    def __init__(self, *, sql: str) -> None:
+    def __init__(self, *, sql: str, spec: SliceSpec = FRAUD_SLICE) -> None:
         self.sql = sql
+        self.spec = spec
         self.connection = duckdb.connect(":memory:")
-        columns = ", ".join(f"{name} {kind}" for name, kind in TRANSACTION_COLUMNS)
-        self.connection.execute(f"CREATE TABLE raw_transactions ({columns})")
+        columns = ", ".join(f"{name} {kind}" for name, kind in spec.columns)
+        self.connection.execute(f"CREATE TABLE {spec.table} ({columns})")
 
     def __enter__(self) -> FraudReplaySession:
         return self
@@ -246,11 +301,12 @@ class FraudReplaySession:
         self.connection.close()
 
     def replay(self, transaction: dict[str, Any]) -> AgentDecision:
-        self.connection.execute("DELETE FROM raw_transactions")
-        placeholders = ", ".join("?" for _ in TRANSACTION_COLUMNS)
-        values = tuple(transaction[name] for name, _ in TRANSACTION_COLUMNS)
+        spec = self.spec
+        self.connection.execute(f"DELETE FROM {spec.table}")
+        placeholders = ", ".join("?" for _ in spec.columns)
+        values = tuple(transaction[name] for name, _ in spec.columns)
         self.connection.execute(
-            f"INSERT INTO raw_transactions VALUES ({placeholders})",
+            f"INSERT INTO {spec.table} VALUES ({placeholders})",
             values,
         )
         result = self.connection.execute(self.sql)
@@ -264,23 +320,46 @@ class FraudReplaySession:
             name: float(value) if isinstance(value, Decimal) else value
             for name, value in zip(names, rows[0], strict=True)
         }
-        prediction = DeterministicFraudModel().predict(feature)
-        return FraudReviewAgent().decide(prediction)
+        prediction = DeterministicFraudModel(spec).predict(feature)
+        return TriageAgent(spec).decide(prediction)
+
+
+_SLICES: dict[str, SliceSpec] = {}
+
+
+def register_slice(spec: SliceSpec) -> SliceSpec:
+    """Make a slice addressable by name so cached replay stays hashable."""
+
+    _SLICES[spec.name] = spec
+    return spec
+
+
+register_slice(FRAUD_SLICE)
 
 
 @lru_cache(maxsize=512)
-def _replay_fraud_transaction_cached(sql: str, transaction_json: str) -> AgentDecision:
+def _replay_fraud_transaction_cached(
+    sql: str,
+    transaction_json: str,
+    slice_name: str,
+) -> AgentDecision:
+    spec = _SLICES[slice_name]
     transaction = json.loads(transaction_json)
-    features = DuckDBTransformationRuntime().execute_sql(sql=sql, rows=[transaction])
+    features = DuckDBTransformationRuntime(spec).execute_sql(sql=sql, rows=[transaction])
     if len(features) != 1:
         raise ValueError(
             "witness replay requires the transformation to return exactly one row"
         )
-    prediction = DeterministicFraudModel().predict(features[0])
-    return FraudReviewAgent().decide(prediction)
+    prediction = DeterministicFraudModel(spec).predict(features[0])
+    return TriageAgent(spec).decide(prediction)
 
 
-def replay_fraud_transaction(*, sql: str, transaction: dict[str, Any]) -> AgentDecision:
+def replay_fraud_transaction(
+    *,
+    sql: str,
+    transaction: dict[str, Any],
+    spec: SliceSpec = FRAUD_SLICE,
+) -> AgentDecision:
     """Replay one portable fixture through SQL, model, and agent in isolation."""
 
     transaction_json = json.dumps(
@@ -289,31 +368,45 @@ def replay_fraud_transaction(*, sql: str, transaction: dict[str, Any]) -> AgentD
         separators=(",", ":"),
         ensure_ascii=False,
     )
-    return _replay_fraud_transaction_cached(sql, transaction_json)
+    return _replay_fraud_transaction_cached(sql, transaction_json, spec.name)
 
 
-def build_demo_world(*, demo_dir: Path, scenario: str = "baseline") -> DemoBuild:
+def build_demo_world(
+    *,
+    demo_dir: Path,
+    scenario: str = "baseline",
+    spec: SliceSpec = FRAUD_SLICE,
+) -> DemoBuild:
     """Execute SQL → model → agent and return a hash-verifiable manifest."""
 
     sql_path = demo_dir / "sql" / f"{scenario}.sql"
     if not sql_path.is_file():
-        raise ValueError(f"unknown fraud demo scenario: {scenario}")
+        raise ValueError(f"unknown {spec.name} demo scenario: {scenario}")
 
     return build_demo_world_from_sql(
         demo_dir=demo_dir,
         scenario=scenario,
         sql=sql_path.read_text(encoding="utf-8"),
+        spec=spec,
     )
 
 
-def build_demo_world_from_sql(*, demo_dir: Path, scenario: str, sql: str) -> DemoBuild:
+def build_demo_world_from_sql(
+    *,
+    demo_dir: Path,
+    scenario: str,
+    sql: str,
+    spec: SliceSpec = FRAUD_SLICE,
+) -> DemoBuild:
     """Execute a real Git-loaded SQL revision through model and agent consumers."""
 
-    data_path = demo_dir / "seeds" / "raw_transactions.csv"
-    transactions = load_transactions(data_path)
-    features = DuckDBTransformationRuntime().execute_sql(sql=sql, rows=transactions)
-    model = DeterministicFraudModel()
-    agent = FraudReviewAgent()
+    data_path = demo_dir / "seeds" / f"{spec.table}.csv"
+    transactions = load_transactions(data_path, spec)
+    features = DuckDBTransformationRuntime(spec).execute_sql(sql=sql, rows=transactions)
+    # The annotations are load-bearing: mypy rejects any slice whose model or agent
+    # drifts from the published runtime contracts in tripwire/ports/runtime.py.
+    model: ModelRuntimePort = DeterministicFraudModel(spec)
+    agent: AgentRuntimePort = TriageAgent(spec)
     predictions = tuple(model.predict(row) for row in features)
     decisions = tuple(agent.decide(result) for result in predictions)
     output_material = {

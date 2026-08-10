@@ -10,7 +10,9 @@ from pathlib import Path
 from typing import Any
 
 from tripwire.demo.fraud import (
+    FRAUD_SLICE,
     DemoBuild,
+    SliceSpec,
     build_demo_world,
     build_demo_world_from_sql,
     load_transactions,
@@ -117,9 +119,10 @@ class AssessmentService:
     policy_version = "tripwire-policy/1.0.0"
     evaluator_version = "fraud-behavior-evaluator/1.0.0"
 
-    def __init__(self, *, root: Path, demo_dir: Path):
+    def __init__(self, *, root: Path, demo_dir: Path, spec: SliceSpec = FRAUD_SLICE):
         self.root = root
         self.demo_dir = demo_dir
+        self.spec = spec
 
     def assess(
         self,
@@ -156,9 +159,10 @@ class AssessmentService:
                 demo_dir=self.demo_dir,
                 scenario=f"git:{base_revision}",
                 sql=baseline_sql,
+                spec=self.spec,
             )
             if baseline_sql is not None
-            else build_demo_world(demo_dir=self.demo_dir, scenario="baseline")
+            else build_demo_world(demo_dir=self.demo_dir, scenario="baseline", spec=self.spec)
         )
         candidate_build: DemoBuild | None = None
         candidate_error: Exception | None = None
@@ -168,9 +172,10 @@ class AssessmentService:
                     demo_dir=self.demo_dir,
                     scenario=f"git:{candidate_revision or candidate}",
                     sql=candidate_sql,
+                    spec=self.spec,
                 )
                 if candidate_sql is not None
-                else build_demo_world(demo_dir=self.demo_dir, scenario=candidate)
+                else build_demo_world(demo_dir=self.demo_dir, scenario=candidate, spec=self.spec)
             )
         except Exception as exc:  # evidence is captured below, never silently swallowed
             candidate_error = exc
@@ -200,7 +205,7 @@ class AssessmentService:
             repository=repository,
             base_revision=base_revision,
             candidate_revision=candidate_revision or candidate,
-            changed_paths=(changed_path or f"demo/fraud/sql/{candidate}.sql",),
+            changed_paths=(changed_path or f"{self.demo_dir.as_posix()}/sql/{candidate}.sql",),
             requested_by=requested_by,
         )
 
@@ -236,7 +241,7 @@ class AssessmentService:
             witness=witness,
         )
         limitations = [
-            "The Phase 1 evaluator covers the DuckDB fraud vertical slice only.",
+            f"The Phase 1 evaluator covers the DuckDB {self.spec.name} vertical slice only.",
             "Safety is bounded by the consumers and lineage returned in Context Coverage.",
         ]
         if context.provider != "datahub-mcp/0.6.0:live":
@@ -382,10 +387,12 @@ class AssessmentService:
                     before = replay_fraud_transaction(
                         sql=baseline_sql,
                         transaction=protection.fixture,
+                        spec=self.spec,
                     )
                     after = replay_fraud_transaction(
                         sql=candidate_sql,
                         transaction=protection.fixture,
+                        spec=self.spec,
                     )
                     status = (
                         EvaluationStatus.FAILED
@@ -445,8 +452,10 @@ class AssessmentService:
     ) -> Counterexample | None:
         candidate_decisions = {item.transaction_id: item for item in candidate.decisions}
         transactions = {
-            str(item["transaction_id"]): item
-            for item in load_transactions(self.demo_dir / "seeds" / "raw_transactions.csv")
+            str(item[self.spec.key]): item
+            for item in load_transactions(
+                self.demo_dir / "seeds" / f"{self.spec.table}.csv", self.spec
+            )
         }
         ordered_pairs = [
             (before, candidate_decisions.get(before.transaction_id))
@@ -468,6 +477,7 @@ class AssessmentService:
                 transaction=transactions[before.transaction_id],
                 baseline_sql=baseline_sql,
                 candidate_sql=candidate_sql,
+                spec=self.spec,
             )
             material = {
                 "transaction": minimized.transaction,
@@ -585,6 +595,7 @@ class AssessmentService:
                 demo_dir=self.demo_dir,
                 scenario="verified-remediation",
                 sql=fixed_sql,
+                spec=self.spec,
             )
         except Exception:
             return None

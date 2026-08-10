@@ -17,6 +17,41 @@ running the evaluator.
 | [`learned-loop/03-datahub-memory-receipt.json`](learned-loop/03-datahub-memory-receipt.json) | Stable DataHub URNs and affected assets proving the memory write-back. |
 | [`learned-loop/04-learned-catch-passport.json`](learned-loop/04-learned-catch-passport.json) | A different SQL expression caught after DataHub returned the active protection. |
 | [`contexts/fraud-feature-recorded.json`](contexts/fraud-feature-recorded.json) | An explicitly labeled offline context fixture for CI and local replay. |
+| [`native-governance/README.md`](native-governance/README.md) | **Tripwire's findings as native DataHub Assertions and Incidents**, captured from DataHub's own GraphQL API on a live v1.7.0 stack. |
+| [`inventory-slice-passport.json`](inventory-slice-passport.json) | A **second, unrelated domain** — inventory stockout risk — producing `UNSAFE` and witness `SKU-0102` through the same evaluator, with its own schema, model artifact, and agent. |
+
+## The evaluator is not fraud-specific
+
+`inventory-slice-passport.json` is the answer to "does this only work on your demo?" The
+inventory slice shares zero evaluator code with fraud. It declares only a `SliceSpec`:
+
+| | Fraud slice | Inventory slice |
+|---|---|---|
+| Input table | `raw_transactions` (8 cols) | `raw_inventory` (8 different cols) |
+| Record key | `transaction_id` | `sku_id` |
+| Model | `fraud-risk-calibrator/2.0.0` | `stockout-risk-classifier/1.0.0` |
+| Agent | `fraud-review-agent/1.0.0` | `replenishment-agent/1.0.0` |
+| Defect class | null handling (`coalesce`) | boundary cap (`least(..., 3)` → `2`) |
+| Result | `UNSAFE`, witness `TX-009` | `UNSAFE`, witness `SKU-0102` |
+
+Reproduce it in one command:
+
+```powershell
+uv run tripwire assess --slice inventory --candidate unsafe_backorder_cap `
+  --context-file examples/contexts/inventory-feature-recorded.json `
+  --output artifacts/runtime/inventory.json --requested-by judge
+```
+
+The two slices deliberately use *different defect classes*, so the second one is not a
+rename of the first: the fraud regression hides risk by mis-handling NULLs, and the
+inventory regression hides risk by lowering an aggregation cap. Both are caught by
+execution, not by pattern matching.
+
+Note on field names: the shared evidence contract still calls its record key
+`transaction_id` and its positive-class flag `predicted_fraud`. Those are the fraud
+slice's names, retained deliberately so that every previously published Change Passport
+stays byte-verifiable against the current engine. Generalizing them is a schema 2.0
+change, not a demo change.
 
 Start with the [current live v2 proof](live-v2/README.md), then use the original
 [guided learned-loop narrative](learned-loop/README.md) to inspect how the inherited

@@ -116,6 +116,21 @@ contains stable Passport and protection URNs, the affected entities, payload has
 publication time. Reassess a distinct related change through live DataHub and require
 `LEARNED_PROTECTION_VIOLATED` to prove the next agent inherited the knowledge.
 
+Approval also writes DataHub's **native** governance primitives, and the receipt records
+them. Report these URNs rather than only the Tripwire-internal assets:
+
+| Receipt field | Meaning |
+|---|---|
+| `datahub_assertion_urn` | The protection as a native DataHub **Assertion** |
+| `datahub_assertion_result` | `FAILURE` / `SUCCESS` / `ERROR` for this run, recorded as assertion history |
+| `datahub_incident_urn` | The native **Incident** for the changed asset, when one applies |
+| `datahub_incident_state` | `ACTIVE` while the change is unsafe; `RESOLVED` only after an executed passing assessment |
+
+Never describe an incident as resolved because a verified remediation exists. A fix that
+Tripwire found is not a fix anyone applied; the incident stays `ACTIVE` until a later
+assessment of the same asset actually passes. An `UNVERIFIED` verdict writes no assertion
+result and no incident at all.
+
 ## Independent witness verification
 
 Replay an unsafe witness in a fresh process using the exact old and new SQL:

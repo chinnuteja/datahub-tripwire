@@ -1,0 +1,16 @@
+# Tripwire hashes file bytes to pin model artifacts, seed data, and SQL revisions.
+# Without this, git's per-platform line-ending conversion changes those bytes, so the
+# same commit produces different digests on Windows and Linux and evidence stops being
+# reproducible. Normalize every text file to LF in the repository and the working tree.
+* text=auto eol=lf
+
+# Binary assets must never be touched.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.duckdb binary
+*.whl binary
+*.gz binary

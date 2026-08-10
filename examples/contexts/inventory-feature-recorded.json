@@ -1,0 +1,86 @@
+{
+  "coverage": {
+    "completed_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "critical_consumers": [
+      {
+        "display_name": "Stockout Risk Classifier",
+        "environment": null,
+        "kind": "ml_model",
+        "platform": null,
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,stockout_risk_classifier,PROD)"
+      },
+      {
+        "display_name": "Replenishment Agent",
+        "environment": null,
+        "kind": "data_job",
+        "platform": null,
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_inventory_agents,PROD),replenishment_agent)"
+      }
+    ],
+    "gaps": [],
+    "required_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "status": "complete"
+  },
+  "facts": [],
+  "paths": [
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "inventory features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_inventory.supply.fct_inventory_features,PROD)"
+        },
+        {
+          "display_name": "Stockout Risk Classifier",
+          "environment": null,
+          "kind": "ml_model",
+          "platform": null,
+          "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,stockout_risk_classifier,PROD)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "inventory features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_inventory.supply.fct_inventory_features,PROD)"
+        },
+        {
+          "display_name": "Replenishment Agent",
+          "environment": null,
+          "kind": "data_job",
+          "platform": null,
+          "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_inventory_agents,PROD),replenishment_agent)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    }
+  ],
+  "protections": [],
+  "provider": "recorded-test-context",
+  "root": {
+    "display_name": "inventory features",
+    "environment": null,
+    "kind": "dataset",
+    "platform": null,
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_inventory.supply.fct_inventory_features,PROD)"
+  }
+}
