@@ -2,15 +2,31 @@
 
 [![Product Quality](https://github.com/chinnuteja/datahub-tripwire/actions/workflows/quality.yml/badge.svg)](https://github.com/chinnuteja/datahub-tripwire/actions/workflows/quality.yml)
 
-> **DataHub maps the organism. Tripwire gives it an immune system.**
+> **Agents can now write your SQL. Nothing can prove the SQL is safe.**
+>
+> Tripwire is the verification layer agents call before they ship — and it writes what it
+> finds back into DataHub as **native Assertions and Incidents**.
 
-Tripwire is an adaptive change-safety agent for data, ML, and AI systems. It uses
-DataHub to trace the real consumers of a proposed SQL or dbt change, executes
-consumer-specific evaluations against the old and new behavior, produces a concrete
-failure witness when behavior breaks, and writes approved protections back so the next
-similar change is caught automatically.
+Any agent can generate a dbt model. None of them can tell you whether the model it just
+wrote silently broke the fraud classifier three hops downstream. Tripwire answers that
+with executed evidence instead of an opinion: it uses DataHub to trace the *real*
+consumers of a proposed change, replays old and new behavior through them, and hands back
+a concrete failing row when behavior diverges.
+
+It is built to be **called by agents**, and ships as a
+[DataHub-aware Agent Skill](skills/tripwire-change-safety/SKILL.md) so any coding agent
+inherits it. It refuses to guess: when the evidence is incomplete the verdict is
+`UNVERIFIED` — never "probably fine."
 
 **TRACE → TEST → WITNESS → ACT → IMMUNIZE**
+
+Tripwire does not reinvent governance. A human-approved protection becomes a **DataHub
+Assertion** carrying real pass/fail history; a blocked change becomes a **DataHub
+Incident** that only an executed, passing assessment can close. See the
+[native governance proof](examples/native-governance/README.md), captured from DataHub's
+own GraphQL API.
+
+> **DataHub maps the organism. Tripwire gives it an immune system.**
 
 ## See the proof first
 
@@ -273,8 +289,9 @@ artifact, DataHub write-back, related catch, and safe control to exact engine co
 
 ## Honest limitations
 
-- The executable evaluator intentionally supports one exceptional fraud vertical slice;
-  it is not yet a general SQL safety engine.
+- The executable evaluator ships two vertical slices (fraud, inventory) that share one
+  domain-neutral engine; it is not yet a general SQL safety engine. A new domain must
+  supply a `SliceSpec` and a pinned model artifact.
 - The hosted console presents committed, live-captured evidence. It does not host a
   permanent DataHub backend or allow arbitrary SQL execution from an anonymous browser.
 - The Git/AST path currently supports one changed dbt SQL model in the fraud vertical

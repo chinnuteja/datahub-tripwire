@@ -7,7 +7,7 @@
       "demo/fraud/sql/unsafe_semantic.sql"
     ],
     "repository": "datahub-tripwire",
-    "requested_by": "examples-regen"
+    "requested_by": "phase3"
   },
   "change_facts": [
     {
@@ -170,7 +170,7 @@
   },
   "evaluations": [
     {
-      "completed_at": "2026-08-09T07:42:16.640411Z",
+      "completed_at": "2026-08-10T11:18:45.852633Z",
       "consumer": {
         "display_name": "Fraud Logistic Rule",
         "environment": "PROD",
@@ -191,12 +191,12 @@
         "model_version": "fraud-risk-calibrator/2.0.0",
         "replayed_rows": 12
       },
-      "started_at": "2026-08-09T07:42:16.640243Z",
+      "started_at": "2026-08-10T11:18:45.852490Z",
       "status": "failed",
       "summary": "Model behavior changed for 2 transaction(s)."
     },
     {
-      "completed_at": "2026-08-09T07:42:16.640461Z",
+      "completed_at": "2026-08-10T11:18:45.852692Z",
       "consumer": {
         "display_name": "Fraud Review Agent",
         "environment": "PROD",
@@ -218,7 +218,7 @@
         "model_version": "fraud-risk-calibrator/2.0.0",
         "replayed_rows": 12
       },
-      "started_at": "2026-08-09T07:42:16.640243Z",
+      "started_at": "2026-08-10T11:18:45.852490Z",
       "status": "failed",
       "summary": "Agent behavior changed for 2 transaction(s)."
     }
@@ -350,7 +350,7 @@
   },
   "run": {
     "commit_sha": "ab517f3216ee01b77397df6871ae8b9ae61e2104",
-    "created_at": "2026-08-09T07:42:16.640095Z",
+    "created_at": "2026-08-10T11:18:45.852254Z",
     "input_hashes": {
       "baseline_output_hash": "a93208d5cf6c418fb6df2e179acc603ea56a19bc687f29423a3ae448aa4e4cd4",
       "candidate": "f37601e1b6c90c8b8d8b545612d51afcaf3f605980a40b6d2087b98c59c7ae5f",

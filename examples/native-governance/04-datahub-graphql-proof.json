@@ -1,0 +1,38 @@
+{
+    "data": {
+        "dataset": {
+            "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_fraud.fraud.fct_fraud_features,PROD)",
+            "assertions": {
+                "total": 1,
+                "assertions": [
+                    {
+                        "urn": "urn:li:assertion:tripwire-protection-witness-tx-009-v1",
+                        "info": {
+                            "type": "CUSTOM",
+                            "description": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.",
+                            "customAssertion": {
+                                "type": "TRIPWIRE_PROTECTION",
+                                "logic": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action."
+                            }
+                        }
+                    }
+                ]
+            },
+            "incidents": {
+                "total": 1,
+                "incidents": [
+                    {
+                        "urn": "urn:li:incident:tripwire-1785a38bca648623466f4a25",
+                        "incidentType": "CUSTOM",
+                        "title": "Blocked: executed evidence found a critical behavior change",
+                        "status": {
+                            "state": "ACTIVE",
+                            "message": "Opened by Tripwire run tw_377cfdf2ecc47468fda1f1ef. A verified fix is available (fix_e441728a2dfcf687) but has not been applied."
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "extensions": {}
+}

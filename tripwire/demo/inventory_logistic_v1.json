@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "model_version": "stockout-risk-classifier/1.0.0",
+  "model_family": "logistic_regression",
+  "target": "stockout_probability",
+  "feature_order": [
+    "stockout_signal"
+  ],
+  "intercept": -2.1,
+  "coefficients": {
+    "stockout_signal": 4.0
+  },
+  "decision_threshold": 0.55,
+  "probability_precision": 6,
+  "provenance": {
+    "purpose": "Deterministic stockout probability for the second Tripwire vertical slice.",
+    "scoring_contract": "sigmoid(intercept + sum(coefficient[feature] * feature))",
+    "reproducibility": "Parameters and feature order are declared in this immutable JSON artifact; Tripwire records its SHA-256 digest with every prediction."
+  }
+}

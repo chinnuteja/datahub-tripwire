@@ -1,0 +1,312 @@
+{
+  "applied_protections": [],
+  "change": {
+    "base_revision": "baseline",
+    "candidate_revision": "unsafe_backorder_cap",
+    "changed_paths": [
+      "demo/inventory/sql/unsafe_backorder_cap.sql"
+    ],
+    "repository": "datahub-tripwire",
+    "requested_by": "examples"
+  },
+  "change_facts": [
+    {
+      "after_expression": "CASE WHEN days_of_stock <= 3 THEN 0.34 WHEN days_of_stock <= 7 THEN 0.22 WHEN days_of_stock <= 14 THEN 0.10 ELSE 0.00 END + CASE WHEN COALESCE(lead_time_days, 45) >= 30 THEN 0.20 WHEN COALESCE(lead_time_days, 45) >= 14 THEN 0.10 ELSE 0.00 END + CASE supplier_reliability WHEN 'low' THEN 0.20 WHEN 'medium' THEN 0.08 ELSE 0.00 END + LEAST(open_backorders, 2) * 0.09 + CASE WHEN is_seasonal THEN 0.07 ELSE 0.00 END - CASE WHEN is_discontinued THEN 0.12 ELSE 0.00 END AS raw_stockout_signal",
+      "before_expression": "CASE WHEN days_of_stock <= 3 THEN 0.34 WHEN days_of_stock <= 7 THEN 0.22 WHEN days_of_stock <= 14 THEN 0.10 ELSE 0.00 END + CASE WHEN COALESCE(lead_time_days, 45) >= 30 THEN 0.20 WHEN COALESCE(lead_time_days, 45) >= 14 THEN 0.10 ELSE 0.00 END + CASE supplier_reliability WHEN 'low' THEN 0.20 WHEN 'medium' THEN 0.08 ELSE 0.00 END + LEAST(open_backorders, 3) * 0.09 + CASE WHEN is_seasonal THEN 0.07 ELSE 0.00 END - CASE WHEN is_discontinued THEN 0.12 ELSE 0.00 END AS raw_stockout_signal",
+      "dialect": "duckdb",
+      "fact_id": "chg_9dd1b203c5da60ac",
+      "kind": "projection",
+      "operation": "modified",
+      "parser_version": "sqlglot/30.15.0"
+    }
+  ],
+  "context": [],
+  "counterexample": {
+    "accepted_simplifications": 1,
+    "baseline": {
+      "action": "review",
+      "agent_version": "replenishment-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "days_of_stock": 10,
+          "lead_time_days": 30,
+          "open_backorders": 3,
+          "stockout_signal": 0.65,
+          "supplier_reliability": 1,
+          "unit_cost_usd": 10.0
+        },
+        "model_artifact_hash": "9d63f04e7a1746b7c9195d04e532a4e61a998de46852b76c23699fa2ddcac41a",
+        "model_version": "stockout-risk-classifier/1.0.0",
+        "predicted_fraud": true,
+        "probability": 0.622459,
+        "threshold": 0.55,
+        "transaction_id": "SKU-0102"
+      },
+      "reason_codes": [
+        "MODEL_THRESHOLD_EXCEEDED"
+      ],
+      "transaction_id": "SKU-0102"
+    },
+    "candidate": {
+      "action": "approve",
+      "agent_version": "replenishment-agent/1.0.0",
+      "model_result": {
+        "feature_values": {
+          "days_of_stock": 10,
+          "lead_time_days": 30,
+          "open_backorders": 3,
+          "stockout_signal": 0.56,
+          "supplier_reliability": 1,
+          "unit_cost_usd": 10.0
+        },
+        "model_artifact_hash": "9d63f04e7a1746b7c9195d04e532a4e61a998de46852b76c23699fa2ddcac41a",
+        "model_version": "stockout-risk-classifier/1.0.0",
+        "predicted_fraud": false,
+        "probability": 0.534943,
+        "threshold": 0.55,
+        "transaction_id": "SKU-0102"
+      },
+      "reason_codes": [
+        "MODEL_BELOW_REVIEW_THRESHOLD"
+      ],
+      "transaction_id": "SKU-0102"
+    },
+    "minimization_attempts": 3,
+    "replay_hash": "b4705464cef323732a0b4136799b58d85d9045de0bc6d611094954ac69b98c39",
+    "transaction": {
+      "days_of_stock": 10,
+      "is_discontinued": false,
+      "is_seasonal": false,
+      "lead_time_days": 30,
+      "open_backorders": 3,
+      "sku_id": "SKU-0102",
+      "supplier_reliability": "medium",
+      "unit_cost_usd": 10.0
+    },
+    "violated_invariant": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.",
+    "witness_id": "witness-sku-0102"
+  },
+  "coverage": {
+    "completed_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "critical_consumers": [
+      {
+        "display_name": "Stockout Risk Classifier",
+        "environment": null,
+        "kind": "ml_model",
+        "platform": null,
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,stockout_risk_classifier,PROD)"
+      },
+      {
+        "display_name": "Replenishment Agent",
+        "environment": null,
+        "kind": "data_job",
+        "platform": null,
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_inventory_agents,PROD),replenishment_agent)"
+      }
+    ],
+    "gaps": [],
+    "required_operations": [
+      "get_entities",
+      "get_lineage",
+      "list_schema_fields"
+    ],
+    "status": "complete"
+  },
+  "evaluations": [
+    {
+      "completed_at": "2026-08-09T13:59:20.347396Z",
+      "consumer": {
+        "display_name": "Stockout Risk Classifier",
+        "environment": null,
+        "kind": "ml_model",
+        "platform": null,
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,stockout_risk_classifier,PROD)"
+      },
+      "critical": true,
+      "evaluation_id": "model-1",
+      "evaluator_version": "fraud-behavior-evaluator/1.0.0",
+      "kind": "model",
+      "observations": {
+        "changed_transaction_ids": [
+          "SKU-0102",
+          "SKU-0103",
+          "SKU-0106",
+          "SKU-0108",
+          "SKU-0109"
+        ],
+        "model_artifact_hash": "9d63f04e7a1746b7c9195d04e532a4e61a998de46852b76c23699fa2ddcac41a",
+        "model_version": "stockout-risk-classifier/1.0.0",
+        "replayed_rows": 10
+      },
+      "started_at": "2026-08-09T13:59:20.347232Z",
+      "status": "failed",
+      "summary": "Model behavior changed for 5 transaction(s)."
+    },
+    {
+      "completed_at": "2026-08-09T13:59:20.347448Z",
+      "consumer": {
+        "display_name": "Replenishment Agent",
+        "environment": null,
+        "kind": "data_job",
+        "platform": null,
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_inventory_agents,PROD),replenishment_agent)"
+      },
+      "critical": true,
+      "evaluation_id": "agent-2",
+      "evaluator_version": "fraud-behavior-evaluator/1.0.0",
+      "kind": "agent",
+      "observations": {
+        "agent_version": "replenishment-agent/1.0.0",
+        "changed_transaction_ids": [
+          "SKU-0102",
+          "SKU-0108"
+        ],
+        "model_artifact_hash": "9d63f04e7a1746b7c9195d04e532a4e61a998de46852b76c23699fa2ddcac41a",
+        "model_version": "stockout-risk-classifier/1.0.0",
+        "replayed_rows": 10
+      },
+      "started_at": "2026-08-09T13:59:20.347232Z",
+      "status": "failed",
+      "summary": "Agent behavior changed for 2 transaction(s)."
+    }
+  ],
+  "limitations": [
+    "The Phase 1 evaluator covers the DuckDB inventory vertical slice only.",
+    "Safety is bounded by the consumers and lineage returned in Context Coverage.",
+    "Context provider was recorded-test-context, not live DataHub MCP."
+  ],
+  "lineage": [
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "inventory features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_inventory.supply.fct_inventory_features,PROD)"
+        },
+        {
+          "display_name": "Stockout Risk Classifier",
+          "environment": null,
+          "kind": "ml_model",
+          "platform": null,
+          "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,stockout_risk_classifier,PROD)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    },
+    {
+      "authority": "datahub_mcp",
+      "nodes": [
+        {
+          "display_name": "inventory features",
+          "environment": null,
+          "kind": "dataset",
+          "platform": null,
+          "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_inventory.supply.fct_inventory_features,PROD)"
+        },
+        {
+          "display_name": "Replenishment Agent",
+          "environment": null,
+          "kind": "data_job",
+          "platform": null,
+          "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_inventory_agents,PROD),replenishment_agent)"
+        }
+      ],
+      "operation": "get_lineage",
+      "truncated": false
+    }
+  ],
+  "owner_routes": [],
+  "proposed_protection": {
+    "affected_entities": [
+      {
+        "display_name": "inventory features",
+        "environment": null,
+        "kind": "dataset",
+        "platform": null,
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_inventory.supply.fct_inventory_features,PROD)"
+      },
+      {
+        "display_name": "Stockout Risk Classifier",
+        "environment": null,
+        "kind": "ml_model",
+        "platform": null,
+        "urn": "urn:li:mlModel:(urn:li:dataPlatform:tripwire,stockout_risk_classifier,PROD)"
+      },
+      {
+        "display_name": "Replenishment Agent",
+        "environment": null,
+        "kind": "data_job",
+        "platform": null,
+        "urn": "urn:li:dataJob:(urn:li:dataFlow:(tripwire,tripwire_inventory_agents,PROD),replenishment_agent)"
+      }
+    ],
+    "approved_at": null,
+    "approved_by": null,
+    "fixture": {
+      "days_of_stock": 10,
+      "is_discontinued": false,
+      "is_seasonal": false,
+      "lead_time_days": 30,
+      "open_backorders": 3,
+      "sku_id": "SKU-0102",
+      "supplier_reliability": "medium",
+      "unit_cost_usd": 10.0
+    },
+    "invariant": "Replaying the same transaction must preserve the fraud model output and Fraud Review Agent action.",
+    "name": "Preserve fraud review behavior for the discovered witness",
+    "protection_id": "protection-witness-sku-0102",
+    "source_change_id": "tw_2557333bfdeaaf454aed6af4",
+    "status": "proposed",
+    "version": 1
+  },
+  "reason_codes": [
+    "CRITICAL_BEHAVIOR_REGRESSION"
+  ],
+  "remediation": null,
+  "resolved_entity": {
+    "display_name": "inventory features",
+    "environment": null,
+    "kind": "dataset",
+    "platform": null,
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:duckdb,tripwire_inventory.supply.fct_inventory_features,PROD)"
+  },
+  "run": {
+    "commit_sha": "ab517f3216ee01b77397df6871ae8b9ae61e2104",
+    "created_at": "2026-08-09T13:59:20.347042Z",
+    "input_hashes": {
+      "baseline_output_hash": "c1ecff32451132596259410d93a39c4b641051276e128b5ba31ea88aef9e9f3e",
+      "candidate": "8578916e7376070c3a72254255c632531d929324c22a6c26381b7852b7354be5",
+      "candidate_error": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "candidate_output_hash": "06891f312e66e2929417982afa2144d7f5d7064d74ee761c8a298c75a6b59a77",
+      "change_facts": "132cdada16e30530ba2aedb1d0984e618767d455a2e681e8e9f5b2663cea5c66",
+      "context": "773fb87b48c78fdf70df2845a356e051ca0539f6600fa77b95e86f4f50aa1d1c",
+      "resolved_entity": "ade217f8a804484ad63952ad7e57b24f5f1aa3075ebee3b7653b56bb0f678ba9"
+    },
+    "policy_version": "tripwire-policy/1.0.0",
+    "run_id": "tw_2557333bfdeaaf454aed6af4",
+    "tool_versions": {
+      "datahub-sdk": "1.7.0",
+      "duckdb": "1.5.5",
+      "mcp": "1.29.0",
+      "tripwire": "0.1.0"
+    }
+  },
+  "schema_version": "1.1.0",
+  "scope_accounting": {
+    "completed_operations": 3,
+    "critical_consumers_discovered": 2,
+    "critical_consumers_evaluated": 2,
+    "lineage_frontier_complete": true,
+    "required_operations": 3,
+    "unresolved_gaps": 0
+  },
+  "verdict": "UNSAFE"
+}

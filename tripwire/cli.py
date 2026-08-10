@@ -21,6 +21,7 @@ from tripwire.change import (
     render_dbt_sql_for_analysis,
 )
 from tripwire.config import load_settings
+from tripwire.demo import resolve_slice
 from tripwire.demo.fraud import build_demo_world, replay_fraud_transaction, write_demo_build
 from tripwire.domain import ChangePassport, EntityKind, Protection, Verdict
 from tripwire.memory import (
@@ -77,8 +78,15 @@ def version() -> None:
 def assess(
     candidate: Annotated[
         str,
-        typer.Option(help="Candidate SQL scenario under demo/fraud/sql."),
+        typer.Option(help="Candidate SQL scenario under the slice's sql directory."),
     ] = "unsafe_semantic",
+    slice_name: Annotated[
+        str,
+        typer.Option(
+            "--slice",
+            help="Vertical slice to evaluate. Both slices share one evaluator.",
+        ),
+    ] = "fraud",
     urn: Annotated[
         str,
         typer.Option(help="Exact changed DataHub dataset URN."),
@@ -116,8 +124,15 @@ def assess(
             typer.echo(f"Live DataHub MCP context retrieval failed: {exc}", err=True)
             raise typer.Exit(code=2) from None
 
-    baseline_path = settings.demo_dir / "sql" / "baseline.sql"
-    candidate_path = settings.demo_dir / "sql" / f"{candidate}.sql"
+    try:
+        spec = resolve_slice(slice_name)
+    except KeyError:
+        typer.echo(f"Unknown slice: {slice_name!r}", err=True)
+        raise typer.Exit(code=2) from None
+    demo_dir = settings.demo_dir if spec.name == "fraud" else Path("demo") / spec.name
+
+    baseline_path = demo_dir / "sql" / "baseline.sql"
+    candidate_path = demo_dir / "sql" / f"{candidate}.sql"
     try:
         baseline_sql = baseline_path.read_text(encoding="utf-8")
         candidate_sql = candidate_path.read_text(encoding="utf-8")
@@ -126,12 +141,12 @@ def assess(
         typer.echo(f"Candidate SQL analysis failed: {exc}", err=True)
         raise typer.Exit(code=2) from None
 
-    service = AssessmentService(root=Path.cwd(), demo_dir=settings.demo_dir)
+    service = AssessmentService(root=Path.cwd(), demo_dir=demo_dir, spec=spec)
     passport = service.assess(
         candidate=candidate,
         context=snapshot,
         requested_by=requested_by,
-        changed_path=f"demo/fraud/sql/{candidate}.sql",
+        changed_path=f"{demo_dir.as_posix()}/sql/{candidate}.sql",
         resolved_entity=snapshot.root,
         change_facts=change_facts,
         baseline_sql=baseline_sql,
@@ -635,6 +650,11 @@ def protection_approve(
                 "datahub_protection_urn": receipt.protection_urn,
                 "datahub_passport_urn": receipt.passport_urn,
                 "attached_entities": len(receipt.attached_entities),
+                # Native DataHub governance surfaces, not Tripwire-invented assets.
+                "datahub_assertion_urn": receipt.assertion_urn,
+                "datahub_assertion_result": receipt.assertion_result,
+                "datahub_incident_urn": receipt.incident_urn,
+                "datahub_incident_state": receipt.incident_state,
                 "artifact": str(protection_target),
                 "receipt": str(receipt_target),
             },

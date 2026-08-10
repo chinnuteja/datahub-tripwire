@@ -41,7 +41,7 @@ packages = ["tripwire"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--strict-markers --basetemp=.pytest-tmp"
+addopts = "--strict-markers"
 markers = [
   "integration: requires live external services such as DataHub",
 ]
@@ -68,4 +68,4 @@ omit = [
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 85
+fail_under = 90
